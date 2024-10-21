@@ -1,0 +1,186 @@
+﻿@page "/weather"
+@inject HttpClient Http
+@inherits PageComponentBase
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@{
+//this will be used to define data grid columns
+    Dictionary<string, string> firstInstance = null;
+    if (TableData is not null)
+    {
+         firstInstance = TableData.Data.FirstOrDefault();        
+    }
+}
+
+@if (forecasts == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <MudTable Items="@forecasts">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Temp. (F)</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Date.ToShortDateString()</MudTd>
+            <MudTd>@context.TemperatureC</MudTd>
+            <MudTd>@context.TemperatureF</MudTd>
+            <MudTd>@context.Summary</MudTd>
+            <MudTd><MudButton OnClick="(() => Remove(null))">Remove</MudButton></MudTd>
+        </RowTemplate>
+    </MudTable>
+    
+    <MudDataGrid @ref="dataGrid" T="Dictionary<string, string>" Items="TableData.Data">
+        <Columns>
+            @if(firstInstance is null)
+            {
+                return;
+            }
+        
+            @foreach(var i in firstInstance)
+            {
+                <TemplateColumn @key="i">
+                    <HeaderTemplate>
+                        @i.Key
+                    </HeaderTemplate>
+                    <CellTemplate>
+                        <MudTextField @bind-Value="@context.Item[i.Key]"/>
+                    </CellTemplate>
+                </TemplateColumn>
+            } 
+        </Columns>
+    </MudDataGrid>
+    
+    <MudDataGrid @ref="dataGrid" T="Dictionary<string, string>" Items="TableData.Data">
+        <Columns>
+            @if(firstInstance is null)
+            {
+                return;
+            }
+        
+            @foreach(var i in firstInstance)
+            {
+                <TemplateColumn @key="i">
+                    <HeaderTemplate>
+                        @i.Key
+                    </HeaderTemplate>
+                    <CellTemplate>
+                        <MudTextField @bind-Value="@context.Item[i.Key]"/>
+                    </CellTemplate>
+                </TemplateColumn>
+            } 
+        </Columns>
+    </MudDataGrid>
+    
+    <MudDataGrid @ref="dataGrid" T="Dictionary<string, string>" Items="TableData.Data">
+        <Columns>
+            @if(firstInstance is null)
+            {
+                return;
+            }
+        
+            @foreach(var i in firstInstance)
+            {
+                <TemplateColumn @key="i">
+                    <HeaderTemplate>
+                        @i.Key
+                    </HeaderTemplate>
+                    <CellTemplate>
+                        <MudTextField @bind-Value="@context.Item[i.Key]"/>
+                    </CellTemplate>
+                </TemplateColumn>
+            } 
+        </Columns>
+    </MudDataGrid>
+}
+
+<MudOverlay @bind-Visible="ProgressVisible" DarkBackground="true" ZIndex="9999">
+    <MudItem xs="12" Class="d-flex align-center">
+        <MudProgressCircular Indeterminate="true" />
+    </MudItem>
+</MudOverlay>
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    private string[] headers = new[]
+    {
+        "ko-kr", "en-us", "ja-jp"
+    };
+    
+    public string[] values = new[]
+    {
+        "안녕하세요.", "hello", "halo"
+    };
+    
+    public List<LanguageRow> LanguageRows { get; set; } = new List<LanguageRow>()
+    {
+        new LanguageRow()
+        {
+            Text1 = "안녕하세요.",
+            Text2 = "hello",
+            Text3 = "halo",
+        },
+    };
+
+    protected override Task Remove(Func<Task> func)
+    {
+        func = async () => await Task.Delay(1000);
+        return base.Remove(func);
+    }
+
+    private MudDataGrid<Dictionary<string, string>> dataGrid = null;
+    public TableData TableData { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        
+        dataGrid?.RenderedColumns.Clear();
+        await Task.Delay(10);
+        TableData = TableData.SeedData().FirstOrDefault(x => x.TableId == 1);
+    }
+
+    public class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+
+
+
+    public class LanguageDto
+    {
+        public string[] Header { get; set; } = new[]
+        {
+            "ko-kr", "en-us", "sp-sa"
+        };
+
+
+    }
+
+    public class LanguageRow
+    {
+        public string Text1 { get; set; }
+        public string Text2 { get; set; }
+        public string Text3 { get; set; }
+        public string Text4 { get; set; }
+        public string Text5 { get; set; }
+    }
+}

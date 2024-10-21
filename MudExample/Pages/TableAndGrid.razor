@@ -1,0 +1,121 @@
+@page "/tableandgrid"
+@using System.Text.Json
+
+<MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="1">
+    <MudMenu Label="옵션" Variant="Variant.Filled" Color="Color.Primary" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.TopLeft" Dense>
+        <MudMenuItem Class="px-2 py-0 rounded">
+            <MudToggleIconButton @bind-Toggled="@CanAlert"
+                                 Icon="@Icons.Material.Filled.AlarmOff" Color="@Color.Error" Title="Off"
+                                 ToggledIcon="@Icons.Material.Filled.AlarmOn" ToggledColor="@Color.Success" ToggledTitle="On"/>
+        </MudMenuItem>
+    </MudMenu>        
+</MudPaper>
+<br/>
+<MudPaper Class="d-flex justify-start flex-grow-1 gap-4" Elevation="1">
+    <MudTextField @bind-Value="Text1" Label="검색어1" Variant="Variant.Filled" Margin="Margin.Dense"/>
+    <MudTextField @bind-Value="Text1" Label="검색어2" Variant="Variant.Filled" Margin="Margin.Dense"/>
+    <MudTextField @bind-Value="Text1" Label="검색어3" Variant="Variant.Filled" Margin="Margin.Dense"/>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary">검색</MudButton>
+</MudPaper>
+<br/>
+<MudTable Items="_data" T="DataRow" MultiSelection="true" @bind-SelectedItems="selectedItems"
+          ReadOnly="false" CanCancelEdit="true"
+          OnRowClick="@OnRowClick" @bind-SelectOnRowClick="@_selectOnRowClick">
+    <ColGroup>
+        <col style="width:5%;"/>
+        @foreach (var header in _headers)
+        {
+            <col style="width:20%;"/>
+        }
+    </ColGroup>    
+    <HeaderContent>
+        @foreach (var header in _headers)
+        {
+            <MudTh>@header</MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        @foreach (var header in _headers)
+        {
+            <MudTd>@context.Data[header]</MudTd>
+        }
+    </RowTemplate>
+    <RowEditingTemplate>        
+        @foreach (var header in _headers)
+        {
+            @if (context.Primary.Key == header)
+            {
+                <MudTd DataLabel="@header"
+                       Style="overflow-wrap:break-word;max-width:20px;">
+                    <MudStack Row="true">
+                        <MudTextField @bind-Value="@context.Data[header]" Required/>
+                        <MudButton>변환</MudButton>
+                    </MudStack>
+                </MudTd>                
+            }
+            else
+            {
+                <MudTd DataLabel="@header"
+                       Style="overflow-wrap:break-word;max-width:20px;">
+                    <MudStack Row="true">
+                        <MudTextField @bind-Value="@context.Data[header]" Required/>
+                        <MudButton>질의</MudButton>
+                    </MudStack>
+                </MudTd>                
+            }
+        }
+    </RowEditingTemplate>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
+    </EditButtonContent>
+</MudTable>
+
+@code {
+    string Text1 { get; set; }
+    bool CanAlert { get; set; }
+    private string[] _headers = new[]
+    {
+        "ko-kr", "en-us", "ja-jp", "en-uk", "en-au"
+    };
+    private List<DataRow> _data = new() 
+    {
+        new DataRow(1, new Dictionary<string, string>()
+        {
+            {"ko-kr", "안녕"},
+            {"en-us", "hello"},
+            {"ja-jp", "こんにちは。"},
+            {"en-uk", "hello"},
+            {"en-au", "hello"}
+        }),
+        new DataRow(2, new Dictionary<string, string>()
+        {
+            {"ko-kr", "안녕2"},
+            {"en-us", "hello2"},
+            {"ja-jp", "こんにちは。2"},
+            {"en-uk", "hello2"},
+            {"en-au", "hello2"}            
+        })        
+    };
+    
+    private HashSet<DataRow> selectedItems = new HashSet<DataRow>();
+    private IEnumerable<DataRow> Elements = new List<DataRow>();
+    private bool _selectOnRowClick = true;
+    
+    void OnRowClick(TableRowClickEventArgs<DataRow> args)
+    {
+        Console.WriteLine($"{args.Item.Id} ({JsonSerializer.Serialize(args.Item.Data)})");
+    }
+    
+    public class DataRow
+    {
+        public int Id { get; set; }
+        public KeyValuePair<string, string> Primary => this.Data.First();
+        public Dictionary<string, string> Data { get; set; }
+
+        public DataRow(int id, Dictionary<string, string> data)
+        {
+            Id = id;
+            Data = data;
+        }
+    }
+}

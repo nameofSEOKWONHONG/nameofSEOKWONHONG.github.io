@@ -1,0 +1,113 @@
+﻿@inherits LayoutComponentBase
+
+<MudRTLProvider RightToLeft="false">
+<MudThemeProvider  @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode"/>
+<MudPopoverProvider />
+<MudSnackbarProvider/>
+<MudDialogProvider FullWidth="true"/>
+
+<MudLayout>
+        <MudAppBar Color="Color.Transparent" Elevation="0" Dense="false" Style="backdrop-filter: blur(12px);background-image: linear-gradient( 109.6deg,  rgba(0,182,255,0.2) 11.2%, rgba(102,51,153,0.2) 91.1% );overflow: auto;">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
+            <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+            <MudSpacer/>
+            <MudIconButton Icon="@Icons.Material.Filled.Person"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Phone"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Book"/>
+            <MudIconButton Icon="@Icons.Material.Filled.AcUnit"/>
+            <MudSpacer/>
+            <MudBadge Color="Color.Secondary" Dot="true" Overlap="true" Visible="true">
+                <MudMenu Icon="@Icons.Material.Outlined.Notifications" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter" PopoverClass="docs-layout-menu-shadow" ListClass="pa-2 docs-menu-list" LockScroll="true">
+                    <div class="d-flex justify-space-between align-center px-2">
+                        <MudText Typo="Typo.subtitle2">Notifications</MudText>
+                        <MudButton Disabled="false" StartIcon="@Icons.Material.Filled.DoneAll" Variant="Variant.Text" Color="Color.Primary" Class="ml-16 mr-n2">Mark as read</MudButton>
+                    </div>
+                    @if (_messages != null)
+                    {
+                        @foreach (var (message, isRead) in _messages.Take(5))
+                        {
+                            <MudMenuItem Class="px-2 py-0 rounded" Href="@($"/mud/announcements/{message.Id}")">
+                                <MudText Typo="Typo.subtitle2">@message.Title</MudText>
+                                <MudText Typo="Typo.body2">@($"{message.Authors.FirstOrDefault()?.DisplayName} • {message.PublishDate.ToString("MM/dd/yyyy")}")</MudText>
+                            </MudMenuItem>
+                            <MudDivider Class="my-2"/>
+                        }
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-center align-center px-2 py-8 relative">
+                            <MudText Class="mud-text-secondary my-12">Nothing new :(</MudText>
+                            <MudBlazorLogo Class="docs-logo-filter mx-16 absolute"/>
+                        </div>
+                    }
+                </MudMenu>
+            </MudBadge>
+            <MudIconButton Icon="" Color="Color.Inherit" Edge="Edge.End" OnClick="ChangeDarkMode">
+                @if (_isDarkMode)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.LightMode"/>
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.DarkMode"/>
+                }
+            </MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End">
+            </MudIconButton>
+        </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="margin: 10px 10px 0 0;">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+    <MudScrollToTop TopOffset="400" Style="z-index:2000;">
+        <MudFab StartIcon="@Icons.Material.Filled.KeyboardArrowUp" Color="Color.Primary" />
+    </MudScrollToTop>    
+</MudLayout>
+</MudRTLProvider>
+@code {
+    private IDictionary<NotificationMessage, bool> _messages = null;
+    bool _drawerOpen = true;
+    Color Color = Color.Success;
+    
+    void DrawerToggle()
+    {
+    _drawerOpen = !_drawerOpen;
+    }
+
+    private bool _isDarkMode = false;
+    private MudThemeProvider _mudThemeProvider;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+        }
+    }
+
+    void ChangeDarkMode()
+    {
+        _isDarkMode = !_isDarkMode;
+        StateHasChanged();
+    }
+    
+    private void OnScroll(ScrollEventArgs e)
+    {
+        Color = (e.FirstChildBoundingClientRect.Top*-1) switch
+        {
+            var x when x<  500 => Color.Primary,
+            var x when x < 1500 => Color.Secondary,
+            var x when x < 2500 => Color.Tertiary,
+            _=>Color.Error
+        };
+    }
+    
+    public record NotificationMessage(string Id, string Title, string Except, string Category, DateTime PublishDate, string ImgUrl, IEnumerable<NotificationAuthor> Authors, Type ContentComponent);
+    public record NotificationAuthor(string DisplayName, string AvatarUrl);    
+}
+

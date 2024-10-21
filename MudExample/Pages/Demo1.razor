@@ -1,0 +1,85 @@
+@page "/Demo1"
+@using System.Text
+@using OllamaSharp
+@inherits MudExample.PageComponentBase
+
+<PageTitle>Who I AM</PageTitle>
+
+<MudTabs Rounded="true">
+    <MudTabPanel Text="demo1">
+        <MudPaper Class="default-paper">
+            <h1>Hello, world!</h1>
+
+            Welcome to your new app.
+
+            <MudTextField @bind-Value="TextValue1" Label="Filled" Variant="Variant.Filled"/>
+            <MudTextField @bind-Value="TextValue2" Label="Filled" Variant="Variant.Filled"/>
+            <MudButton OnClick="Click">Click Me</MudButton>            
+        </MudPaper>
+    </MudTabPanel>
+    <MudTabPanel Text="demo2">
+        <MudPaper>
+            <h2>demo2</h2>    
+        </MudPaper>
+    </MudTabPanel>
+</MudTabs>
+
+<MudOverlay @bind-Visible="ProgressVisible" DarkBackground="true" ZIndex="9999" >
+    <MudItem xs="12" Class="d-flex align-center">
+        <MudProgressCircular Indeterminate="true" />
+    </MudItem>
+</MudOverlay>
+
+@code {
+    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] private IOllamaApiClient Ollama { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; }
+
+    private string TextValue1 = "\"처리 가능한 문자 제한인 {0}자를 초과했습니다.\" Translate Korean into Japanish. (Translate only)";
+    private string TextValue2;
+    private Chat chat;
+    private StringBuilder sb = new StringBuilder();
+    protected override async Task OnInitializedAsync()
+    {
+        var models = await Ollama.ListLocalModels();
+        var modelsWithBackChoice = models.OrderBy(m => m.Name).Select(m => m.Name).ToList();
+        Ollama.SelectedModel = modelsWithBackChoice.Last();
+        chat = Ollama.Chat(stream =>
+        {
+            if (!stream.Done)
+            {
+                sb.Append(stream.Message?.Content ?? "");
+            }
+            else
+            {
+                this.TextValue2 = sb.ToString();
+                sb.Clear();
+                this.StateHasChanged();
+                // Snackbar.Add("chat is gone!", Severity.Info, 
+                //     config =>
+                //     {
+                //         config.Icon = Icons.Custom.Brands.GitHub;
+                //         config.IconColor = Color.Warning;
+                //         config.IconSize = Size.Large;
+                //     });
+                this.CloseProgress();
+            }
+        });
+    }
+
+    private async Task Click()
+    {
+        this.ShowProgress();
+        // Snackbar.Add("chat is start!", Severity.Info,
+        //     config =>
+        //     {
+        //         config.Icon = Icons.Custom.Brands.GitHub;
+        //         config.IconColor = Color.Warning;
+        //         config.IconSize = Size.Large;
+        //     });
+        this.TextValue2 = string.Empty;
+        await chat.Send(this.TextValue1);
+    }
+    
+    
+}
