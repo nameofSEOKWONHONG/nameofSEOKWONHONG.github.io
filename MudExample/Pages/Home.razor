@@ -6,22 +6,25 @@
 <MudTabs Rounded="true">
     <MudTabPanel Text="Me">
         <MudPaper Class="default-paper">
-            <h1>안녕하세요. @me.Name 입니다.</h1>
-            <MudTextField @bind-Value="me.Birth" Label="@nameof(me.Birth)" Variant="Variant.Filled"/>
-            <MudTextField @bind-Value="me.Gender" Label="@nameof(me.Gender)" Variant="Variant.Filled"/>
-            <MudTextField @bind-Value="me.Email" Label="@nameof(me.Email)" Variant="Variant.Filled"/>
+            <h1>안녕하세요. @_me.Name 입니다.</h1>
+            <MudTextField @bind-Value="_me.Name" Label="@nameof(_me.Name)" Variant="Variant.Outlined"/>
+            <MudDatePicker Label="@nameof(_me.Birth)" @bind-Date="_me.Birth"/>
+            <MudTextField @bind-Value="_me.Gender" Label="@nameof(_me.Gender)" Variant="Variant.Outlined"/>
+            <MudTextField @bind-Value="_me.Email" Label="@nameof(_me.Email)" Variant="Variant.Filled"/>
             @{
-                var mailto = $"mailto:{me.Email}";
+                var mailto = $"mailto:{_me.Email}";
             }
-            <div style="text-align-last: end;">
-                <a type="button" class="mud-button-root mud-button mud-button-filled mud-button-filled-primary mud-button-filled-size-medium mud-ripple" href="@mailto">Send Email</a>    
+            <div Class="d-flex justify-end flex-grow-1 gap-4" >
+                <MudIconButton Class="btn-primary" Href="@mailto" Icon="@Icons.Material.Filled.Email">Send Email</MudIconButton>
             </div>
         </MudPaper>
+        <br/>
         <MudPaper Class="mud-paper">
-            <label>바인딩</label>
-            <MudText>@me.Birth</MudText>
-            <MudText>@me.Gender</MudText>
-            <MudText>@me.Email</MudText>
+            <h1>[Data Binding]</h1>
+            <MudText>@nameof(_me.Name): @_me.Name</MudText>
+            <MudText>@nameof(_me.Birth): @_me.Birth?.ToString("yyyy-MM-dd")</MudText>
+            <MudText>@nameof(_me.Gender): @_me.Gender</MudText>
+            <MudText>@nameof(_me.Email): @_me.Email</MudText>
         </MudPaper>
     </MudTabPanel>
     <MudTabPanel Text="History">
@@ -126,22 +129,22 @@
 </MudTabs>
 
 @code {
-    Person me = new Person();
+    private Person _me;
 
     protected override void OnInitialized()
     {
-        me = new Person();
-        me.Name = "홍석원";
-        me.Birth = "1982";
-        me.Gender = "남성";
-        me.Email = "h20913@gmail.com";
+        _me = new Person();
+        _me.Name = "홍석원";
+        _me.Birth = new DateTime(1982, 2, 1);
+        _me.Gender = "남성";
+        _me.Email = "h20913@gmail.com";
         base.OnInitialized();
     }
 
     class Person
     {
         public string Name { get; set; }
-        public string Birth { get; set; }
+        public DateTime? Birth { get; set; }
         public string Gender { get; set; }
         public string Email { get; set; }
     }

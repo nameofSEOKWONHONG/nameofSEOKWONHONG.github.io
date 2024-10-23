@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using MudExample.Pages;
 
 namespace MudExample;
 
 public abstract class PageComponentBase : ComponentBase
 {
     [Parameter] public RenderFragment ChildContent {get;set;}
-    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] protected IDialogService DialogService { get; set; }
+    [Inject] protected ISnackbar Snackbar { get; set; }
     protected bool ProgressVisible { get; set; }
 
     protected void ShowProgress()
@@ -27,7 +29,8 @@ public abstract class PageComponentBase : ComponentBase
             "Warning", 
             "Deleting can not be undone!", 
             yesText:"Delete!", cancelText:"Cancel");
-        var state = result == null ? "Canceled" : "Deleted!";
+        if(result == null) return;
+        
         this.ShowProgress();
         await func();
         this.CloseProgress();
