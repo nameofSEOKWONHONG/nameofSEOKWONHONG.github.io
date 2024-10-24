@@ -37,5 +37,4 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var service = scope.ServiceProvider.GetRequiredService<MenuViewModel>();
 service.Initialize();
-
 await app.RunAsync();

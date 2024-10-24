@@ -21,4 +21,13 @@
       <None Include="wwwroot\.nojekyll" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Services\" />
+      <Folder Include="wwwroot\images\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="C:\Users\h2091\.nuget\packages\extensionsharp\1.0.1.12\contentFiles\any\net8.0\README.md" />
+    </ItemGroup>
+
 </Project>

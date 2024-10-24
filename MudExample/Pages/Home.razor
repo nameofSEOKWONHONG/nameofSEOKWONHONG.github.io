@@ -129,18 +129,22 @@
 </MudTabs>
 
 @code {
+    [Inject] HttpClient Http { get; set; }
+    [Inject] IJSRuntime JSRuntime { get; set; }
     private Person _me;
 
-    protected override void OnInitialized()
+    string base64String;
+    protected override async Task OnInitializedAsync()
     {
         _me = new Person();
         _me.Name = "홍석원";
         _me.Birth = new DateTime(1982, 2, 1);
         _me.Gender = "남성";
-        _me.Email = "h20913@gmail.com";
-        base.OnInitialized();
+        _me.Email = "h20913@gmail.com";        
+        // var bytes = await Http.GetByteArrayAsync("/images/certification-aws-architecting_on_aws.pdf");
+        // base64String = Convert.ToBase64String(bytes);
     }
-
+    
     class Person
     {
         public string Name { get; set; }

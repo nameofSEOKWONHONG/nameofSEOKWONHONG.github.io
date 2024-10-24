@@ -143,50 +143,42 @@
     decimal _currentEuroValue;
     private async Task ReadCurrencyStreamAsync()
     {
-        // Wait asynchronously for data to become available
         while (true)
         {
-            // Read all currently available data synchronously, before waiting for more data
-            while (true)
-            {
-                await Task.Delay(1000);
-                
-                var date = DateTime.Now;
+            await Task.Delay(1000);
+            
+            var date = DateTime.Now;
 
-                var yenDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
-                var euroDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
-                
-                _currentYenValue = Math.Max(0.5M, _currentYenValue + yenDecimals);
-                _currentEuroValue = Math.Max(0.5M, _currentEuroValue + euroDecimals);                
-        
-                var min = date.ToString("HH:mm:ss");
-                var item1 = new DataItem(min, _currentYenValue);
-                var item2 = new DataItem(min, _currentEuroValue); 
-                
-                _yenSeries.Add(item1);
-                _euroSeries.Add(item2);
+            var yenDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
+            var euroDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
+            
+            _currentYenValue = Math.Max(0.5M, _currentYenValue + yenDecimals);
+            _currentEuroValue = Math.Max(0.5M, _currentEuroValue + euroDecimals);                
+    
+            var min = date.ToString("HH:mm:ss");
+            var item1 = new DataItem(min, _currentYenValue);
+            var item2 = new DataItem(min, _currentEuroValue); 
+            
+            _yenSeries.Add(item1);
+            _euroSeries.Add(item2);
 
-                await _lineChart.UpdateSeriesAsync();
-            }
+            await _lineChart.UpdateSeriesAsync();
         }
     }
     
     private async Task ReadVariationStreamAsync()
     {
-        // Wait asynchronously for data to become available
         while (true)
         {
-            await Task.Delay(200);
-            // Read all currently available data synchronously, before waiting for more data
-            while (true)
-            {
-                await Task.Delay(200);
-                var min = DateTime.Now.ToString("mm");
-                var item1 = new DataItem(min, Random.Shared.Next(1, 100));
-                _radialData[0] = item1;
+            await Task.Delay(1000);
+            var date = DateTime.Now;
+            var min = date.ToString("HH:mm:ss");
+            var v = _currentYenValue * 100;
+            if (v >= 100) v = 100;
+            var item1 = new DataItem(min, v);
+            _radialData[0] = item1;
 
-                await _radialChart.UpdateSeriesAsync();
-            }
+            await _radialChart.UpdateSeriesAsync();
         }
     }
     
