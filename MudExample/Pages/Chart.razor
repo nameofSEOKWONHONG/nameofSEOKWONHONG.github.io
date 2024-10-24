@@ -1,0 +1,196 @@
+﻿@page "/chart"
+@using System.Security.Cryptography
+@using System.Threading.Channels
+@using ApexCharts
+
+<div class="chart-container">
+    <div class="radial-chart">
+        <ApexChart TItem="DataItem"
+                   Title="Transactions"
+                   Options="@_radialChartOptions"
+                   @ref="_radialChart">
+
+            <ApexPointSeries TItem="DataItem"
+                             Items="_radialData"
+                             SeriesType="SeriesType.RadialBar"
+                             Name="Variation"
+                             XValue="@(e => "Variation")"
+                             YAggregate="@(e => e.Average(e => e.Value))" />
+        </ApexChart>
+    </div>
+
+    <div class="line-chart">
+        <ApexChart TItem="DataItem"
+                   Title="Currency Exchange Rates in USD"
+                   Options="@_lineChartOptions"
+                   @ref="_lineChart">
+
+            <ApexPointSeries TItem="DataItem"
+                             Items="_yenSeries"
+                             Name="Yen"
+                             SeriesType="SeriesType.Line"
+                             XValue="@(e => e.Minute)"
+                             YAggregate="@(e => e.Sum(e => e.Value))" />
+
+            <ApexPointSeries TItem="DataItem"
+                             Items="_euroSeries"
+                             Name="Euro"
+                             SeriesType="SeriesType.Line"
+                             XValue="@(e => e.Minute)"
+                             YAggregate="@(e => e.Sum(e => e.Value))" />
+        </ApexChart>
+    </div>
+</div>
+
+@code {
+    private readonly IList<DataItem> _yenSeries = new List<DataItem>();
+    private readonly IList<DataItem> _euroSeries = new List<DataItem>();
+    private DataItem[] _radialData = default!;
+    private ApexChart<DataItem> _radialChart = default!;
+    private ApexChart<DataItem> _lineChart = default!;
+    private ApexChartOptions<DataItem> _lineChartOptions = new ApexChartOptions<DataItem>
+    {
+        Theme = new Theme()
+        {
+          Mode = Mode.Dark,
+          Monochrome = new ThemeMonochrome()
+          {
+              Enabled = false
+          }
+        },
+        Chart = new ApexCharts.Chart
+        {
+            Animations = new()
+            {
+                Enabled = true,
+                Easing = Easing.Linear,
+                DynamicAnimation = new()
+                {
+                    Speed = 1000
+                }
+            },
+            Toolbar = new()
+            {
+                Show = false
+            },
+            Zoom = new()
+            { 
+                Enabled = false
+            }
+        },
+        Stroke = new Stroke { Curve = Curve.Straight },
+        Xaxis = new()
+        {
+            Range = 12
+        },
+        Yaxis = new()
+        {
+            new()
+            {
+                DecimalsInFloat = 2,
+                TickAmount = 5,
+                Min = 0,
+                Max = 5
+            }
+        }
+    };
+    
+    private ApexChartOptions<DataItem> _radialChartOptions = new ApexChartOptions<DataItem>
+    {
+        Theme = new Theme()
+        {
+          Mode = Mode.Dark
+        },
+        PlotOptions = new()
+        {
+            RadialBar = new()
+            {
+                StartAngle = -135,
+                EndAngle = 135
+            }
+        },
+        Stroke = new()
+        {
+            DashArray = 4
+        },
+        Chart = new ApexCharts.Chart
+        {
+            Animations = new()
+            {
+                Enabled = true,
+                Easing = Easing.Linear,
+                DynamicAnimation = new()
+                {
+                    Speed = 1100
+                }
+            }
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _radialData = new DataItem[1] {
+            new(DateTime.Now.ToString("mm:ss"), 0)
+        };
+        
+        _ = ReadCurrencyStreamAsync();
+        _ = ReadVariationStreamAsync();
+
+        await Task.Delay(1000);
+    }
+
+    decimal _currentYenValue;
+    decimal _currentEuroValue;
+    private async Task ReadCurrencyStreamAsync()
+    {
+        // Wait asynchronously for data to become available
+        while (true)
+        {
+            // Read all currently available data synchronously, before waiting for more data
+            while (true)
+            {
+                await Task.Delay(1000);
+                
+                var date = DateTime.Now;
+
+                var yenDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
+                var euroDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
+                
+                _currentYenValue = Math.Max(0.5M, _currentYenValue + yenDecimals);
+                _currentEuroValue = Math.Max(0.5M, _currentEuroValue + euroDecimals);                
+        
+                var min = date.ToString("HH:mm:ss");
+                var item1 = new DataItem(min, _currentYenValue);
+                var item2 = new DataItem(min, _currentEuroValue); 
+                
+                _yenSeries.Add(item1);
+                _euroSeries.Add(item2);
+
+                await _lineChart.UpdateSeriesAsync();
+            }
+        }
+    }
+    
+    private async Task ReadVariationStreamAsync()
+    {
+        // Wait asynchronously for data to become available
+        while (true)
+        {
+            await Task.Delay(200);
+            // Read all currently available data synchronously, before waiting for more data
+            while (true)
+            {
+                await Task.Delay(200);
+                var min = DateTime.Now.ToString("mm");
+                var item1 = new DataItem(min, Random.Shared.Next(1, 100));
+                _radialData[0] = item1;
+
+                await _radialChart.UpdateSeriesAsync();
+            }
+        }
+    }
+    
+    
+    
+    public record DataItem(string Minute, decimal Value);
+}

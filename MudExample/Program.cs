@@ -30,8 +30,12 @@ builder.Services.AddMudServices(config =>
 
 builder.Services.AddScoped<IOllamaApiClient, OllamaApiClient>(sp => new OllamaApiClient("http://localhost:11434/"));
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddSingleton<MenuViewModel>();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 
 var app = builder.Build();
+using var scope = app.Services.CreateScope();
+var service = scope.ServiceProvider.GetRequiredService<MenuViewModel>();
+service.Initialize();
 
 await app.RunAsync();
