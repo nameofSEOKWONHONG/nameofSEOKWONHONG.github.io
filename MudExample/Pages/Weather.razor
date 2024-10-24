@@ -5,6 +5,17 @@
 @using MudExample.Data
 @inherits PageComponentBase
 
+<style type="text/css">
+    .mud-table-head .header-centered th {
+        text-align: center;
+        font-size: 1.2em;
+    }
+
+    .mud-table-foot .bold-text .mud-table-cell {
+        font-weight: 500;
+    }
+</style>
+
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
@@ -24,7 +35,7 @@ else
         <MudButton OnClick="@(() => Remove(null))">REMOVE</MudButton>
     </MudPaper>
     <br/>
-    <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems">
+    <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
         <HeaderContent>
             <MudTh>Date</MudTh>
             <MudTh>Temp. (C)</MudTh>

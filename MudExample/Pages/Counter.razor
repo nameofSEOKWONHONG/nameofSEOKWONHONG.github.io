@@ -10,6 +10,18 @@
             <b>@_currentCount%</b>
         </MudText>
     </MudProgressLinear>
+
+    <div>
+        <MudChart ChartType="ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px" ChartOptions="@Options" @ref="Chart"/>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudText Typo="Typo.body1" Class="py-3">Selected: @(Index < 0 ? "None" : Series[Index].Name)</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                <MudSlider @bind-Value="Options.LineStrokeWidth" Min="1" Max="10" Color="Color.Info">Line Width: @Options.LineStrokeWidth.ToString()</MudSlider>
+            </MudItem>
+        </MudGrid>
+    </div>    
     
     <MudText Typo="Typo.h6">MudBlazor is @_text</MudText>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ButtonOnClick">@_buttonText</MudButton>
@@ -25,6 +37,21 @@
     private int _currentCount = 0;
     private string _text { get; set; } = "????";
     private string _buttonText { get; set; } = "Click Me";
+    
+    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    public ChartOptions Options = new ChartOptions();
+    
+    public List<ChartSeries> Series = new List<ChartSeries>()
+    {
+        new ChartSeries() { Name = "Fossil", Data = new double[]{}},
+        new ChartSeries() { Name = "Renewable", Data = new double[]{}},
+    };
+    public string[] XAxisLabels = { };
+
+    List<double> data1 = new();
+    List<double> data2 = new();
+    
+    MudChart Chart { get; set; }
 
     void ButtonOnClick()
     {
@@ -32,7 +59,23 @@
         if (_currentCount > 100)
         {
             _currentCount = 0;
+            data1.Clear();
+            data2.Clear();
         }
+
+        Random random = new Random();
+        data1.AddRange(Enumerable.Range(1, 100)
+            .OrderBy(x => random.Next())
+            .Select(m => (double)m)
+            .Take(10)
+            .ToList());
+        data2.AddRange(Enumerable.Range(1, 100)
+            .OrderBy(x => random.Next())
+            .Select(m => (double)m)
+            .Take(10)
+            .ToList());
+        Series[0].Data = data1.ToArray();
+        Series[1].Data = data2.ToArray(); 
         
         _text = $"Awesome x {_currentCount}";
         _buttonText = "Click Me Again";
