@@ -83,19 +83,6 @@
 
     private bool _isDarkMode = false;
     private MudThemeProvider _mudThemeProvider;
-    
-    [Inject]
-    private IJSRuntime _js { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser")))
-        {
-            // create SQLite database file in browser
-            var module = await _js.InvokeAsync<IJSObjectReference>("import", "./dbstorage.js");
-            await module.InvokeVoidAsync("synchronizeFileWithIndexedDb", "database.db");
-        }
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

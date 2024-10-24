@@ -1,6 +1,6 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using MudBlazor.Services;
 using MudExample;
@@ -8,6 +8,7 @@ using MudExample.Data;
 using OllamaSharp;
 
 #if DEBUG
+
 // Allow some time for debugger to attach to Blazor framework debugging proxy
 await Task.Delay(TimeSpan.FromSeconds(2));
 #endif
@@ -29,12 +30,7 @@ builder.Services.AddMudServices(config =>
 
 builder.Services.AddScoped<IOllamaApiClient, OllamaApiClient>(sp => new OllamaApiClient("http://localhost:11434/"));
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-// Sets up EF Core with Sqlite
-builder.Services.AddDbContextFactory<AppDbContext>(options =>
-    options
-        .UseSqlite($"Filename=database.db")
-        .EnableSensitiveDataLogging());
+builder.Services.AddBlazoredLocalStorageAsSingleton();
 
 var app = builder.Build();
 

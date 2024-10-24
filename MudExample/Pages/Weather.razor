@@ -1,7 +1,7 @@
 ﻿@page "/weather"
 @inject HttpClient Http
-@using System.Runtime.InteropServices
-@using Microsoft.EntityFrameworkCore
+@using Blazored.LocalStorage
+@using eXtensionSharp
 @using MudExample.Data
 @inherits PageComponentBase
 
@@ -51,20 +51,17 @@ else
 </MudOverlay>
 
 @code {
-
-    [Inject]
-    private IDbContextFactory<AppDbContext> _dbContextFactory { get; set; }
-    
     private HashSet<WeatherForecast> _selectedItems = new();
     private List<WeatherForecast>? forecasts;
 
     async Task ShowDialog(int? id)
     {
         var parameters = new DialogParameters();
-        var exist = forecasts.FirstOrDefault(m => m.Id == id);
-        if (exist != null)
+        var list = await LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
+        var exists = list?.FirstOrDefault(m => m.Id == id);
+        if (exists.xIsNotEmpty())
         {
-            parameters.Add("WeatherForecast", exist);
+            parameters.Add("WeatherForecast", exists);
         }
         
         var dialog = await this.DialogService.ShowAsync<WeatherDialog>(null, parameters , new DialogOptions()
@@ -76,21 +73,36 @@ else
 
         if (result is { Canceled: false })
         {
-            if (exist == null)
+            this.ShowProgress();
+            await Task.Delay(1000);
+            if (result.Data is WeatherForecast t)
             {
-                if (result.Data is WeatherForecast t)
+                if (t.Id <= 0)
                 {
-                    t.Id = forecasts.MaxBy(m => m.Id)!.Id + 1;
-                    this.forecasts.Add(t);
-                }                
+                    t.Id = list!.MaxBy(m => m.Id)!.Id + 1;
+                    this.forecasts?.Add(t);
+                    await this.LocalStorageService.SetItemAsync("weathers", this.forecasts);
+                }
+                else
+                {
+                    var item = this.forecasts.FirstOrDefault(m => m.Id == t.Id);
+                    if (item.xIsNotEmpty())
+                    {
+                        this.forecasts?.Remove(item);    
+                    }
+                    this.forecasts?.Add(t);
+                    await this.LocalStorageService.SetItemAsync("weathers", this.forecasts);
+                }
             }
-
+            this.CloseProgress();
             this.Snackbar.Add($"success", Severity.Success);
         }
         else
         {
             this.Snackbar.Add("canceled", Severity.Warning);
         }
+        
+        StateHasChanged();
     }
     
     protected override Task Remove(Func<Task> func)
@@ -106,6 +118,7 @@ else
             foreach (var weatherForecast in _selectedItems)
             {
                 this.forecasts?.Remove(weatherForecast);
+                await this.LocalStorageService.SetItemAsync("weathers", this.forecasts);
             }
             
             await Task.Delay(1000);
@@ -117,27 +130,27 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        
-
-        var db = await _dbContextFactory.CreateDbContextAsync();
-        await db.Database.EnsureCreatedAsync();
-        
-        var exists = await db.WeatherForecasts.AnyAsync();
-        if (!exists)
+        var list = await this.LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
+        if (list.xIsEmpty())
         {
-            var items = new List<WeatherForecast>()
+            list =
+            [
+                new() { Date = DateTime.Parse("2022-01-06"), TemperatureC = 1, Summary = "Freezing" },
+                new() { Date = DateTime.Parse("2022-01-07"), TemperatureC = 14, Summary = "Bracing" },
+                new() { Date = DateTime.Parse("2022-01-08"), TemperatureC = -13, Summary = "Freezing" },
+                new() { Date = DateTime.Parse("2022-01-09"), TemperatureC = -16, Summary = "Balmy" },
+                new() { Date = DateTime.Parse("2022-01-10"), TemperatureC = -2, Summary = "Chilly" }
+            ];
+            var row = 1;
+            foreach (var item in list)
             {
-                new WeatherForecast { Date = DateTime.Parse("2022-01-06"), TemperatureC = 1, Summary = "Freezing" },
-                new WeatherForecast { Date = DateTime.Parse("2022-01-07"), TemperatureC = 14, Summary = "Bracing" },
-                new WeatherForecast { Date = DateTime.Parse("2022-01-08"), TemperatureC = -13, Summary = "Freezing" },
-                new WeatherForecast { Date = DateTime.Parse("2022-01-09"), TemperatureC = -16, Summary = "Balmy" },
-                new WeatherForecast { Date = DateTime.Parse("2022-01-10"), TemperatureC = -2, Summary = "Chilly" },
-            };
-            await db.WeatherForecasts.AddRangeAsync(items);
-            await db.SaveChangesAsync();
+                item.Id = row;
+                row += 1;
+            }
+            await this.LocalStorageService.SetItemAsync("weathers", list);
         }
 
-        forecasts = await db.WeatherForecasts.ToListAsync();
+        forecasts = list;
         dataGrid?.RenderedColumns.Clear();
         await Task.Delay(10);
     }

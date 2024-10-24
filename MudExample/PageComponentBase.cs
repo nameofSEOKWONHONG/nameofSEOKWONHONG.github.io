@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MudExample.Pages;
@@ -9,6 +10,7 @@ public abstract class PageComponentBase : ComponentBase
     [Parameter] public RenderFragment ChildContent {get;set;}
     [Inject] protected IDialogService DialogService { get; set; }
     [Inject] protected ISnackbar Snackbar { get; set; }
+    [Inject] protected ILocalStorageService LocalStorageService { get; set; }
     protected bool ProgressVisible { get; set; }
 
     protected void ShowProgress()
