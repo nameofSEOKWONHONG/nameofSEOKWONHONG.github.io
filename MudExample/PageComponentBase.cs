@@ -24,7 +24,7 @@ public abstract class PageComponentBase : ComponentBase
         var items = NavigationManager.Uri.xSplit("/");
         foreach (var item in items)
         {
-            if(item.Contains("http") || item.Contains("localhost")) continue;
+            if(item.Contains("http") || item.Contains("localhost") || item.Contains("nameofseokwonhong.github.io")) continue;
             if(Breadcrumbs.Count <= 0)
                 Breadcrumbs.Add(new BreadcrumbItem(item.ToUpper(), $"/{item}", true));
             else
