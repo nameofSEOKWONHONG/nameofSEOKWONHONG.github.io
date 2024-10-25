@@ -38,4 +38,5 @@ builder.Services.AddLocalization();
 
 var app = builder.Build();
 await app.UseLocalizer();
+await Task.Delay(TimeSpan.FromSeconds(1));
 await app.RunAsync();
