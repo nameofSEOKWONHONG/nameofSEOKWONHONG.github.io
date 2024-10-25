@@ -1,75 +1,79 @@
 @page "/table"
 @using System.Text.Json
+@inherits PageComponentBase
 
-<MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="1">
-    <MudMenu Label="옵션" Variant="Variant.Filled" Color="Color.Primary" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.TopLeft" Dense>
-        <MudMenuItem Class="px-2 py-0 rounded">
-            <MudToggleIconButton @bind-Toggled="@CanAlert"
-                                 Icon="@Icons.Material.Filled.AlarmOff" Color="@Color.Error" Title="Off"
-                                 ToggledIcon="@Icons.Material.Filled.AlarmOn" ToggledColor="@Color.Success" ToggledTitle="On"/>
-        </MudMenuItem>
-    </MudMenu>        
-</MudPaper>
-<br/>
-<MudPaper Class="d-flex justify-start flex-grow-1 gap-4" Elevation="1">
-    <MudTextField @bind-Value="Text1" Label="검색어1" Variant="Variant.Filled" Margin="Margin.Dense"/>
-    <MudTextField @bind-Value="Text1" Label="검색어2" Variant="Variant.Filled" Margin="Margin.Dense"/>
-    <MudTextField @bind-Value="Text1" Label="검색어3" Variant="Variant.Filled" Margin="Margin.Dense"/>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary">검색</MudButton>
-</MudPaper>
-<br/>
-<MudTable Items="_data" T="DataRow" MultiSelection="true" @bind-SelectedItems="selectedItems"
-          ReadOnly="false" CanCancelEdit="true"
-          OnRowClick="@OnRowClick" @bind-SelectOnRowClick="@_selectOnRowClick">
-    <ColGroup>
-        <col style="width:5%;"/>
-        @foreach (var header in _headers)
-        {
-            <col style="width:20%;"/>
-        }
-    </ColGroup>    
-    <HeaderContent>
-        @foreach (var header in _headers)
-        {
-            <MudTh>@header</MudTh>
-        }
-    </HeaderContent>
-    <RowTemplate>
-        @foreach (var header in _headers)
-        {
-            <MudTd>@context.Data[header]</MudTd>
-        }
-    </RowTemplate>
-    <RowEditingTemplate>        
-        @foreach (var header in _headers)
-        {
-            @if (context.Primary.Key == header)
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+    
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="1">
+        <MudMenu Label="옵션" Variant="Variant.Filled" Color="Color.Primary" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.TopLeft" Dense>
+            <MudMenuItem Class="px-2 py-0 rounded">
+                <MudToggleIconButton @bind-Toggled="@CanAlert"
+                                     Icon="@Icons.Material.Filled.AlarmOff" Color="@Color.Error" Title="Off"
+                                     ToggledIcon="@Icons.Material.Filled.AlarmOn" ToggledColor="@Color.Success" ToggledTitle="On"/>
+            </MudMenuItem>
+        </MudMenu>
+    </MudPaper>
+    <br/>
+    <MudPaper Class="d-flex justify-start flex-grow-1 gap-4" Elevation="1">
+        <MudTextField @bind-Value="Text1" Label="검색어1" Variant="Variant.Filled" Margin="Margin.Dense"/>
+        <MudTextField @bind-Value="Text1" Label="검색어2" Variant="Variant.Filled" Margin="Margin.Dense"/>
+        <MudTextField @bind-Value="Text1" Label="검색어3" Variant="Variant.Filled" Margin="Margin.Dense"/>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary">검색</MudButton>
+    </MudPaper>
+    <br/>
+    <MudTable Items="_data" T="DataRow" MultiSelection="true" @bind-SelectedItems="selectedItems"
+              ReadOnly="false" CanCancelEdit="true"
+              OnRowClick="@OnRowClick" @bind-SelectOnRowClick="@_selectOnRowClick">
+        <ColGroup>
+            <col style="width:5%;"/>
+            @foreach (var header in _headers)
             {
-                <MudTd DataLabel="@header"
-                       Style="overflow-wrap:break-word;max-width:20px;">
-                    <MudStack Row="true">
-                        <MudTextField @bind-Value="@context.Data[header]" Required/>
-                        <MudButton>변환</MudButton>
-                    </MudStack>
-                </MudTd>                
+                <col style="width:20%;"/>
             }
-            else
+        </ColGroup>
+        <HeaderContent>
+            @foreach (var header in _headers)
             {
-                <MudTd DataLabel="@header"
-                       Style="overflow-wrap:break-word;max-width:20px;">
-                    <MudStack Row="true">
-                        <MudTextField @bind-Value="@context.Data[header]" Required/>
-                        <MudButton>질의</MudButton>
-                    </MudStack>
-                </MudTd>                
+                <MudTh>@header</MudTh>
             }
-        }
-    </RowEditingTemplate>
-    <EditButtonContent Context="button">
-        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
-    </EditButtonContent>
-</MudTable>
-
+        </HeaderContent>
+        <RowTemplate>
+            @foreach (var header in _headers)
+            {
+                <MudTd>@context.Data[header]</MudTd>
+            }
+        </RowTemplate>
+        <RowEditingTemplate>
+            @foreach (var header in _headers)
+            {
+                @if (context.Primary.Key == header)
+                {
+                    <MudTd DataLabel="@header"
+                           Style="overflow-wrap:break-word;max-width:20px;">
+                        <MudStack Row="true">
+                            <MudTextField @bind-Value="@context.Data[header]" Required/>
+                            <MudButton>변환</MudButton>
+                        </MudStack>
+                    </MudTd>
+                }
+                else
+                {
+                    <MudTd DataLabel="@header"
+                           Style="overflow-wrap:break-word;max-width:20px;">
+                        <MudStack Row="true">
+                            <MudTextField @bind-Value="@context.Data[header]" Required/>
+                            <MudButton>질의</MudButton>
+                        </MudStack>
+                    </MudTd>
+                }
+            }
+        </RowEditingTemplate>
+        <EditButtonContent Context="button">
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
+        </EditButtonContent>
+    </MudTable>
+</MudContainer>
 @code {
     string Text1 { get; set; }
     bool CanAlert { get; set; }

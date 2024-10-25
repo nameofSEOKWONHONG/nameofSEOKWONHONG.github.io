@@ -1,5 +1,9 @@
 ﻿@page "/settings/users"
-<h3>Users</h3>
+@inherits PageComponentBase
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+</MudContainer>
 
 @code {
     

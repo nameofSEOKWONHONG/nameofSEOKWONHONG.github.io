@@ -1,132 +1,170 @@
 ﻿@page "/"
 @inherits MudExample.PageComponentBase
 
-<PageTitle>Who I AM</PageTitle>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
-<MudTabs Rounded="true">
-    <MudTabPanel Text="Me">
-        <MudPaper Class="default-paper">
-            <h1>@Localizer["LBL0001"] @string.Format(Localizer["LBL0002"], _me.Name)</h1>
-            <MudTextField @bind-Value="_me.Name" Label="@Localizer["LBL0014"]" Variant="Variant.Outlined"/>
-            <MudDatePicker Label="@Localizer["LBL0015"]" @bind-Date="_me.Birth"/>
-            <MudTextField @bind-Value="_me.Gender" Label="@Localizer["LBL0016"]" Variant="Variant.Outlined"/>
-            <MudTextField @bind-Value="_me.Email" Label="@Localizer["LBL0017"]" Variant="Variant.Filled"/>
-            @{
-                var mailto = $"mailto:{_me.Email}";
-            }
-            <div Class="d-flex justify-end flex-grow-1 gap-4" >
-                <MudIconButton Class="btn-primary" Href="@mailto" Icon="@Icons.Material.Filled.Email">Send Email</MudIconButton>
-            </div>
-        </MudPaper>
-        <br/>
-        <MudPaper Class="mud-paper">
-            <h1>[@Localizer["LBL0003"]]</h1>
-            <MudText>@Localizer["LBL0014"]: @_me.Name</MudText>
-            <MudText>@Localizer["LBL0015"]: @_me.Birth?.ToString("yyyy-MM-dd")</MudText>
-            <MudText>@Localizer["LBL0016"]: @_me.Gender</MudText>
-            <MudText>@Localizer["LBL0017"]: @_me.Email</MudText>
-        </MudPaper>
-    </MudTabPanel>
-    <MudTabPanel Text="@Localizer["LBL0005"]">
-        <MudPaper>
-            <MudTimeline>
-                <MudTimelineItem Color="Color.Info" Size="Size.Small">
-                    <ItemOpposite>
-                        <MudText Color="Color.Info" Typo="Typo.h5">2010</MudText>
-                    </ItemOpposite>
-                    <ItemContent>
-                        <MudText Color="Color.Info" Typo="Typo.h6" GutterBottom="true">
-                            <MudImage Src="https://www.douzone.com/html/images/lg-douzone-color.svg"/>
-                        </MudText>
-                        <MudText>
-                            @Localizer["LBL0023"]
-                        </MudText>
-                    </ItemContent>
-                </MudTimelineItem>
-                <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                    <ItemOpposite>
-                        <MudText Color="Color.Success" Typo="Typo.h5">2013</MudText>
-                    </ItemOpposite>
-                    <ItemContent>
-                        <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">Virtualize Console</MudText>
-                        <MudText>
-                            @Localizer["LBL0024"]
-                        </MudText>
-                    </ItemContent>
-                </MudTimelineItem>
-                <MudTimelineItem Color="Color.Error" Size="Size.Small">
-                    <ItemOpposite>
-                        <MudText Color="Color.Error" Typo="Typo.h5">2014</MudText>
-                    </ItemOpposite>
-                    <ItemContent>
-                        <MudText Color="Color.Error" Typo="Typo.h6" GutterBottom="true">
-                            <MudImage Src="https://www.skmnservice.com/resources/pc/images/logo.png"/>
-                        </MudText>
-                        <MudText>
-                            @Localizer["LBL0025"]
-                        </MudText>
-                    </ItemContent>
-                </MudTimelineItem>
-                <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                    <ItemOpposite>
-                        <MudText Color="Color.Success" Typo="Typo.h5">2017</MudText>
-                    </ItemOpposite>
-                    <ItemContent>
-                        <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">
-                            <MudImage Src="https://company.yes24.com/assets/yes24/images/etc/logo_yes24Book01.png"/>
-                        </MudText>
-                        <MudText>
-                            @Localizer["LBL0026"]
-                        </MudText>
-                    </ItemContent>
-                </MudTimelineItem>
-                <MudTimelineItem Color="Color.Error" Size="Size.Small">
-                    <ItemOpposite>
-                        <MudText Color="Color.Error" Typo="Typo.h5">2019</MudText>
-                    </ItemOpposite>
-                    <ItemContent>
-                        <MudText Color="Color.Error" Typo="Typo.h6" GutterBottom="true">
-                            <MudImage Src="https://www.ecount.com/kr/common/images/common/logo.svg?ver=2023102501"/>
-                        </MudText>
-                        <MudText>
-                            @Localizer["LBL0027"]
-                        </MudText>
-                    </ItemContent>
-                </MudTimelineItem>
-                <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                    <ItemOpposite>
-                        <MudText Color="Color.Success" Typo="Typo.h5">현재</MudText>
-                    </ItemOpposite>
-                    <ItemContent>
-                        <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">
-                            <MudImage Src="https://avatars.cloudflare.steamstatic.com/f12e47dc7d6556959a711d14e41d9d330b17c134_full.jpg"/>
-                        </MudText>
-                        <MudText>
-                            @Localizer["LBL0028"]
-                        </MudText>
-                    </ItemContent>
-                </MudTimelineItem>                
-            </MudTimeline>
-        </MudPaper>
-    </MudTabPanel>
-</MudTabs>
+    <MudTabs Rounded="true">
+        <MudTabPanel Text="Me">
+            <MudCarousel Class="mud-width-full" Style="height:200px;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="true" TData="object">
+                <MudCarouselItem Transition="Transition.Slide" Color="@Color.Primary">
+                    <div class="d-flex" style="height:100%">
+                        <label class="mx-auto my-auto">@Localizer["LBL0001"]</label>
+                    </div>
+                </MudCarouselItem>
+                <MudCarouselItem Transition="Transition.Slide" Color="@Color.Secondary">
+                    <div class="d-flex" style="height:100%">
+                        <label class="mx-auto my-auto" style="color: white;">@string.Format(Localizer["LBL0002"], "SEOKWON HONG")</label>
+                    </div>
+                </MudCarouselItem>
+                <MudCarouselItem Transition="Transition.Slide">
+                    <div class="d-flex" style="height:100%">
+                        <label class="mx-auto my-auto">@Localizer["LBL0029"]</label>
+                    </div>
+                </MudCarouselItem>
+            </MudCarousel>
+            
+            <MudPaper Class="default-paper">
+                <h1>@Localizer["LBL0001"] @string.Format(Localizer["LBL0002"], _me.Name)</h1>
+                <MudTextField @bind-Value="_me.Name" Label="@Localizer["LBL0014"]" Variant="Variant.Outlined"/>
+                <MudDatePicker Label="@Localizer["LBL0015"]" @bind-Date="_me.Birth"/>
+                <MudTextField @bind-Value="_me.Gender" Label="@Localizer["LBL0016"]" Variant="Variant.Outlined"/>
+                <MudTextField @bind-Value="_me.Email" Label="@Localizer["LBL0017"]" Variant="Variant.Filled"/>
+                @{
+                    var mailto = $"mailto:{_me.Email}";
+                }
+                <div Class="d-flex justify-end flex-grow-1 gap-4">
+                    <MudIconButton Class="btn-primary" Href="@mailto" Icon="@Icons.Material.Filled.Email">Send Email</MudIconButton>
+                </div>
+            </MudPaper>
+            <br/>
+            <MudPaper Class="mud-paper">
+                <h1>[@Localizer["LBL0003"]]</h1>
+                <MudText>@Localizer["LBL0014"]: @_me.Name</MudText>
+                <MudText>@Localizer["LBL0015"]: @_me.Birth?.ToString("yyyy-MM-dd")</MudText>
+                <MudText>@Localizer["LBL0016"]: @_me.Gender</MudText>
+                <MudText>@Localizer["LBL0017"]: @_me.Email</MudText>
+            </MudPaper>
+        </MudTabPanel>
+        <MudTabPanel Text="@Localizer["LBL0005"]">
+            <MudPaper>
+                <MudTimeline>
+                    <MudTimelineItem Color="Color.Info" Size="Size.Small">
+                        <ItemOpposite>
+                            <MudText Color="Color.Info" Typo="Typo.h5">2010</MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudText Color="Color.Info" Typo="Typo.h6" GutterBottom="true">
+                                <MudImage Src="https://www.douzone.com/html/images/lg-douzone-color.svg"/>
+                            </MudText>
+                            <MudText>
+                                @Localizer["LBL0023"]
+                            </MudText>
+                        </ItemContent>
+                    </MudTimelineItem>
+                    <MudTimelineItem Color="Color.Success" Size="Size.Small">
+                        <ItemOpposite>
+                            <MudText Color="Color.Success" Typo="Typo.h5">2013</MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">Virtualize Console</MudText>
+                            <MudText>
+                                @Localizer["LBL0024"]
+                            </MudText>
+                        </ItemContent>
+                    </MudTimelineItem>
+                    <MudTimelineItem Color="Color.Error" Size="Size.Small">
+                        <ItemOpposite>
+                            <MudText Color="Color.Error" Typo="Typo.h5">2014</MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudText Color="Color.Error" Typo="Typo.h6" GutterBottom="true">
+                                <MudImage Src="https://www.skmnservice.com/resources/pc/images/logo.png"/>
+                            </MudText>
+                            <MudText>
+                                @Localizer["LBL0025"]
+                            </MudText>
+                        </ItemContent>
+                    </MudTimelineItem>
+                    <MudTimelineItem Color="Color.Success" Size="Size.Small">
+                        <ItemOpposite>
+                            <MudText Color="Color.Success" Typo="Typo.h5">2017</MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">
+                                <MudImage Src="https://company.yes24.com/assets/yes24/images/etc/logo_yes24Book01.png"/>
+                            </MudText>
+                            <MudText>
+                                @Localizer["LBL0026"]
+                            </MudText>
+                        </ItemContent>
+                    </MudTimelineItem>
+                    <MudTimelineItem Color="Color.Error" Size="Size.Small">
+                        <ItemOpposite>
+                            <MudText Color="Color.Error" Typo="Typo.h5">2019</MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudText Color="Color.Error" Typo="Typo.h6" GutterBottom="true">
+                                <MudImage Src="https://www.ecount.com/kr/common/images/common/logo.svg?ver=2023102501"/>
+                            </MudText>
+                            <MudText>
+                                @Localizer["LBL0027"]
+                            </MudText>
+                        </ItemContent>
+                    </MudTimelineItem>
+                    <MudTimelineItem Color="Color.Success" Size="Size.Small">
+                        <ItemOpposite>
+                            <MudText Color="Color.Success" Typo="Typo.h5">현재</MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">
+                                <MudImage Src="https://avatars.cloudflare.steamstatic.com/f12e47dc7d6556959a711d14e41d9d330b17c134_full.jpg"/>
+                            </MudText>
+                            <MudText>
+                                @Localizer["LBL0028"]
+                            </MudText>
+                        </ItemContent>
+                    </MudTimelineItem>                
+                </MudTimeline>
+            </MudPaper>
+        </MudTabPanel>
+    </MudTabs>
+</MudContainer>
 
 @code {
     [Inject] HttpClient Http { get; set; }
     [Inject] IJSRuntime JSRuntime { get; set; }
     private Person _me;
+    
+    private int index = 0;
+    private string[] icons = { Icons.Custom.Brands.MudBlazor, cube, Icons.Custom.Brands.GitHub };
+
+    private void CycleIcons()
+    {
+        index = (index + 1) % 3;
+    }
+
+    const string cube = @"<svg style=""width:24px;height:24px"" viewBox=""0 0 24 24"">
+    <path fill=""currentColor"" d=""M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V9.21L13,12.58V19.29L19,15.91Z"" />
+</svg>";
 
     string base64String;
-    protected override async Task OnInitializedAsync()
+
+    protected override void OnInitialized()
     {
         _me = new Person();
         _me.Name = "SEOKWON HONG";
         _me.Birth = new DateTime(1982, 12, 31);
         _me.Gender = "Male";
-        _me.Email = "h20913@gmail.com";        
-        // var bytes = await Http.GetByteArrayAsync("/images/certification-aws-architecting_on_aws.pdf");
-        // base64String = Convert.ToBase64String(bytes);
+        _me.Email = "h20913@gmail.com";
+        base.OnInitialized();
     }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     // var bytes = await Http.GetByteArrayAsync("/images/certification-aws-architecting_on_aws.pdf");
+    //     // base64String = Convert.ToBase64String(bytes);
+    // }
     
     class Person
     {

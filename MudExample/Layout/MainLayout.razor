@@ -85,10 +85,16 @@
     private IDictionary<NotificationMessage, bool> _messages = null;
     bool _drawerOpen = true;
     Color Color = Color.Success;
-    
+
+    protected override async Task OnInitializedAsync()
+    {
+        _drawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(_drawerOpen));
+    }
+
     void DrawerToggle()
     {
-    _drawerOpen = !_drawerOpen;
+        _drawerOpen = !_drawerOpen;
+        LocalStorageService.SetItemAsync(nameof(_drawerOpen), _drawerOpen);
     }
 
     private bool _isDarkMode = false;

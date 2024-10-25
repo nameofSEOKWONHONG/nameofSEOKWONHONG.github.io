@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Blazored.LocalStorage;
+using eXtensionSharp;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MudExample.Data;
@@ -16,6 +17,20 @@ public abstract class PageComponentBase : ComponentBase
     [Inject] protected NavigationManager NavigationManager { get; set; }
     [Inject] protected Localizer Localizer { get; set; }
     protected bool ProgressVisible { get; set; }
+    protected List<BreadcrumbItem> Breadcrumbs = new();
+
+    protected override void OnInitialized()
+    {
+        var items = NavigationManager.Uri.xSplit("/");
+        foreach (var item in items)
+        {
+            if(item.Contains("http") || item.Contains("localhost")) continue;
+            if(Breadcrumbs.Count <= 0)
+                Breadcrumbs.Add(new BreadcrumbItem(item.ToUpper(), $"/{item}", true));
+            else
+                Breadcrumbs.Add(new BreadcrumbItem(item.ToUpper(), $"#", true));
+        }
+    }
 
     protected void ShowProgress()
     {

@@ -15,45 +15,46 @@
         font-weight: 500;
     }
 </style>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
-<PageTitle>Weather</PageTitle>
+    <h1>Weather</h1>
 
-<h1>Weather</h1>
+    <p>This component demonstrates fetching data from the server.</p>
 
-<p>This component demonstrates fetching data from the server.</p>
-
-@if (forecasts == null)
-{
-    <p>
-        <em>Loading...</em>
-    </p>
-}
-else
-{
-    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => Remove(null))">@Localizer["LBL0021"]</MudButton>
-    </MudPaper>
-    <br/>
-    <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
-        <HeaderContent>
-            <MudTh>Date</MudTh>
-            <MudTh>Temp. (C)</MudTh>
-            <MudTh>Temp. (F)</MudTh>
-            <MudTh>Summary</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Date?.ToShortDateString()</MudTd>
-            <MudTd>@context.TemperatureC</MudTd>
-            <MudTd>@context.TemperatureF</MudTd>
-            <MudTd>@context.Summary</MudTd>
-            <MudTd>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await ShowDialog(context.Id))">@Localizer["LBL0022"]</MudButton>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-}
+    @if (forecasts == null)
+    {
+        <p>
+            <em>Loading...</em>
+        </p>
+    }
+    else
+    {
+        <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => Remove(null))">@Localizer["LBL0021"]</MudButton>
+        </MudPaper>
+        <br/>
+        <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
+            <HeaderContent>
+                <MudTh>Date</MudTh>
+                <MudTh>Temp. (C)</MudTh>
+                <MudTh>Temp. (F)</MudTh>
+                <MudTh>Summary</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Date?.ToShortDateString()</MudTd>
+                <MudTd>@context.TemperatureC</MudTd>
+                <MudTd>@context.TemperatureF</MudTd>
+                <MudTd>@context.Summary</MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await ShowDialog(context.Id))">@Localizer["LBL0022"]</MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</MudContainer>
 
 <MudOverlay @bind-Visible="ProgressVisible" DarkBackground="true" ZIndex="9999">
     <MudItem xs="12" Class="d-flex align-center">
@@ -65,6 +66,7 @@ else
     private HashSet<WeatherForecast> _selectedItems = new();
     private List<WeatherForecast>? forecasts;
 
+    
     async Task ShowDialog(int? id)
     {
         var parameters = new DialogParameters();

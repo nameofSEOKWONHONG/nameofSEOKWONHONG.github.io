@@ -37,24 +37,5 @@ builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddLocalization();
 
 var app = builder.Build();
-using var scope = app.Services.CreateScope();
-var localizer = scope.ServiceProvider.GetRequiredService<Localizer>();
-var localStorage = scope.ServiceProvider.GetRequiredService<ILocalStorageService>();
-
-var cultureString = await localStorage.GetItemAsync<string>("culture");
-CultureInfo cultureInfo;
-if (!string.IsNullOrWhiteSpace(cultureString))
-{
-    cultureInfo = new CultureInfo(cultureString);
-}
-else
-{
-    cultureInfo = new CultureInfo("en-US");
-    cultureString = "en-US";
-}
- 
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-await localizer.InitializeAsync(cultureString);
-
+await app.UseLocalizer();
 await app.RunAsync();

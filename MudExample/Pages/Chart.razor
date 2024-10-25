@@ -2,45 +2,51 @@
 @using System.Security.Cryptography
 @using System.Threading.Channels
 @using ApexCharts
+@inherits PageComponentBase
 
-<div class="chart-container">
-    <div class="radial-chart">
-        <ApexChart TItem="DataItem"
-                   Title="Transactions"
-                   Options="@_radialChartOptions"
-                   @ref="_radialChart">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+    <MudCard>
+        <MudCardContent>
+            <ApexChart TItem="DataItem"
+                       Title="Transactions"
+                       Options="@_radialChartOptions"
+                       @ref="_radialChart">
 
-            <ApexPointSeries TItem="DataItem"
-                             Items="_radialData"
-                             SeriesType="SeriesType.RadialBar"
-                             Name="Variation"
-                             XValue="@(e => "Variation")"
-                             YAggregate="@(e => e.Average(e => e.Value))" />
-        </ApexChart>
-    </div>
+                <ApexPointSeries TItem="DataItem"
+                                 Items="_radialData"
+                                 SeriesType="SeriesType.RadialBar"
+                                 Name="Variation"
+                                 XValue="@(e => "Variation")"
+                                 YAggregate="@(e => e.Average(e => e.Value))"/>
+            </ApexChart>
+        </MudCardContent>
+    </MudCard>
+    <br/>
+    <MudCard>
+        <MudCardContent>
+            <ApexChart TItem="DataItem"
+                       Title="Currency Exchange Rates in USD"
+                       Options="@_lineChartOptions"
+                       @ref="_lineChart">
 
-    <div class="line-chart">
-        <ApexChart TItem="DataItem"
-                   Title="Currency Exchange Rates in USD"
-                   Options="@_lineChartOptions"
-                   @ref="_lineChart">
+                <ApexPointSeries TItem="DataItem"
+                                 Items="_yenSeries"
+                                 Name="Yen"
+                                 SeriesType="SeriesType.Line"
+                                 XValue="@(e => e.Minute)"
+                                 YAggregate="@(e => e.Sum(e => e.Value))"/>
 
-            <ApexPointSeries TItem="DataItem"
-                             Items="_yenSeries"
-                             Name="Yen"
-                             SeriesType="SeriesType.Line"
-                             XValue="@(e => e.Minute)"
-                             YAggregate="@(e => e.Sum(e => e.Value))" />
-
-            <ApexPointSeries TItem="DataItem"
-                             Items="_euroSeries"
-                             Name="Euro"
-                             SeriesType="SeriesType.Line"
-                             XValue="@(e => e.Minute)"
-                             YAggregate="@(e => e.Sum(e => e.Value))" />
-        </ApexChart>
-    </div>
-</div>
+                <ApexPointSeries TItem="DataItem"
+                                 Items="_euroSeries"
+                                 Name="Euro"
+                                 SeriesType="SeriesType.Line"
+                                 XValue="@(e => e.Minute)"
+                                 YAggregate="@(e => e.Sum(e => e.Value))"/>
+            </ApexChart>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
 
 @code {
     private readonly IList<DataItem> _yenSeries = new List<DataItem>();

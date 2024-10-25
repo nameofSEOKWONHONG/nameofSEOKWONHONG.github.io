@@ -1,9 +1,8 @@
 ﻿@page "/counter"
+@inherits PageComponentBase
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
-    
-    <h1>Counter</h1>
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
     
     <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="@_currentCount" Class="my-7">
         <MudText Typo="Typo.subtitle1" Color="Color.Dark">
@@ -29,11 +28,6 @@
 
 
 @code {
-    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
-    {
-        new BreadcrumbItem("Home", href: "#"),
-        new BreadcrumbItem("Counter", href: null, disabled:true)
-    };
     private int _currentCount = 0;
     private string _text { get; set; } = "????";
     private string _buttonText { get; set; } = "Click Me";
