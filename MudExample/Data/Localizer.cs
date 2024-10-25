@@ -30,7 +30,7 @@ public static class LocalizerExtensions
             cultureString = "en-US";
         }
         
-        localizer.Initialize(cultureString);
+        await localizer.InitializeAsync(cultureString);
         
         CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
         CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
@@ -55,7 +55,7 @@ public class Localizer
         _client  = client;
     }
     
-    public async Task Initialize(string locale)
+    public async Task InitializeAsync(string locale)
     {
         var res = await _client.GetAsync($"/languages/{locale.ToLower()}.json");
         res.EnsureSuccessStatusCode();
