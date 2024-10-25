@@ -1,0 +1,95 @@
+﻿@page "/recent-work"
+@inherits PageComponentBase
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+
+    <MudGrid>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <MudImage Src="images/aglgw.com.jpeg" Style="width: 100%; height: 100%; object-fit: cover;" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">에이지엘 홈페이지 개발</MudText>
+                    <MudText Typo="Typo.body2">메인 화면 및 영업 페이지, 뉴스, 게시판 개발</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="https://aglgw.com/">Link</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <MudImage Src="images/aglgw.com.admin.jpeg" Style="width: 100%; height: 100%; object-fit: cover;" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">에이지엘 홈페이지 관리 사이트 개발</MudText>
+                    <MudText Typo="Typo.body2">뉴스, 게시판, 연역 등 관리 사이트 개발</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="https://aglgw.com/">Link</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <MudImage Src="images/openrecorder.png" Style="width: 50%; height: 50%; object-fit: cover;" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">화면 녹화 프로그램 개발</MudText>
+                    <MudText Typo="Typo.body2">화면 녹화, 칠판 개발</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="https://github.com/nameofSEOKWONHONG/OpenRecorder/releases">Link</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <MudImage Src="images/ticket.yes24.com.jpeg" Style="width: 100%; height: 100%; object-fit: cover;" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">영화, 티켓 예매 시스템 개발</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="https://ticket.yes24.com/New/Main.aspx">Link</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <MudImage Src="images/login.ecount.com.jpeg" Style="width: 100%; height: 100%; object-fit: cover;" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">SaaS ERP 개발</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="https://www.ecount.com/kr">Link</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <MudImage Src="images/888918.png" Style="width: 50%; height: 50%; object-fit: cover;" />
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">오픈 소스 개발</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="https://github.com/nameofSEOKWONHONG">eXtensionSharp</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>        
+    </MudGrid>
+    
+</MudContainer>
+
+@code {
+    
+}
