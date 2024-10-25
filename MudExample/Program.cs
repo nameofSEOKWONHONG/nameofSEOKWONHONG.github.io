@@ -1,3 +1,4 @@
+using System.Globalization;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -29,12 +30,31 @@ builder.Services.AddMudServices(config =>
 });
 
 builder.Services.AddScoped<IOllamaApiClient, OllamaApiClient>(sp => new OllamaApiClient("http://localhost:11434/"));
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton<MenuViewModel>();
+builder.Services.AddSingleton<Localizer>();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
+builder.Services.AddLocalization();
 
 var app = builder.Build();
 using var scope = app.Services.CreateScope();
-var service = scope.ServiceProvider.GetRequiredService<MenuViewModel>();
-service.Initialize();
+var localizer = scope.ServiceProvider.GetRequiredService<Localizer>();
+var localStorage = scope.ServiceProvider.GetRequiredService<ILocalStorageService>();
+
+var cultureString = await localStorage.GetItemAsync<string>("culture");
+CultureInfo cultureInfo;
+if (!string.IsNullOrWhiteSpace(cultureString))
+{
+    cultureInfo = new CultureInfo(cultureString);
+}
+else
+{
+    cultureInfo = new CultureInfo("en-US");
+    cultureString = "en-US";
+}
+ 
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+await localizer.InitializeAsync(cultureString);
+
 await app.RunAsync();

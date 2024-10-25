@@ -31,8 +31,8 @@
 else
 {
     <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
-        <MudButton OnClick="@(async () => await ShowDialog(null))">ADD</MudButton>
-        <MudButton OnClick="@(() => Remove(null))">REMOVE</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => Remove(null))">@Localizer["LBL0021"]</MudButton>
     </MudPaper>
     <br/>
     <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
@@ -49,7 +49,7 @@ else
             <MudTd>@context.TemperatureF</MudTd>
             <MudTd>@context.Summary</MudTd>
             <MudTd>
-                <MudButton Class="btn btn-primary" OnClick="@(async () => await ShowDialog(context.Id))">Modify</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await ShowDialog(context.Id))">@Localizer["LBL0022"]</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -74,8 +74,8 @@ else
         {
             parameters.Add("WeatherForecast", exists);
         }
-        
-        var dialog = await this.DialogService.ShowAsync<WeatherDialog>(null, parameters , new DialogOptions()
+
+        var dialog = await this.DialogService.ShowAsync<WeatherDialog>(null, parameters, new DialogOptions()
         {
             CloseOnEscapeKey = true,
             MaxWidth = MaxWidth.Large,
@@ -99,12 +99,14 @@ else
                     var item = this.forecasts.FirstOrDefault(m => m.Id == t.Id);
                     if (item.xIsNotEmpty())
                     {
-                        this.forecasts?.Remove(item);    
+                        this.forecasts?.Remove(item);
                     }
+
                     this.forecasts?.Add(t);
                     await this.LocalStorageService.SetItemAsync("weathers", this.forecasts);
                 }
             }
+
             this.CloseProgress();
             this.Snackbar.Add($"success", Severity.Success);
         }
@@ -112,18 +114,18 @@ else
         {
             this.Snackbar.Add("canceled", Severity.Warning);
         }
-        
+
         StateHasChanged();
     }
-    
+
     protected override Task Remove(Func<Task> func)
     {
         if (_selectedItems.Count <= 0)
         {
             this.Snackbar.Add("selected items is empty", Severity.Warning);
             return Task.CompletedTask;
-        }        
-        
+        }
+
         func = async () =>
         {
             foreach (var weatherForecast in _selectedItems)
@@ -131,7 +133,7 @@ else
                 this.forecasts?.Remove(weatherForecast);
                 await this.LocalStorageService.SetItemAsync("weathers", this.forecasts);
             }
-            
+
             await Task.Delay(1000);
         };
         return base.Remove(func);
@@ -158,6 +160,7 @@ else
                 item.Id = row;
                 row += 1;
             }
+
             await this.LocalStorageService.SetItemAsync("weathers", list);
         }
 

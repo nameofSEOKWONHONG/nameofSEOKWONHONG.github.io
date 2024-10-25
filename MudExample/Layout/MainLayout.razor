@@ -1,4 +1,5 @@
 ﻿@using System.Runtime.InteropServices
+@using Blazored.LocalStorage
 @using MudExample.Data
 @inherits LayoutComponentBase
 
@@ -14,11 +15,13 @@
 <MudLayout>
         <MudAppBar Color="Color.Transparent" Elevation="0" Dense="false" Style="backdrop-filter: blur(12px);background-image: linear-gradient( 109.6deg,  rgba(0,182,255,0.2) 11.2%, rgba(102,51,153,0.2) 91.1% );overflow: auto;">
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
-            <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+            <MudText Typo="Typo.h5" Class="ml-3">@Localizer["LBL0000"]</MudText>
             <MudSpacer/>
             @foreach (var item in ViewModel.GetAllMenus())
             {
-                <MudIconButton Icon=@item.Icon OnClick="@(() => NavigationManager.NavigateTo(item.Href))"/>    
+                <MudTooltip Text="@item.Name">
+                    <MudIconButton Icon=@item.Icon OnClick="@(() => NavigationManager.NavigateTo(item.Href))"/>
+                </MudTooltip>
             }
             <MudSpacer/>
             <MudBadge Color="Color.Secondary" Dot="true" Overlap="true" Visible="true">
@@ -57,8 +60,11 @@
                     <MudIcon Icon="@Icons.Material.Filled.DarkMode"/>
                 }
             </MudIconButton>
-            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End">
-            </MudIconButton>
+            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                     AriaLabel="Open user menu">
+                <MudMenuItem OnClick='(() => OnCultureChanged("en-US"))'>@Localizer["LBL0019"]</MudMenuItem>
+                <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>
+            </MudMenu>
         </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu/>
@@ -74,6 +80,8 @@
 </MudLayout>
 </MudRTLProvider>
 @code {
+    [Inject] Localizer Localizer { get; set; }
+    [Inject] ILocalStorageService LocalStorageService { get; set; }
     private IDictionary<NotificationMessage, bool> _messages = null;
     bool _drawerOpen = true;
     Color Color = Color.Success;
@@ -114,5 +122,11 @@
     
     public record NotificationMessage(string Id, string Title, string Except, string Category, DateTime PublishDate, string ImgUrl, IEnumerable<NotificationAuthor> Authors, Type ContentComponent);
     public record NotificationAuthor(string DisplayName, string AvatarUrl);    
+    
+    public void OnCultureChanged(string culture)
+    {
+        LocalStorageService.SetItemAsync<string>("culture", culture);
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+    }
 }
 

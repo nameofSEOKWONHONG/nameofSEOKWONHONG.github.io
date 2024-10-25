@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using MudExample.Data;
 using MudExample.Pages;
 
 namespace MudExample;
@@ -11,6 +13,8 @@ public abstract class PageComponentBase : ComponentBase
     [Inject] protected IDialogService DialogService { get; set; }
     [Inject] protected ISnackbar Snackbar { get; set; }
     [Inject] protected ILocalStorageService LocalStorageService { get; set; }
+    [Inject] protected NavigationManager NavigationManager { get; set; }
+    [Inject] protected Localizer Localizer { get; set; }
     protected bool ProgressVisible { get; set; }
 
     protected void ShowProgress()
