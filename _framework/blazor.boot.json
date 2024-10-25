@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MudExample",
   "resources": {
-    "hash": "sha256-iyYlkW8TCKZXoRUSulKWP/n4CxR2K1wJQFLAazMNEL0=",
+    "hash": "sha256-0O6hpodD44hzdjeaYf7QEhSzdlHHnuu4X1qeSqlw7yM=",
     "jsModuleNative": {
       "dotnet.native.8.0.10.3ff9hib3de.js": "sha256-vGfBKVYxpyMvMtLx7IF5iX+qxZmRamGmYbaOZ6VXl2U="
     },
@@ -37,7 +37,7 @@
       "Microsoft.JSInterop.wasm": "sha256-qCyLCpsoXy4q5d6pppAMS4IyHZnvz8BsTtkeK6PdB9k=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-r/+bWAAxKn2+Wu3MRYDXvKEbHjLNuptflgNuNhQdK6w=",
       "MudBlazor.wasm": "sha256-AHYu3zpyk4Hn7GUiK8INK+/jDeGasZfGvVZQY8Skito=",
-      "MudExample.wasm": "sha256-1485fIXbuWeihSjmSQ82WGjQb1YH4j7A3seGluBc2jE=",
+      "MudExample.wasm": "sha256-cWRvItKMecrR/1kTOqBh3bSlrRBT2VuJwL5R3wzDguY=",
       "netstandard.wasm": "sha256-pEwC+9DNDTEr01TFWEG3yQkMKDHhVw6FNrH2/doIoCQ=",
       "OllamaSharp.wasm": "sha256-WxVh+V2QPi+4Gk6mEeGH27H3igcyufrBYPR8uqX4+G4=",
       "System.Collections.Concurrent.wasm": "sha256-fM0vd7Q2flV4k9c2URqAgJqFxS2cOqblxeHawlsDLvw=",
