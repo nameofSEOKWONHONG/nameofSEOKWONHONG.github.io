@@ -1,22 +1,23 @@
 using System.Globalization;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
+using eXtensionSharp;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 namespace MudExample.Data;
 
 public static class LocalizerExtensions
 {
-    public static void AddLocalizer(this IServiceCollection services)
+    public static void AddLocalizerAsSingleton(this IServiceCollection services)
     {
-        services.AddSingleton<Localizer>();
+        services.AddSingleton<ILocalizer, Localizer>();
     }
 
     public static async Task UseLocalizer(this WebAssemblyHost app)
     {
         using var scope = app.Services.CreateScope();
-        var localizer = scope.ServiceProvider.GetService<Localizer>();
-        
+        var localizer = scope.ServiceProvider.GetService<ILocalizer>();
+        var localizerInitializer = localizer.xAs<ILocalizerInitilizer>();
         var localStorage = scope.ServiceProvider.GetRequiredService<ILocalStorageService>();
         var cultureString = await localStorage.GetItemAsync<string>("culture");
         CultureInfo cultureInfo;
@@ -30,14 +31,23 @@ public static class LocalizerExtensions
             cultureString = "en-US";
         }
         
-        await localizer.InitializeAsync(cultureString);
+        await localizerInitializer.InitializeAsync(cultureString);
         
         CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
         CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
     }
 }
 
-public class Localizer
+public interface ILocalizer
+{
+    string? this[string type] { get; }
+}
+public interface ILocalizerInitilizer
+{
+    Task InitializeAsync(string culture);
+}
+
+public class Localizer : ILocalizer, ILocalizerInitilizer
 {
     private Dictionary<string, string>? _localizers = new();
     public string? this[string type] 

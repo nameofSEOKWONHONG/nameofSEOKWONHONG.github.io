@@ -32,7 +32,7 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddScoped<IOllamaApiClient, OllamaApiClient>(sp => new OllamaApiClient("http://localhost:11434/"));
 builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton<MenuViewModel>();
-builder.Services.AddSingleton<Localizer>();
+builder.Services.AddLocalizerAsSingleton();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddLocalization();
 

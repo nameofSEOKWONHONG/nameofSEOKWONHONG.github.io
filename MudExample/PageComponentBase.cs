@@ -15,7 +15,7 @@ public abstract class PageComponentBase : ComponentBase
     [Inject] protected ISnackbar Snackbar { get; set; }
     [Inject] protected ILocalStorageService LocalStorageService { get; set; }
     [Inject] protected NavigationManager NavigationManager { get; set; }
-    [Inject] protected Localizer Localizer { get; set; }
+    [Inject] protected ILocalizer Localizer { get; set; }
     protected bool ProgressVisible { get; set; }
     protected List<BreadcrumbItem> Breadcrumbs = new();
 

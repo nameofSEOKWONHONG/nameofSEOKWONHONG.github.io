@@ -8,7 +8,7 @@ public class MenuViewModel
 {
     public List<Menu> Menus { get; private set; }
 
-    public MenuViewModel(HttpClient client, Localizer localizer)
+    public MenuViewModel(HttpClient client, ILocalizer localizer)
     {
         Menus = new List<Menu>();
         

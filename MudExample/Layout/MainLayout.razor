@@ -79,7 +79,7 @@
 </MudLayout>
 </MudRTLProvider>
 @code {
-    [Inject] Localizer? Localizer { get; set; }
+    [Inject] ILocalizer? Localizer { get; set; }
     [Inject] ILocalStorageService? LocalStorageService { get; set; }
     private IDictionary<NotificationMessage, bool> _messages = null;
     bool _drawerOpen = true;
