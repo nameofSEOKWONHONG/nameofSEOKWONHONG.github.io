@@ -13,13 +13,129 @@
     <link rel="stylesheet" href="css/app.css" />
 </head>
 
+<style>
+    /* 로딩 화면 스타일 */
+    #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        color: #333;
+        z-index: 1000;
+    }
+
+    /* 와이파이 스피너 스타일 */
+    .wifi-spinner {
+        position: relative;
+        width: 60px;
+        height: 60px;
+    }
+
+    .wave {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid transparent;
+        border-top-color: #3498db;
+        animation: spin 1.5s ease-in-out infinite;
+        opacity: 0.5;
+    }
+
+    .wave1 {
+        top: 10px;
+        left: 10px;
+        width: 50px;
+        height: 50px;
+        animation-delay: 0s;
+    }
+
+    .wave2 {
+        top: 5px;
+        left: 5px;
+        width: 60px;
+        height: 60px;
+        animation-delay: 0.2s;
+    }
+
+    .wave3 {
+        top: 0px;
+        left: 0px;
+        width: 70px;
+        height: 70px;
+        animation-delay: 0.4s;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: scale(0);
+            opacity: 0.8;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 0.3;
+        }
+        100% {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+    }
+    /* 텍스트 웨이브 스타일 */
+    .wave-text {
+        display: flex;
+        font-size: 1em;
+        color: #3498db;
+    }
+
+    .wave-text span {
+        display: inline-block;
+        animation: wave 1.2s ease-in-out infinite;
+    }
+
+    .wave-text span:nth-child(1) { animation-delay: 0s; }
+    .wave-text span:nth-child(2) { animation-delay: 0.1s; }
+    .wave-text span:nth-child(3) { animation-delay: 0.2s; }
+    .wave-text span:nth-child(4) { animation-delay: 0.3s; }
+    .wave-text span:nth-child(5) { animation-delay: 0.4s; }
+    .wave-text span:nth-child(6) { animation-delay: 0.5s; }
+    .wave-text span:nth-child(7) { animation-delay: 0.6s; }
+
+    @keyframes wave {
+        0%, 60%, 100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-15px);
+        }
+    }
+</style>
+
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <!-- 로딩 화면 HTML -->
+        <div id="loading-screen">            
+            <div class="wifi-spinner">
+                <div class="wave wave1"></div>
+                <div class="wave wave2"></div>
+                <div class="wave wave3"></div>
+            </div>
+            <div class="wave-text">
+                <span>L</span>
+                <span>o</span>
+                <span>a</span>
+                <span>d</span>
+                <span>i</span>
+                <span>n</span>
+                <span>g</span>
+            </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
