@@ -1,5 +1,4 @@
-﻿@using System.Runtime.InteropServices
-@using Blazored.LocalStorage
+﻿@using Blazored.LocalStorage
 @using MudExample.Data
 @inherits LayoutComponentBase
 
@@ -80,8 +79,8 @@
 </MudLayout>
 </MudRTLProvider>
 @code {
-    [Inject] Localizer Localizer { get; set; }
-    [Inject] ILocalStorageService LocalStorageService { get; set; }
+    [Inject] Localizer? Localizer { get; set; }
+    [Inject] ILocalStorageService? LocalStorageService { get; set; }
     private IDictionary<NotificationMessage, bool> _messages = null;
     bool _drawerOpen = true;
     Color Color = Color.Success;
