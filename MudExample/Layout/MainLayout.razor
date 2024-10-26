@@ -89,6 +89,7 @@
     protected override async Task OnInitializedAsync()
     {
         LayoutState.DrawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.DrawerOpen));
+        LayoutState.IsDark = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.IsDark));
     }
 
     void DrawerToggle()
