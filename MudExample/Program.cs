@@ -1,4 +1,5 @@
 using System.Globalization;
+using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -35,6 +36,7 @@ builder.Services.AddSingleton<MenuViewModel>();
 builder.Services.AddLocalizerAsSingleton();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddLocalization();
+builder.Services.AddSubtleCrypto(opt => opt.Key = "kR0BsODSKxPhAWkKpePGmUTvUygYkb9ijbwjnqezc5P8ICszLGyeeVXZJPbaZuTDq8GvP6O4OC92jAse");
 
 var app = builder.Build();
 await app.UseLocalizer();

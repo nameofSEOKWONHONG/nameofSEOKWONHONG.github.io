@@ -11,130 +11,34 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />    
     <link rel="stylesheet" href="css/app.css" />
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
 </head>
 
 <style>
-    /* 로딩 화면 스타일 */
-    #loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.9);
+    .video-container {
+        font-family: Arial, sans-serif;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-size: 1.5em;
-        color: #333;
-        z-index: 1000;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
     }
-
-    /* 와이파이 스피너 스타일 */
-    .wifi-spinner {
-        position: relative;
-        width: 60px;
-        height: 60px;
-    }
-
-    .wave {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 4px solid transparent;
-        border-top-color: #3498db;
-        animation: spin 1.5s ease-in-out infinite;
-        opacity: 0.5;
-    }
-
-    .wave1 {
-        top: 10px;
-        left: 10px;
-        width: 50px;
-        height: 50px;
-        animation-delay: 0s;
-    }
-
-    .wave2 {
-        top: 5px;
-        left: 5px;
-        width: 60px;
-        height: 60px;
-        animation-delay: 0.2s;
-    }
-
-    .wave3 {
-        top: 0px;
-        left: 0px;
-        width: 70px;
-        height: 70px;
-        animation-delay: 0.4s;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: scale(0);
-            opacity: 0.8;
-        }
-        50% {
-            transform: scale(1);
-            opacity: 0.3;
-        }
-        100% {
-            transform: scale(1.5);
-            opacity: 0;
-        }
-    }
-    /* 텍스트 웨이브 스타일 */
-    .wave-text {
-        display: flex;
-        font-size: 1em;
-        color: #3498db;
-    }
-
-    .wave-text span {
-        display: inline-block;
-        animation: wave 1.2s ease-in-out infinite;
-    }
-
-    .wave-text span:nth-child(1) { animation-delay: 0s; }
-    .wave-text span:nth-child(2) { animation-delay: 0.1s; }
-    .wave-text span:nth-child(3) { animation-delay: 0.2s; }
-    .wave-text span:nth-child(4) { animation-delay: 0.3s; }
-    .wave-text span:nth-child(5) { animation-delay: 0.4s; }
-    .wave-text span:nth-child(6) { animation-delay: 0.5s; }
-    .wave-text span:nth-child(7) { animation-delay: 0.6s; }
-
-    @keyframes wave {
-        0%, 60%, 100% {
-            transform: translateY(0);
-        }
-        30% {
-            transform: translateY(-15px);
-        }
+    video {
+        max-width: 90%;
+        border: none; /* 외곽선 제거 */
+        border-radius: 8px; /* 선택 사항: 모서리 둥글게 */
     }
 </style>
 
 <body>
     <div id="app">
-        <!-- 로딩 화면 HTML -->
-        <div id="loading-screen">            
-            <div class="wifi-spinner">
-                <div class="wave wave1"></div>
-                <div class="wave wave2"></div>
-                <div class="wave wave3"></div>
-            </div>
-            <div class="wave-text">
-                <span>L</span>
-                <span>o</span>
-                <span>a</span>
-                <span>d</span>
-                <span>i</span>
-                <span>n</span>
-                <span>g</span>
-            </div>
+        <div class="video-container">
+            <video autoplay muted loop>
+                <source src="/images/Animation.webm" type="video/webm">            
+            </video>
         </div>
     </div>
 
@@ -145,6 +49,9 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>    
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
         // Single Page Apps for GitHub Pages
