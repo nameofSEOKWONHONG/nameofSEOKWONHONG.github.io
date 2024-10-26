@@ -35,6 +35,7 @@ builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(build
 builder.Services.AddSingleton<MenuViewModel>();
 builder.Services.AddLocalizerAsSingleton();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
+builder.Services.AddSingleton<LayoutState>();
 builder.Services.AddLocalization();
 builder.Services.AddSubtleCrypto(opt => opt.Key = "kR0BsODSKxPhAWkKpePGmUTvUygYkb9ijbwjnqezc5P8ICszLGyeeVXZJPbaZuTDq8GvP6O4OC92jAse");
 

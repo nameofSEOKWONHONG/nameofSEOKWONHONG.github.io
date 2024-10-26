@@ -6,7 +6,7 @@
 @inject MenuViewModel ViewModel
 
 <MudRTLProvider RightToLeft="false">
-<MudThemeProvider  @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode"/>
+<MudThemeProvider  @ref="@_mudThemeProvider" @bind-IsDarkMode="@LayoutState.IsDark"/>
 <MudPopoverProvider />
 <MudSnackbarProvider/>
 <MudDialogProvider FullWidth="true"/>
@@ -65,7 +65,7 @@
                 <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>
             </MudMenu>
         </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+    <MudDrawer @bind-Open="LayoutState.DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu/>
     </MudDrawer>
     <MudMainContent>
@@ -79,6 +79,7 @@
 </MudLayout>
 </MudRTLProvider>
 @code {
+    [Inject] LayoutState LayoutState { get; set; }
     [Inject] ILocalizer? Localizer { get; set; }
     [Inject] ILocalStorageService? LocalStorageService { get; set; }
     private IDictionary<NotificationMessage, bool> _messages = null;
@@ -87,13 +88,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _drawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(_drawerOpen));
+        LayoutState.DrawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.DrawerOpen));
     }
 
     void DrawerToggle()
     {
-        _drawerOpen = !_drawerOpen;
-        LocalStorageService.SetItemAsync(nameof(_drawerOpen), _drawerOpen);
+        LayoutState.DrawerOpen = !LayoutState.DrawerOpen;
+        LocalStorageService.SetItemAsync(nameof(LayoutState.DrawerOpen), LayoutState.DrawerOpen);
     }
 
     private bool _isDarkMode = false;
@@ -103,14 +104,15 @@
     {
         if (firstRender)
         {
-            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            LayoutState.IsDark = await _mudThemeProvider.GetSystemPreference();
             StateHasChanged();
         }
     }
 
     void ChangeDarkMode()
     {
-        _isDarkMode = !_isDarkMode;
+        LayoutState.IsDark = !LayoutState.IsDark;
+        LocalStorageService.SetItemAsync(nameof(LayoutState.IsDark), LayoutState.IsDark);
         StateHasChanged();
     }
     
@@ -128,9 +130,9 @@
     public record NotificationMessage(string Id, string Title, string Except, string Category, DateTime PublishDate, string ImgUrl, IEnumerable<NotificationAuthor> Authors, Type ContentComponent);
     public record NotificationAuthor(string DisplayName, string AvatarUrl);    
     
-    public void OnCultureChanged(string culture)
+    void OnCultureChanged(string culture)
     {
-        LocalStorageService.SetItemAsync<string>("culture", culture);
+        LocalStorageService.SetItemAsync<string>(nameof(LayoutState.Culture), culture);
         NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
     }
 }

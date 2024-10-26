@@ -19,7 +19,7 @@ public static class LocalizerExtensions
         var localizer = scope.ServiceProvider.GetService<ILocalizer>();
         var localizerInitializer = localizer.xAs<ILocalizerInitilizer>();
         var localStorage = scope.ServiceProvider.GetRequiredService<ILocalStorageService>();
-        var cultureString = await localStorage.GetItemAsync<string>("culture");
+        var cultureString = await localStorage.GetItemAsync<string>(nameof(LayoutState.Culture));
         CultureInfo cultureInfo;
         if (!string.IsNullOrWhiteSpace(cultureString))
         {
