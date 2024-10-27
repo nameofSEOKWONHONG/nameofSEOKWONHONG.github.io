@@ -1,31 +1,52 @@
 ﻿@page "/diary/list"
-@using MudExample.Services
+@using MudExample.Data
+@inherits PageComponentBase
 
-<MudPaper>
-    @_markupString
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+    
+    @if (ViewModel.DiaryIndices == null)
+    {
+    <p>
+        <em>Loading...</em>
+    </p>
+    }
+    else
+    {
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary">@Localizer["LBL0020"]</MudButton>
+    </MudPaper>
     <br/>
-    @_selectMarkupString
-    <label>@selectedValue</label>
-</MudPaper>
+    <MudTable Items="@ViewModel.DiaryIndices" MultiSelection="true" Hover="true" @bind-SelectedItems="@ViewModel.SelectedDiaryIndexes" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Title</MudTh>
+            <MudTh>CreatedDate</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd>@context.Title</MudTd>
+            <MudTd>@context.CreatedDate.ToShortDateString()</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" >@Localizer["LBL0022"]</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+    }
+</MudContainer>
+<MudOverlay @bind-Visible="ProgressVisible" DarkBackground="true" ZIndex="9999">
+    <MudItem xs="12" Class="d-flex align-center">
+        <MudProgressCircular Indeterminate="true" />
+    </MudItem>
+</MudOverlay>
+
 
 @code {
-    [Inject] IDynamicContentService DynamicContentService { get; set; }
-    MarkupString _markupString;
-    MarkupString _selectMarkupString;
-    private string selectedValue = string.Empty;
+    [Inject] DiaryViewModel ViewModel { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await DynamicContentService.GetDynamicContent("hello");
-        _markupString = new MarkupString(result);
-
-        var result2 = await DynamicContentService.GetSelectBox("select");
-        _selectMarkupString = new MarkupString(result2);
-    }
-
-    [JSInvokable]
-    public static void UpdateSelectedValue(string value)
-    {
-        Console.WriteLine(value);
+        await ViewModel.GetDiaries();
     }
 }
