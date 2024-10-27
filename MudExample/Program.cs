@@ -1,13 +1,17 @@
 using System.Globalization;
 using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
+using eXtensionSharp;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 using MudExample;
 using MudExample.Data;
+using MudExample.Infrastructure;
+using MudExample.Services;
 using OllamaSharp;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 #if DEBUG
 
@@ -30,9 +34,20 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;    
 });
 
+const string clientName = "MudExample";
 builder.Services.AddScoped<IOllamaApiClient, OllamaApiClient>(sp => new OllamaApiClient("http://localhost:11434/"));
-builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddSingleton<HttpClientInterceptor>();
+builder.Services.AddSingleton(sp =>
+        sp.GetRequiredService<IHttpClientFactory>()
+            .CreateClient(clientName)
+            .EnableIntercept(sp)
+    )
+    .AddHttpClient(clientName, client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+    .AddHttpMessageHandler<HttpClientInterceptor>();
+builder.Services.AddHttpClientInterceptor();
 builder.Services.AddSingleton<MenuViewModel>();
+builder.Services.AddSingleton<IMenuService, MenuService>();
+builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
 builder.Services.AddLocalizerAsSingleton();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddSingleton<LayoutState>();
@@ -41,4 +56,7 @@ builder.Services.AddSubtleCrypto(opt => opt.Key = "kR0BsODSKxPhAWkKpePGmUTvUygYk
 
 var app = builder.Build();
 await app.UseLocalizer();
+using var scope = app.Services.CreateScope();
+var vm = scope.ServiceProvider.GetService<MenuViewModel>();
+await vm.InitializeAsync();
 await app.RunAsync();

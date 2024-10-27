@@ -1,0 +1,31 @@
+﻿@page "/diary/list"
+@using MudExample.Services
+
+<MudPaper>
+    @_markupString
+    <br/>
+    @_selectMarkupString
+    <label>@selectedValue</label>
+</MudPaper>
+
+@code {
+    [Inject] IDynamicContentService DynamicContentService { get; set; }
+    MarkupString _markupString;
+    MarkupString _selectMarkupString;
+    private string selectedValue = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await DynamicContentService.GetDynamicContent("hello");
+        _markupString = new MarkupString(result);
+
+        var result2 = await DynamicContentService.GetSelectBox("select");
+        _selectMarkupString = new MarkupString(result2);
+    }
+
+    [JSInvokable]
+    public static void UpdateSelectedValue(string value)
+    {
+        Console.WriteLine(value);
+    }
+}

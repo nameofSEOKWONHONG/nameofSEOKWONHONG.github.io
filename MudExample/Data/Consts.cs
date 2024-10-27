@@ -2,5 +2,5 @@
 
 public class Consts
 {
-    public static string Version { get; set; } = "1.0.1";
+    public static string Version { get; set; } = "1.0.3";
 }

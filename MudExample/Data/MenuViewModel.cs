@@ -1,30 +1,66 @@
-﻿using Blazor.SubtleCrypto;
+﻿using System.Net.Http.Json;
+using Blazor.SubtleCrypto;
 using eXtensionSharp;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace MudExample.Data;
 
+public interface IMenuService
+{
+    Task<List<Menu>> GetMenuListAsync();
+}
+
+public class MenuService : IMenuService
+{
+    private readonly HttpClient _httpClient;
+    private readonly ILocalizer _localizer;
+
+    public MenuService(HttpClient client, ILocalizer localizer)
+    {
+        _httpClient = client;
+        _localizer = localizer;
+    }
+
+    public async Task<List<Menu>> GetMenuListAsync()
+    {
+        var res = await _httpClient.GetAsync($"/data/menu.json");
+        res.EnsureSuccessStatusCode();
+        
+        var result = await res.Content.ReadFromJsonAsync<List<Menu>>();
+        foreach (var menu in result)
+        {
+            if (menu.Name == "LBL0032")
+            {
+                menu.Icon = Icons.Material.Filled.EditNote;
+            }
+            menu.Name = _localizer[menu.Name];
+            if (menu.SubMenus.xIsNotEmpty())
+            {
+                foreach (var subMenu in menu.SubMenus)
+                {
+                    subMenu.Name = _localizer[subMenu.Name];    
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
 public class MenuViewModel
 {
+    private readonly IMenuService _menuService;
     public List<Menu> Menus { get; private set; }
 
-    public MenuViewModel(HttpClient client, ILocalizer localizer)
+    public MenuViewModel(IMenuService menuService)
     {
-        Menus = new List<Menu>();
-        
-        Menus.Add(new Menu() { Id=1, Name = localizer["LBL0006"], Icon = Icons.Material.Filled.Home, Href = "/", MenuDirection = MenuDirection.Root});
-        Menus.Add(new Menu() { Id=2, Name = localizer["LBL0007"], Icon = Icons.Material.Filled.Numbers, Href = "/counter", MenuDirection = MenuDirection.Normal});
-        Menus.Add(new Menu() { Id=3, Name = localizer["LBL0008"], Icon = Icons.Material.Filled.WbSunny, Href = "/weather", MenuDirection = MenuDirection.Normal});
-        Menus.Add(new Menu() { Id=4, Name = localizer["LBL0009"], Icon = Icons.Material.Filled.TableView, Href = "/table", MenuDirection = MenuDirection.Normal });
-        Menus.Add(new Menu() { Id=5, Name = localizer["LBL0010"], Icon = Icons.Material.Filled.ShowChart, Href = "/chart", MenuDirection = MenuDirection.Normal });
-        Menus.Add(new Menu() { Id=6, Name = localizer["LBL0030"], Icon = Icons.Material.Filled.WorkHistory, Href = "/recent-work", MenuDirection = MenuDirection.Normal });
-        Menus.Add(new Menu() { Id=7, Name = localizer["LBL0032"], Icon = Icons.Material.Filled.NoteAdd, Href = "/diary", MenuDirection = MenuDirection.Normal });
-        Menus.Add(new Menu() { Id=8, Name = localizer["LBL0011"], Icon = Icons.Material.Filled.Settings, Href = null, MenuDirection = MenuDirection.Sub, SubMenus = new List<Menu>()
-        {
-            new Menu() { Id=9, Name = localizer["LBL0012"], Icon = Icons.Material.Filled.People, Href = "/settings/users", IconColor = Color.Success, MenuDirection = MenuDirection.Normal},
-            new Menu() { Id=10, Name = localizer["LBL0013"], Icon = Icons.Material.Filled.Security, Href = "/settings/security", IconColor = Color.Info, MenuDirection = MenuDirection.Normal},
-        }});        
+        _menuService = menuService;
+    }
+
+    public async Task InitializeAsync()
+    {
+        this.Menus = await _menuService.GetMenuListAsync();
     }
 
     public IEnumerable<Menu> GetAllMenus()

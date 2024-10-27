@@ -1,0 +1,4 @@
+﻿{
+  "hello": "<h2>Hello, blazor!</h2><p>This is dynamic content.</p>",
+  "select": "<select id=\"dynamicSelect\" onchange=\"DotNet.invokeMethodAsync('MudExample', 'UpdateSelectedValue', this.value)\"><option value=\"option1\">option1</option><option value=\"option2\">option2</option></select>"
+}

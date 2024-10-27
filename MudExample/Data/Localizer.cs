@@ -67,7 +67,7 @@ public class Localizer : ILocalizer, ILocalizerInitilizer
     
     public async Task InitializeAsync(string locale)
     {
-        var res = await _client.GetAsync($"/languages/{locale.ToLower()}.json?v={Consts.Version}");
+        var res = await _client.GetAsync($"/languages/{locale.ToLower()}.json");
         res.EnsureSuccessStatusCode();
 
         _localizers = await res.Content.ReadFromJsonAsync<Dictionary<string, string>>();

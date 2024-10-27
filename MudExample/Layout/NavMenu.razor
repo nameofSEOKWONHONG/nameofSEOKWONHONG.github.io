@@ -11,7 +11,6 @@
     </MudPaper>
     @foreach (var item in ViewModel.Menus)
     {
-        
         if (item.MenuDirection == MenuDirection.Root)
         {
             <MudNavLink Href=@item.Href Match="NavLinkMatch.All" Icon="@item.Icon">@item.Name</MudNavLink>
@@ -22,7 +21,7 @@
         }
         else if (item.MenuDirection == MenuDirection.Sub)
         {
-            <MudNavGroup Title="@item.Name" Expanded="true" Icon="@Icons.Material.Filled.Settings">
+            <MudNavGroup Title="@item.Name" Expanded="true" Icon="@item.Icon">
             @if (item.SubMenus.xIsNotEmpty())
             {
                 foreach (var subItem in item.SubMenus)
