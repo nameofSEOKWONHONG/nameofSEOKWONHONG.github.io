@@ -1,5 +1,7 @@
 ﻿@using Blazored.LocalStorage
+@using eXtensionSharp
 @using MudExample.Data
+@using MudExample.Services
 @inherits LayoutComponentBase
 
 @inject NavigationManager NavigationManager
@@ -29,13 +31,13 @@
                         <MudText Typo="Typo.subtitle2">Notifications</MudText>
                         <MudButton Disabled="false" StartIcon="@Icons.Material.Filled.DoneAll" Variant="Variant.Text" Color="Color.Primary" Class="ml-16 mr-n2">Mark as read</MudButton>
                     </div>
-                    @if (_messages != null)
+                    @if (_notifies.xIsEmpty())
                     {
-                        @foreach (var (message, isRead) in _messages.Take(5))
+                        @foreach (var item in _notifies.Take(5))
                         {
-                            <MudMenuItem Class="px-2 py-0 rounded" Href="@($"/mud/announcements/{message.Id}")">
-                                <MudText Typo="Typo.subtitle2">@message.Title</MudText>
-                                <MudText Typo="Typo.body2">@($"{message.Authors.FirstOrDefault()?.DisplayName} • {message.PublishDate.ToString("MM/dd/yyyy")}")</MudText>
+                            <MudMenuItem Class="px-2 py-0 rounded" Href="@($"/mud/announcements/{item.Id}")">
+                                <MudText Typo="Typo.subtitle2">@item.Title</MudText>
+                                <MudText Typo="Typo.body2">@($"{item.DisplayName} • {item.PublishDate.ToShortDateString()}")</MudText>
                             </MudMenuItem>
                             <MudDivider Class="my-2"/>
                         }
@@ -82,7 +84,8 @@
     [Inject] LayoutState LayoutState { get; set; }
     [Inject] ILocalizer? Localizer { get; set; }
     [Inject] ILocalStorageService? LocalStorageService { get; set; }
-    private IDictionary<NotificationMessage, bool> _messages = null;
+    [Inject] INotifyService NotifyService { get; set; }
+    private List<Notify> _notifies;
     bool _drawerOpen = true;
     Color Color = Color.Success;
 
@@ -90,6 +93,7 @@
     {
         LayoutState.DrawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.DrawerOpen));
         LayoutState.IsDark = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.IsDark));
+        _notifies = await this.NotifyService.GetNotify();
     }
 
     void DrawerToggle()
@@ -127,9 +131,6 @@
             _=>Color.Error
         };
     }
-    
-    public record NotificationMessage(string Id, string Title, string Except, string Category, DateTime PublishDate, string ImgUrl, IEnumerable<NotificationAuthor> Authors, Type ContentComponent);
-    public record NotificationAuthor(string DisplayName, string AvatarUrl);    
     
     void OnCultureChanged(string culture)
     {
