@@ -31,11 +31,11 @@
                         <MudText Typo="Typo.subtitle2">Notifications</MudText>
                         <MudButton Disabled="false" StartIcon="@Icons.Material.Filled.DoneAll" Variant="Variant.Text" Color="Color.Primary" Class="ml-16 mr-n2">Mark as read</MudButton>
                     </div>
-                    @if (_notifies.xIsEmpty())
+                    @if (_notifies.xIsNotEmpty())
                     {
                         @foreach (var item in _notifies.Take(5))
                         {
-                            <MudMenuItem Class="px-2 py-0 rounded" Href="@($"/mud/announcements/{item.Id}")">
+                            <MudMenuItem Class="px-2 py-0 rounded" OnClick="@(() => NotificationClick(item))">
                                 <MudText Typo="Typo.subtitle2">@item.Title</MudText>
                                 <MudText Typo="Typo.body2">@($"{item.DisplayName} • {item.PublishDate.ToShortDateString()}")</MudText>
                             </MudMenuItem>
@@ -85,8 +85,7 @@
     [Inject] ILocalizer? Localizer { get; set; }
     [Inject] ILocalStorageService? LocalStorageService { get; set; }
     [Inject] INotifyService NotifyService { get; set; }
-    private List<Notify> _notifies;
-    bool _drawerOpen = true;
+    List<Notify> _notifies;
     Color Color = Color.Success;
 
     protected override async Task OnInitializedAsync()
@@ -112,6 +111,12 @@
             LayoutState.IsDark = await _mudThemeProvider.GetSystemPreference();
             StateHasChanged();
         }
+    }
+
+    async Task NotificationClick(Notify item)
+    {
+        this._notifies.Remove(item);
+        await NotifyService.SaveNotify(item);
     }
 
     void ChangeDarkMode()

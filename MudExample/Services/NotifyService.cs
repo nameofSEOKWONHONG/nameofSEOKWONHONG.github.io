@@ -54,4 +54,8 @@ public class Notify
     public bool IsRead { get; set; }
     public string DisplayName { get; set; }
     public DateTime PublishDate { get; set; }
+
+    public Notify()
+    {
+    }
 }
