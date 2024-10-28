@@ -1,3 +1,10 @@
-{
-  "v1": "만"
-}
+[
+  {
+    "Id":"e6915c31-8093-41d6-8490-878601d0fba9",
+    "Title":"Hi",
+    "Message":"Welcome",
+    "IsRead":false,
+    "DisplayName":"admin",
+    "PublishDate":"2024-10-28T15:53:09.174+09:00"
+  }
+]
