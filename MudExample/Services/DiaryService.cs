@@ -1,63 +1,69 @@
 ﻿using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
 using eXtensionSharp;
+using Magic.IndexedDb;
 using MudExample.Data;
 
 namespace MudExample.Services;
 
 public interface IDiaryService
 {
-    Task<List<DiaryIndex>?> Initialize();
-    Task AddDiary(List<DiaryIndex> diaryIndices, Diary diary);
-    Task UpdateDiary(List<DiaryIndex> diaryIndices, Diary diary);
-    Task<List<DiaryIndex>> GetDiaries();
-    Task<Diary> GetDiary(string id);
+    Task<List<Diary>> GetDiaries();
+    Task<List<Diary>> GetDiaries(string title);
+    Task<Diary> GetDiary(int id);
+    Task<bool> SaveDiary(Diary diary);
+    Task<bool> DeleteDiary(int id);
 }
 
 public class DiaryService : IDiaryService
 {
-    private readonly ILocalStorageService _localStorage;
+    private readonly IMagicDbFactory _magicDbFactory;
     private readonly ICryptoService _cryptoService;
     
     private const string _diaryIndexName = "my_memories_make_me_exist";
     
-    public DiaryService(ILocalStorageService localStorageService, ICryptoService cryptoService)
+    public DiaryService(IMagicDbFactory magicDbFactory, ICryptoService cryptoService)
     {
-        _localStorage = localStorageService;
+        _magicDbFactory = magicDbFactory;
         _cryptoService = cryptoService;
     }
-    
-    public async Task<List<DiaryIndex>?> Initialize()
+
+    public async Task<List<Diary>> GetDiaries()
     {
-        return await _localStorage.GetItemAsync<List<DiaryIndex>>(_diaryIndexName);        
+        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
+        var items = await db.GetAll<Diary>();
+        return items.ToList();
     }
     
-    public async Task AddDiary(List<DiaryIndex> diaryIndices, Diary diary)
+    public async Task<List<Diary>> GetDiaries(string title)
     {
+        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
+        var items = await db.GetAll<Diary>();
+        return items.Where(m => m.Title.ToLower().Contains(title.ToLower())).ToList();
+    }    
+
+    public async Task<Diary> GetDiary(int id)
+    {
+        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
+        var item = await db.GetById<Diary>(id);
+        item.Content = await _cryptoService.DecryptAsync(item.Content);
+        return item;
+    }
+
+    public async Task<bool> SaveDiary(Diary diary)
+    {
+        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
         var enc = await _cryptoService.EncryptAsync(diary.Content);
         diary.Content = enc.Value;
-        await _localStorage.SetItemAsync(_diaryIndexName, diaryIndices);
-        await _localStorage.SetItemAsync(diary.Id, diary);
+        await db.Add(diary);
+        return true;
     }
-    
-    public async Task UpdateDiary(List<DiaryIndex> diaryIndices, Diary diary)
-    {   
-        await _localStorage.SetItemAsync(_diaryIndexName, diaryIndices);
-        await _localStorage.SetItemAsync(diary.Id, diary);
-    }
-    
-    public async Task<List<DiaryIndex>> GetDiaries()
-    {
-        var diaries = await _localStorage.GetItemAsync<List<DiaryIndex>>(_diaryIndexName);
-        if(diaries.xIsNotEmpty()) return diaries.OrderByDescending(m => m.CreatedDate).ToList();
 
-        return default;
-    }
-    
-    public async Task<Diary> GetDiary(string id)
+    public async Task<bool> DeleteDiary(int id)
     {
-        var item = await _localStorage.GetItemAsync<Diary>(id);
-        item.Content = await _cryptoService.DecryptAsync(item.Content);
-        return item; 
+        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
+        var exists = await db.GetById<Diary>(id);
+        await db.Delete(exists);
+        return true;
     }
 }

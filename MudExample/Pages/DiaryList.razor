@@ -5,7 +5,7 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
     
-    @if (ViewModel.DiaryIndices == null)
+    @if (ViewModel.Diaries == null)
     {
     <p>
         <em>Loading...</em>
@@ -13,11 +13,12 @@
     }
     else
     {
-    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary">@Localizer["LBL0020"]</MudButton>
-    </MudPaper>
+        <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+            <MudTextField T="string" Label="Title" @bind-Value="title"/>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Search">@Localizer["LBL0043"]</MudButton>
+        </MudPaper>
     <br/>
-    <MudTable Items="@ViewModel.DiaryIndices" MultiSelection="true" Hover="true" @bind-SelectedItems="@ViewModel.SelectedDiaryIndexes" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
+    <MudTable Items="@ViewModel.Diaries" MultiSelection="true" Hover="true" @bind-SelectedItems="@ViewModel.SelectedDiaries" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Title</MudTh>
@@ -25,7 +26,7 @@
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.Id</MudTd>
+            <MudTd>@context._id</MudTd>
             <MudTd>@context.Title</MudTd>
             <MudTd>@context.CreatedDate.ToShortDateString()</MudTd>
             <MudTd>
@@ -43,10 +44,16 @@
 
 
 @code {
+    string title;
     [Inject] DiaryViewModel ViewModel { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.GetDiaries();
+    }
+
+    async Task Search()
+    {
+        await ViewModel.GetDiaries(title);
     }
 }

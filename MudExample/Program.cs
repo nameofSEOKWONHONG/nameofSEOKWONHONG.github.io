@@ -1,7 +1,7 @@
-using System.Globalization;
 using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
-using eXtensionSharp;
+using Magic.IndexedDb.Extensions;
+using Magic.IndexedDb.Helpers;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
@@ -57,6 +57,14 @@ builder.Services.AddSingleton<LayoutState>();
 builder.Services.AddLocalization();
 builder.Services.AddSubtleCrypto(opt => opt.Key = "kR0BsODSKxPhAWkKpePGmUTvUygYkb9ijbwjnqezc5P8ICszLGyeeVXZJPbaZuTDq8GvP6O4OC92jAse");
 
+builder.Services.AddBlazorDB(options =>
+{
+    options.Name = "MudExampleDb";
+    options.Version = "1";
+    options.EncryptionKey = "zQfTuWnZi8u7x!A%C*F-JaBdRlUkXp2l";
+    options.StoreSchemas =
+        SchemaHelper.GetAllSchemas("MyDatabase"); // builds entire database schema for you based on attributes
+});
 var app = builder.Build();
 await app.UseLocalizer();
 using var scope = app.Services.CreateScope();

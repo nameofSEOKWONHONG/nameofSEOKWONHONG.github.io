@@ -1,61 +1,21 @@
 ﻿@page "/diary/new"
 @using Blazored.TextEditor
+@using MudExample.Data
+@inherits PageComponentBase
 
-<BlazoredTextEditor @ref="@QuillHtml">
-    <ToolbarContent>
-        <select class="ql-header">
-            <option selected=""></option>
-            <option value="1"></option>
-            <option value="2"></option>
-            <option value="3"></option>
-            <option value="4"></option>
-            <option value="5"></option>
-        </select>
-        <span class="ql-formats">
-            <button class="ql-bold"></button>
-            <button class="ql-italic"></button>
-            <button class="ql-underline"></button>
-            <button class="ql-strike"></button>
-        </span>
-        <span class="ql-formats">
-            <select class="ql-color"></select>
-            <select class="ql-background"></select>
-        </span>
-        <span class="ql-formats">
-            <button class="ql-list" value="ordered"></button>
-            <button class="ql-list" value="bullet"></button>
-        </span>
-        <span class="ql-formats">
-            <button class="ql-link"></button>
-        </span>
-    </ToolbarContent>
-    <EditorContent>
-        <h4>This Toolbar works with HTML</h4>
-        <a href="http://BlazorHelpWebsite.com">
-            BlazorHelpWebsite.com
-        </a>
-    </EditorContent>
-</BlazoredTextEditor>
-<br />
-<button class="btn btn-primary"
-        @onclick="GetHTML">
-    Get HTML
-</button>
-<button class="btn btn-primary"
-        @onclick="SetHTML">
-    Set HTML
-</button>
-<br />
-<div>
-    <br />
-    @((MarkupString)QuillHTMLContent)
-    @QuillHTMLContent
-</div>
-<br />
-<BlazoredTextEditor @ref="@QuillNative"
-                    Placeholder="Enter non HTML format like centering..."
-                    EditorCssStyle="height: 500px;">
-    <ToolbarContent>
+<MudContainer>
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">@Localizer["LBL0041"]</MudButton>
+    </MudPaper>
+    <br/>
+    <MudPaper>
+        <MudTextField T="string" Label="Title" Required="true" RequiredError="Title is required!" @bind-Value="title"/>
+    </MudPaper>
+    <br/>
+    <BlazoredTextEditor @ref="@QuillNative"
+                        Placeholder="@Localizer["LBL0042"]"
+                        EditorCssStyle="height: 500px;">
+        <ToolbarContent>
         <span class="ql-formats">
             <select class="ql-font">
                 <option selected=""></option>
@@ -69,17 +29,17 @@
                 <option value="huge"></option>
             </select>
         </span>
-        <span class="ql-formats">
+            <span class="ql-formats">
             <button class="ql-bold"></button>
             <button class="ql-italic"></button>
             <button class="ql-underline"></button>
             <button class="ql-strike"></button>
         </span>
-        <span class="ql-formats">
+            <span class="ql-formats">
             <select class="ql-color"></select>
             <select class="ql-background"></select>
         </span>
-        <span class="ql-formats">
+            <span class="ql-formats">
             <button class="ql-list" value="ordered"></button>
             <button class="ql-list" value="bullet"></button>
             <button class="ql-indent" value="-1"></button>
@@ -91,107 +51,28 @@
                 <option value="justify"></option>
             </select>
         </span>
-        <span class="ql-formats">
+            <span class="ql-formats">
             <button class="ql-link"></button>
         </span>
-    </ToolbarContent>
-</BlazoredTextEditor>
-<br />
-<button class="btn btn-primary"
-        @onclick="GetContent">
-    Get Content
-</button>
-<button class="btn btn-primary"
-        @onclick="LoadContent">
-    Load Content
-</button>
-<button class="btn btn-primary"
-        @onclick="InsertImage">
-    Insert Image
-</button>
-<button class="btn btn-primary"
-        @onclick="InsertText">
-    Insert Text
-</button>
-<br />
-<br />
-<div>
-    @QuillContent
-</div>
-<br />
-<br />
-<BlazoredTextEditor @ref="@QuillReadOnly"
-                    ReadOnly="true"
-                    Theme="bubble"
-                    DebugLevel="log">
-    <ToolbarContent>
-        <select class="ql-header">
-            <option selected=""></option>
-            <option value="1"></option>
-            <option value="2"></option>
-            <option value="3"></option>
-            <option value="4"></option>
-            <option value="5"></option>
-        </select>
-        <span class="ql-formats">
-            <button class="ql-bold"></button>
-            <button class="ql-italic"></button>
-            <button class="ql-underline"></button>
-            <button class="ql-strike"></button>
-        </span>
-        <span class="ql-formats">
-            <select class="ql-color"></select>
-            <select class="ql-background"></select>
-        </span>
-        <span class="ql-formats">
-            <button class="ql-list" value="ordered"></button>
-            <button class="ql-list" value="bullet"></button>
-        </span>
-        <span class="ql-formats">
-            <button class="ql-link"></button>
-        </span>
-    </ToolbarContent>
-    <EditorContent>
-        @((MarkupString)@QuillReadOnlyContent)
-    </EditorContent>
-</BlazoredTextEditor>
-<br />
-<button class="btn btn-info"
-        @onclick="ToggleQuillEditor">
-    Toggle Editor
-</button>
+        </ToolbarContent>
+    </BlazoredTextEditor>    
+</MudContainer>
+
 
 @code {
-    BlazoredTextEditor QuillHtml;
     BlazoredTextEditor QuillNative;
-    BlazoredTextEditor QuillReadOnly;
 
-    string QuillHTMLContent;
     string QuillContent;
-    string QuillReadOnlyContent =
-    @"<span><b>Read Only</b> <u>Content</u></span>";
 
     bool mode = false;
+
+    string title;
+    
+    [Inject] DiaryViewModel viewModel { get; set; }
 
     protected override void OnInitialized()
     {
         
-    }
-
-    public async void GetHTML()
-    {
-        QuillHTMLContent = await this.QuillHtml.GetHTML();
-        StateHasChanged();
-    }
-
-    public async void SetHTML()
-    {
-        string QuillContent =
-        @"<a href='http://BlazorHelpWebsite.com/'>" +
-        "<img src='images/BlazorHelpWebsite.gif' /></a>";
-
-        await this.QuillHtml.LoadHTMLContent(QuillContent);
-        StateHasChanged();
     }
 
     public async void GetContent()
@@ -217,9 +98,13 @@
         StateHasChanged();
     }
 
-    async Task ToggleQuillEditor()
+    async Task Save()
     {
-        mode = (mode) ? false : true;
-        await this.QuillReadOnly.EnableEditor(mode);
+        var content = await this.QuillNative.GetContent();
+        await viewModel.AddDiary(new Diary()
+        {
+            Title = this.title,
+            Content = content,
+        });
     }
 }
