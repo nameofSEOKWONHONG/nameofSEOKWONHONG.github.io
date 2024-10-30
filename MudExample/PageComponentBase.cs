@@ -8,7 +8,7 @@ using MudExample.Pages;
 
 namespace MudExample;
 
-public abstract class PageComponentBase : ComponentBase
+public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
 {
     [Parameter] public RenderFragment ChildContent {get;set;}
     [Inject] protected IDialogService DialogService { get; set; }
@@ -55,5 +55,9 @@ public abstract class PageComponentBase : ComponentBase
         this.ShowProgress();
         await func();
         this.CloseProgress();
+    }
+
+    public virtual async ValueTask DisposeAsync()
+    {
     }
 }
