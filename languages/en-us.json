@@ -39,5 +39,8 @@
   "LBL0037": "SaaS ERP development", 
   "LBL0038": "Open-source development",
   "LBL0039": "List",
-  "LBL0040": "New"  
+  "LBL0040": "New",
+  "LBL0041": "Save",
+  "LBL0042": "Hello. Anything you type here is currently only stored in your browser and is not shared. All content is stored encrypted so that no one else can see it.",
+  "LBL0043": "Search"
 }
