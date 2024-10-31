@@ -100,7 +100,7 @@
 
     async Task Save()
     {
-        var content = await this.QuillNative.GetContent();
+        var content = await this.QuillNative.GetHTML();
         await viewModel.AddDiary(new Diary()
         {
             Title = this.title,

@@ -1,4 +1,5 @@
 ﻿@page "/diary/list"
+@using Blazored.TextEditor
 @using MudExample.Data
 @inherits PageComponentBase
 
@@ -18,22 +19,59 @@
             <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Search">@Localizer["LBL0043"]</MudButton>
         </MudPaper>
     <br/>
-    <MudTable Items="@ViewModel.Diaries" MultiSelection="true" Hover="true" @bind-SelectedItems="@ViewModel.SelectedDiaries" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
-        <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Title</MudTh>
-            <MudTh>CreatedDate</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context._id</MudTd>
-            <MudTd>@context.Title</MudTd>
-            <MudTd>@context.CreatedDate.ToShortDateString()</MudTd>
-            <MudTd>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" >@Localizer["LBL0022"]</MudButton>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+    <MudDataGrid Items="@ViewModel.Diaries" EditMode="DataGridEditMode.Cell" ReadOnly="true">
+        <Columns>
+            <HierarchyColumn T="Diary" />
+            <PropertyColumn Property="m => m._id" Title="Id"/>
+            <PropertyColumn Property="m => m.Title"/>
+            <PropertyColumn Property="m => m.CreatedDate"/>
+        </Columns>
+        
+        <ChildRowContent>
+            <MudCard>
+                <MudCardContent>
+                    <BlazoredTextEditor @ref="@QuillReadOnly"
+                                        ReadOnly="true"
+                                        Theme="bubble"
+                                        DebugLevel="log">
+                        <ToolbarContent>
+                            <select class="ql-header">
+                                <option selected=""></option>
+                                <option value="1"></option>
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option value="4"></option>
+                                <option value="5"></option>
+                            </select>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-strike"></button>
+                            </span>
+                                                <span class="ql-formats">
+                                <select class="ql-color"></select>
+                                <select class="ql-background"></select>
+                            </span>
+                                                <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                            </span>
+                                                <span class="ql-formats">
+                                <button class="ql-link"></button>
+                            </span>
+                        </ToolbarContent>
+                        <EditorContent>
+                            @((MarkupString)@context.Item.Content)
+                        </EditorContent>
+                    </BlazoredTextEditor>
+                </MudCardContent>
+            </MudCard>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Diary" />
+        </PagerContent>
+    </MudDataGrid>
     }
 </MudContainer>
 <MudOverlay @bind-Visible="ProgressVisible" DarkBackground="true" ZIndex="9999">
@@ -44,6 +82,8 @@
 
 
 @code {
+    BlazoredTextEditor QuillReadOnly;
+
     string title;
     [Inject] DiaryViewModel ViewModel { get; set; }
 

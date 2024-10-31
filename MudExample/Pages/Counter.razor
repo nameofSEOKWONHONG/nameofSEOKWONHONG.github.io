@@ -1,5 +1,6 @@
 ﻿@page "/counter"
-@using System.Drawing
+
+@using eXtensionSharp
 @using KristofferStrube.Blazor.WebAudio
 @using Color = MudBlazor.Color
 @using Size = MudBlazor.Size
@@ -38,13 +39,13 @@
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
             @if (_isShuffle)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="@(() => _isShuffle = false)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="RandomizeTracks"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="@(() => _isShuffle = true)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="RandomizeTracks"/>
             }
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack"/>
             @if (playing)
             {
                 <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PauseCircle" OnClick="Pause"/>
@@ -53,7 +54,7 @@
             {
                 <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PlayArrow" OnClick="Play"/>
             }
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight" OnClick="NextTrack"/>
 
             @if (_repeatMode == 0)
             {
@@ -143,7 +144,7 @@
             await currentAudioBuffer.DisposeAsync();
         }
 
-        if (loadedTracks[currentTrack] is null)
+        if (loadedTracks[currentTrack].xIsEmpty())
         {
             loadedTracks[currentTrack] = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
         }
@@ -210,6 +211,50 @@
         }
 
         playing = false;
+    }
+    
+    public Task PreviousTrack() => SwitchTrack(() => currentTrack = (currentTrack - 1 + tracks.Count) % tracks.Count);
+    public Task NextTrack() => SwitchTrack(() => currentTrack = (currentTrack + 1) % tracks.Count);
+    
+    private async Task SwitchTrack(Action changeTrack)
+    {
+        await EnsureInitialized();
+
+        var wasPlaying = playing;
+        if (wasPlaying)
+        {
+            await Pause();
+        }
+        changeTrack();
+        currentTrackLoaded = false;
+        await EnsureCurrentTrackLoaded();
+        offset = 0;
+        playTime = 0;
+        if (wasPlaying)
+        {
+            await Play();
+        }
+    }
+    
+    public async Task RandomizeTracks()
+    {
+        _isShuffle = !_isShuffle;
+        
+        var wasPlaying = playing;
+        if (wasPlaying)
+        {
+            await Pause();
+        }
+        tracks = tracks.OrderBy(x => Random.Shared.Next()).ToList();
+        loadedTracks = new byte[]?[4];
+        currentTrackLoaded = false;
+        currentTrack = 0;
+        offset = 0;
+        playTime = 0;
+        if (wasPlaying)
+        {
+            await Play();
+        }
     }
     
     void ButtonOnClick()

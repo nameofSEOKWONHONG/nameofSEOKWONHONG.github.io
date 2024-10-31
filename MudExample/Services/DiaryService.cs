@@ -32,6 +32,10 @@ public class DiaryService : IDiaryService
     {
         var db = await _magicDbFactory.GetDbManager("MudExampleDb");
         var items = await db.GetAll<Diary>();
+        foreach (var diary in items)
+        {
+            diary.Content = await _cryptoService.DecryptAsync(diary.Content);
+        }
         return items.ToList();
     }
     
@@ -39,6 +43,10 @@ public class DiaryService : IDiaryService
     {
         var db = await _magicDbFactory.GetDbManager("MudExampleDb");
         var items = await db.GetAll<Diary>();
+        foreach (var diary in items)
+        {
+            diary.Content = await _cryptoService.DecryptAsync(diary.Content);
+        }
         return items.Where(m => m.Title.ToLower().Contains(title.ToLower())).ToList();
     }    
 
