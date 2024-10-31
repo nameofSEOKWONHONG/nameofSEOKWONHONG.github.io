@@ -10,8 +10,7 @@ public class HttpClientInterceptor : DelegatingHandler
         var uriBuilder = new UriBuilder(request.RequestUri);
         var query = uriBuilder.Query;
         
-        // Check if query string is empty and append version parameter
-        query += string.IsNullOrEmpty(query) ? $"v={Consts.Version}" : $"&v={Consts.Version}";
+        query += query.Contains("?") ? $"&v={Consts.Version}" : $"?v={Consts.Version}";
         uriBuilder.Query = query;
         
         request.RequestUri = uriBuilder.Uri;
