@@ -1,0 +1,194 @@
+﻿@page "/music"
+
+@using KristofferStrube.Blazor.WebAudio
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+@using KristofferStrube.Blazor.MediaCaptureStreams
+@using KristofferStrube.Blazor.WebIDL
+@inject IMediaDevicesService MediaDevicesService
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+@inherits PageComponentBase
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+
+    <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
+            @if (_isShuffle)
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="@(() => _isShuffle = false)"/>
+            }
+            else
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="@(() => _isShuffle = true)"/>
+            }
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft"/>
+            @if (playing)
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PauseCircle" OnClick="Pause"/>
+            }
+            else
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PlayArrow" OnClick="Play"/>
+            }
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight"/>
+
+            @if (_repeatMode == 0)
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="@(() => _repeatMode = 1)"/>
+            }
+            else if (_repeatMode == 1)
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="@(() => _repeatMode = 2)"/>
+            }
+            else
+            {
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="@(() => _repeatMode = 0)"/>
+            }
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
+            <MudText Typo="Typo.inherit" Color="Color.Primary">
+                @TimeSpan.FromSeconds(playTime).ToString(@"mm\:ss")
+            </MudText>
+            <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="@playTime" Max="@trackDuration" Class="my-1">
+            </MudProgressLinear>
+            <MudText Typo="Typo.inherit" Color="Color.Secondary">
+                @TimeSpan.FromSeconds(trackDuration).ToString(@"mm\:ss")
+            </MudText>
+        </MudPaper>
+        <audio hidden><source src="mp3/Adam_MacDougall.mp3"/></audio>
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    
+    private int _repeatMode;
+    private bool _isShuffle;
+    
+    private AudioContext context = default!;
+    private AudioDestinationNode destination = default!;
+    private AudioBufferSourceNode currentAudioBufferNode = default!;
+    private AudioBuffer currentAudioBuffer = default!;
+
+
+    
+    private bool playing;
+    private bool currentTrackLoaded = false;
+    private int currentTrack = 0;
+    private double playTime;
+    private double startTime;
+    private double? pauseTime;
+    private double offset;
+    private double trackDuration;
+    private int interactions;
+    private List<string> tracks = new() {
+        "mp3/Adam_MacDougall.mp3"
+    };
+    private byte[]?[] loadedTracks = new byte[]?[4];
+
+    public async Task EnsureInitialized()
+    {
+        if (context is { }) return;
+
+        context = await AudioContext.CreateAsync(JSRuntime);
+        destination = await context.GetDestinationAsync();
+    }
+    
+    public async Task EnsureCurrentTrackLoaded()
+    {
+        if (currentTrackLoaded) return;
+
+        // Dispose old audio buffer
+        if (currentAudioBuffer is not null)
+        {
+            await currentAudioBuffer.DisposeAsync();
+        }
+
+        if (loadedTracks[currentTrack] is null)
+        {
+            loadedTracks[currentTrack] = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
+        }
+        AudioBuffer nextAudioBuffer = await context.DecodeAudioDataAsync(loadedTracks[currentTrack]);
+
+        currentAudioBuffer = nextAudioBuffer;
+        trackDuration = await currentAudioBuffer.GetDurationAsync();
+
+        currentTrackLoaded = true;
+    }
+    
+    private AnalyserNode? analyser;
+    private MediaDevices? mediaDevices;
+    private string? error;
+    private byte[] timeDomainMeasurements = Array.Empty<byte>();
+    private byte[] frequencyMeasurements = Array.Empty<byte>();
+    private bool makeMeasurements = false;
+    private MediaStream? mediaStream;
+    private List<(string label, string id)> audioOptions = new();
+    private string? selectedAudioSource;
+    private double peakFrequency = 0;
+    
+    public async Task Play()
+    {
+        await EnsureInitialized();
+        if (playing) return;
+        interactions++;
+        await EnsureCurrentTrackLoaded();
+
+        currentAudioBufferNode = await context.CreateBufferSourceAsync();
+        await currentAudioBufferNode.SetBufferAsync(currentAudioBuffer);
+        await currentAudioBufferNode.ConnectAsync(destination);
+        if (pauseTime is null)
+        {
+            await currentAudioBufferNode.StartAsync();
+        }
+        else
+        {
+            await currentAudioBufferNode.StartAsync(when: 0, offset: offset);
+        }
+        startTime = await context.GetCurrentTimeAsync();
+
+        playing = true;
+        
+        var currentInteractions = interactions;
+        while (currentInteractions == interactions)
+        {
+            playTime = await context.GetCurrentTimeAsync() - startTime + offset;
+            StateHasChanged();
+            if (playTime >= trackDuration)
+            {
+                await Pause();
+            }
+            await Task.Delay(1000);
+        }
+    }
+    
+    public async Task Pause()
+    {
+        if (!playing) return;
+        interactions++;
+
+        await currentAudioBufferNode.DisconnectAsync();
+        await currentAudioBufferNode.StopAsync();
+        await currentAudioBufferNode.DisposeAsync();
+
+        var currentTime = await context.GetCurrentTimeAsync();
+        pauseTime = await context.GetCurrentTimeAsync();
+        if (offset + currentTime - startTime > trackDuration)
+        {
+            offset = 0;
+        }
+        else
+        {
+            offset += currentTime - startTime;
+        }
+
+        playing = false;
+    }
+    
+    public override async ValueTask DisposeAsync()
+    {
+        await Pause();
+    }
+}

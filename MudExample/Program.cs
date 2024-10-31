@@ -1,5 +1,6 @@
 using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
+using KristofferStrube.Blazor.MediaCaptureStreams;
 using Magic.IndexedDb.Extensions;
 using Magic.IndexedDb.Helpers;
 using Microsoft.AspNetCore.Components.Web;
@@ -65,6 +66,8 @@ builder.Services.AddBlazorDB(options =>
     options.StoreSchemas =
         SchemaHelper.GetAllSchemas("MyDatabase"); // builds entire database schema for you based on attributes
 });
+builder.Services.AddMediaDevicesService();
+
 var app = builder.Build();
 await app.UseLocalizer();
 using var scope = app.Services.CreateScope();
