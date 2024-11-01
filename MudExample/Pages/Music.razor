@@ -14,21 +14,29 @@
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
-        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0" Style="height: 200px;">
+        <div class="visualizer-container">
             @for (int i = 0; i < 32; i++)
             {
-                var height = $"{_visualizerData[i]}%";
-                <div class="equalizer-bar" style="height: @height"></div>
+                var height = _visualizerData[i];
+                var hue = (i * 360 / _visualizerData.Length);
+                <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
             }
-        </MudPaper>
+        </div>
 
         <style>
-            .equalizer-bar {
-                width: 10px;
-                background: linear-gradient(to top, #1976d2, #90caf9);
-                margin: 0 2px;
-                border-radius: 3px;
-                transition: height 500ms ease;
+            .visualizer-container {
+                display: flex;
+                align-items: flex-end;  /* 아래쪽 정렬을 제거하고 기본값으로 */
+                height: 300px;
+                gap: 2px;
+                padding: 10px;
+                background-color: #373740;
+            }
+
+            .bar {
+                flex: 1;
+                transition: height 200ms ease;
+                border-radius: 4px;
             }
         </style>
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
