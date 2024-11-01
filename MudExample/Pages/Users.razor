@@ -3,8 +3,79 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+
+    <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
+        <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
+            <MudDataGrid Items="@Persons" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedPerson">
+                <Columns>
+                    <SelectColumn T="Person" />
+                    <PropertyColumn Property="m => m.Id"/>
+                    <PropertyColumn Property="m => m.Name"/>
+                    <PropertyColumn Property="m => m.Age"/>
+                    <PropertyColumn Property="m => m.Role"/>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Person" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudSection>
+        <MudSection Column="2" ColSpan="1" Row="1" RowSpan="4" Class="pa-4">
+            <MudItem>
+                <MudPaper Class="pa-4">
+                    <MudForm>
+                        <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedPerson.Name"/>
+                        <MudTextField T="int?" Label="Age" Required="true" RequiredError="User age is required!" @bind-Value="SelectedPerson.Age"/>
+                        <MudSelect Label="Role" @bind-Value="SelectedPerson.Role">
+                            @foreach (var role in Roles)
+                            {
+                                <MudSelectItem Value="role">@role</MudSelectItem>    
+                            }
+                        </MudSelect>
+                    </MudForm>                    
+                </MudPaper>
+            </MudItem>
+        </MudSection>
+    </MudPage>
 </MudContainer>
 
 @code {
-    
+    List<Person> Persons = new List<Person>();
+    Person SelectedPerson = new Person();
+
+    List<string> Roles = new()
+    {
+        "Administrator",
+        "User",
+        "Guest"
+    };
+
+    protected override void OnInitialized()
+    {
+        Persons.Add(new Person(1, "test1", 10, "Administrator"));
+        Persons.Add(new Person(2, "test2", 20, "User"));
+        Persons.Add(new Person(3, "test3", 30, "Guest"));
+        Persons.Add(new Person(4, "test4", 40, "Guest"));
+    }
+
+    public class Person
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int? Age { get; set; }
+        public string Role { get; set; }
+
+        public Person()
+        {
+            
+        }
+
+        public Person(int id, string name, int age, string role)
+        {
+            this.Id = id;
+            this.Name = name;
+            this.Age = age;
+            this.Role = role;
+        }
+    }
+
 }

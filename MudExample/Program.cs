@@ -11,6 +11,7 @@ using MudExample;
 using MudExample.Data;
 using MudExample.Infrastructure;
 using MudExample.Services;
+using MudExtensions.Services;
 using OllamaSharp;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 
@@ -67,6 +68,8 @@ builder.Services.AddBlazorDB(options =>
         SchemaHelper.GetAllSchemas("MyDatabase"); // builds entire database schema for you based on attributes
 });
 builder.Services.AddMediaDevicesService();
+
+builder.Services.AddMudExtensions();
 
 var app = builder.Build();
 await app.UseLocalizer();

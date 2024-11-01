@@ -13,6 +13,7 @@
         <PackageReference Include="Blazor.SubtleCrypto" Version="6.0.1" />
         <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
         <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
+        <PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="7.0.2" />
         <PackageReference Include="eXtensionSharp" Version="1.0.1.12" />
         <PackageReference Include="KristofferStrube.Blazor.WebAudio" Version="0.1.0-alpha.11" />
         <PackageReference Include="Magic.IndexedDb" Version="1.0.4" />
