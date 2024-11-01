@@ -14,6 +14,23 @@
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0" Style="height: 200px;">
+            @for (int i = 0; i < 32; i++)
+            {
+                var height = $"{_visualizerData[i]}%";
+                <div class="equalizer-bar" style="height: @height"></div>
+            }
+        </MudPaper>
+
+        <style>
+            .equalizer-bar {
+                width: 10px;
+                background: linear-gradient(to top, #1976d2, #90caf9);
+                margin: 0 2px;
+                border-radius: 3px;
+                transition: height 500ms ease;
+            }
+        </style>
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
             @if (_isShuffle)
             {
@@ -89,6 +106,30 @@
     };
     private byte[]?[] loadedTracks = new byte[]?[4];
 
+    private double[] _visualizerData = new double[32];
+    
+    private async Task UpdateVisualizer()
+    {
+        if (analyser is null) 
+        {
+            analyser = await context.CreateAnalyserAsync();
+            await currentAudioBufferNode.ConnectAsync(analyser);
+            await analyser.ConnectAsync(destination);
+        }
+
+        var frequencyBinCount = await analyser.GetFrequencyBinCountAsync();
+        var dataArray = new byte[frequencyBinCount];
+        var uint8Array = await Uint8Array.CreateAsync(JSRuntime, dataArray.Length);
+        await analyser.GetByteFrequencyDataAsync(uint8Array);
+        
+        for (int i = 0; i < 32; i++)
+        {
+            _visualizerData[i] = (await uint8Array.AtAsync(i)) / 255.0 * 100;
+        }
+        await Task.Delay(100);
+        StateHasChanged();
+    }
+
     public async Task EnsureInitialized()
     {
         if (context is { }) return;
@@ -157,12 +198,13 @@
         while (currentInteractions == interactions)
         {
             playTime = await context.GetCurrentTimeAsync() - startTime + offset;
+            await UpdateVisualizer();
             StateHasChanged();
             if (playTime >= trackDuration)
             {
                 await Pause();
             }
-            await Task.Delay(1000);
+            await Task.Delay(16);
         }
     }
     
