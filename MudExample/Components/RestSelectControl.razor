@@ -1,0 +1,41 @@
+@* 
+worst case implement. why??? A very large number of calls due to the implementation of the control.
+ *@
+
+<MudSelect Label="@Label" @bind-Value="SelectedValue">
+    @foreach (var item in SelectItems)
+    {
+        <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public ISelector Selector { get; set; }
+    [Parameter] public string Label { get; set; }
+    private string _selectedValue;
+    [Parameter] public EventCallback<string> SelectedValueChanged { get; set; }
+
+    [Parameter]
+    public string SelectedValue
+    {
+        get => _selectedValue;
+        set
+        {
+            if (value == _selectedValue)
+                return;
+
+            _selectedValue = value;
+            if (SelectedValueChanged.HasDelegate)
+            {
+                SelectedValueChanged.InvokeAsync(_selectedValue);
+            }
+        }
+    }
+
+    List<SelectItem> SelectItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.SelectItems = await this.Selector.GetItems();
+    }
+}

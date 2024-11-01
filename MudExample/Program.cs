@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 using MudExample;
+using MudExample.Components;
 using MudExample.Data;
 using MudExample.Infrastructure;
 using MudExample.Services;
@@ -68,6 +69,8 @@ builder.Services.AddBlazorDB(options =>
         SchemaHelper.GetAllSchemas("MyDatabase"); // builds entire database schema for you based on attributes
 });
 builder.Services.AddMediaDevicesService();
+builder.Services.AddScoped<Selector>();
+builder.Services.AddScoped<Selector2>();
 
 builder.Services.AddMudExtensions();
 

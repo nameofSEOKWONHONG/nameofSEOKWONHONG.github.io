@@ -1,5 +1,8 @@
 ﻿@page "/settings/users"
+@using MudExample.Components
 @inherits PageComponentBase
+@inject Selector Selector
+@inject Selector2 Selector2
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
@@ -31,9 +34,14 @@
                                 <MudSelectItem Value="role">@role</MudSelectItem>    
                             }
                         </MudSelect>
+                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value"/>
+                        <RestSelectControl Label="Rest Select Control2" Selector="Selector2" @bind-SelectedValue="selected2Value"/>
                     </MudForm>                    
                 </MudPaper>
             </MudItem>
+
+            <label>SelectControl1 Result : @selected1Value</label>
+            <label>SelectControl2 Result : @selected2Value</label>
         </MudSection>
     </MudPage>
 </MudContainer>
@@ -48,6 +56,9 @@
         "User",
         "Guest"
     };
+
+    string selected1Value;
+    string selected2Value;
 
     protected override void OnInitialized()
     {
@@ -76,6 +87,11 @@
             this.Age = age;
             this.Role = role;
         }
+    }
+
+    public void OnChanged(SelectItem item)
+    {
+        Console.WriteLine(item.Text + ":" + item.Value);
     }
 
 }
