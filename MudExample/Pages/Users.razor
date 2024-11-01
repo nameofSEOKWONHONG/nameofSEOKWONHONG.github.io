@@ -1,5 +1,6 @@
 ﻿@page "/settings/users"
 @using MudExample.Components
+@using MudExample.Data
 @inherits PageComponentBase
 @inject Selector Selector
 @inject Selector2 Selector2
@@ -9,16 +10,16 @@
 
     <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
         <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
-            <MudDataGrid Items="@Persons" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedPerson">
+            <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
                 <Columns>
-                    <SelectColumn T="Person" />
+                    <SelectColumn T="User" />
                     <PropertyColumn Property="m => m.Id"/>
                     <PropertyColumn Property="m => m.Name"/>
-                    <PropertyColumn Property="m => m.Age"/>
-                    <PropertyColumn Property="m => m.Role"/>
+                    <PropertyColumn Property="m => m.Email"/>
+                    <PropertyColumn Property="m => m.RoleName"/>
                 </Columns>
                 <PagerContent>
-                    <MudDataGridPager T="Person" />
+                    <MudDataGridPager T="User" />
                 </PagerContent>
             </MudDataGrid>
         </MudSection>
@@ -26,12 +27,12 @@
             <MudItem>
                 <MudPaper Class="pa-4">
                     <MudForm>
-                        <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedPerson.Name"/>
-                        <MudTextField T="int?" Label="Age" Required="true" RequiredError="User age is required!" @bind-Value="SelectedPerson.Age"/>
-                        <MudSelect Label="Role" @bind-Value="SelectedPerson.Role">
-                            @foreach (var role in Roles)
+                        <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
+                        <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
+                        <MudSelect Label="Role" @bind-Value="@SelectedUser.RoleId" @bind-Text="@SelectedUser.RoleName">
+                            @foreach (var role in Role.GetRoles())
                             {
-                                <MudSelectItem Value="role">@role</MudSelectItem>    
+                                <MudSelectItem Value="role.Id">@role.RoleName</MudSelectItem>    
                             }
                         </MudSelect>
                         <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value"/>
@@ -47,51 +48,31 @@
 </MudContainer>
 
 @code {
-    List<Person> Persons = new List<Person>();
-    Person SelectedPerson = new Person();
-
-    List<string> Roles = new()
-    {
-        "Administrator",
-        "User",
-        "Guest"
-    };
+    List<User> UserList = new List<User>();
+    User SelectedUser = new User();
 
     string selected1Value;
     string selected2Value;
 
     protected override void OnInitialized()
     {
-        Persons.Add(new Person(1, "test1", 10, "Administrator"));
-        Persons.Add(new Person(2, "test2", 20, "User"));
-        Persons.Add(new Person(3, "test3", 30, "Guest"));
-        Persons.Add(new Person(4, "test4", 40, "Guest"));
-    }
-
-    public class Person
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int? Age { get; set; }
-        public string Role { get; set; }
-
-        public Person()
-        {
-            
-        }
-
-        public Person(int id, string name, int age, string role)
-        {
-            this.Id = id;
-            this.Name = name;
-            this.Age = age;
-            this.Role = role;
-        }
+        var roles = Role.GetRoles();
+        UserList.Add(new User(1, "test1", "test1@test.com", roles[0].Id, roles[0].RoleName));
+        UserList.Add(new User(2, "test2", "test2@test.com", roles[1].Id, roles[1].RoleName));
+        UserList.Add(new User(3, "test3", "test3@test.com", roles[1].Id, roles[1].RoleName));
+        UserList.Add(new User(4, "test4", "test4@test.com", roles[2].Id, roles[2].RoleName));
     }
 
     public void OnChanged(SelectItem item)
     {
         Console.WriteLine(item.Text + ":" + item.Value);
+    }
+
+    public void OnRoleChanged(int v)
+    {
+        this.SelectedUser.RoleId = Role.GetRoles()[v-1].Id;
+        this.SelectedUser.RoleName = Role.GetRoles()[v-1].RoleName;
+        StateHasChanged();
     }
 
 }

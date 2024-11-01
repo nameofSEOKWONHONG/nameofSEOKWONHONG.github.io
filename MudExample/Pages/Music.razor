@@ -30,7 +30,7 @@
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PlayArrow" OnClick="Play"/>
+                <MudLoadingButton Variant="Variant.Text" @bind-Loading="_loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow"/>
             }
             <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight"/>
 
@@ -66,6 +66,7 @@
     
     private int _repeatMode;
     private bool _isShuffle;
+    private bool _loading;
     
     private AudioContext context = default!;
     private AudioDestinationNode destination = default!;
@@ -150,6 +151,7 @@
         startTime = await context.GetCurrentTimeAsync();
 
         playing = true;
+        _loading = true;
         
         var currentInteractions = interactions;
         while (currentInteractions == interactions)
@@ -167,6 +169,7 @@
     public async Task Pause()
     {
         if (!playing) return;
+        _loading = false;
         interactions++;
 
         await currentAudioBufferNode.DisconnectAsync();
