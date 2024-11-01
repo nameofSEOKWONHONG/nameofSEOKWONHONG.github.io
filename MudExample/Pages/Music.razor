@@ -1,5 +1,6 @@
 ﻿@page "/music"
 
+@using eXtensionSharp
 @using KristofferStrube.Blazor.WebAudio
 @using Color = MudBlazor.Color
 @using Size = MudBlazor.Size
@@ -125,6 +126,11 @@
             await analyser.ConnectAsync(destination);
         }
 
+        if (currentAudioBufferNode.DisposesJSReference)
+        {
+            await currentAudioBufferNode.ConnectAsync(analyser);
+        }
+
         var frequencyBinCount = await analyser.GetFrequencyBinCountAsync();
         var dataArray = new byte[frequencyBinCount];
         var uint8Array = await Uint8Array.CreateAsync(JSRuntime, dataArray.Length);
@@ -134,8 +140,6 @@
         {
             _visualizerData[i] = (await uint8Array.AtAsync(i)) / 255.0 * 100;
         }
-        await Task.Delay(100);
-        StateHasChanged();
     }
 
     public async Task EnsureInitialized()
@@ -237,6 +241,12 @@
             offset += currentTime - startTime;
         }
 
+        for (var i = 0; i < 32; i++)
+        {
+            _visualizerData[i] = 0;
+        }
+        StateHasChanged();
+        
         playing = false;
     }
     
