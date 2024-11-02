@@ -49,7 +49,7 @@
             {
                 <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="@(() => _isShuffle = true)"/>
             }
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack"/>
             @if (playing)
             {
                 <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PauseCircle" OnClick="Pause"/>
@@ -58,7 +58,7 @@
             {
                 <MudLoadingButton Variant="Variant.Text" @bind-Loading="_loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow"/>
             }
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight" OnClick="NextTrack"/>
 
             @if (_repeatMode == 0)
             {
@@ -111,7 +111,8 @@
     private double trackDuration;
     private int interactions;
     private List<string> tracks = new() {
-        "mp3/Adam_MacDougall.mp3"
+        "mp3/Adam_MacDougall.mp3",
+        "mp3/apt.mp3"
     };
     private byte[]?[] loadedTracks = new byte[]?[4];
 
@@ -248,6 +249,29 @@
         StateHasChanged();
         
         playing = false;
+    }
+    
+    public Task PreviousTrack() => SwitchTrack(() => currentTrack = (currentTrack - 1 + tracks.Count) % tracks.Count);
+    public Task NextTrack() => SwitchTrack(() => currentTrack = (currentTrack + 1) % tracks.Count);
+    
+    private async Task SwitchTrack(Action changeTrack)
+    {
+        await EnsureInitialized();
+
+        var wasPlaying = playing;
+        if (wasPlaying)
+        {
+            await Pause();
+        }
+        changeTrack();
+        currentTrackLoaded = false;
+        await EnsureCurrentTrackLoaded();
+        offset = 0;
+        playTime = 0;
+        if (wasPlaying)
+        {
+            await Play();
+        }
     }
     
     public override async ValueTask DisposeAsync()
