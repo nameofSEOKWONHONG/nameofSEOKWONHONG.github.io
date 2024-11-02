@@ -83,13 +83,12 @@
                 @TimeSpan.FromSeconds(trackDuration).ToString(@"mm\:ss")
             </MudText>
         </MudPaper>
-        <audio hidden><source src="mp3/Adam_MacDougall.mp3"/></audio>
     </MudPaper>
 
 </MudContainer>
 
 @code {
-    
+    string url;
     private int _repeatMode;
     private bool _isShuffle;
     private bool _loading;
@@ -116,7 +115,7 @@
     private byte[]?[] loadedTracks = new byte[]?[4];
 
     private double[] _visualizerData = new double[32];
-    
+
     private async Task UpdateVisualizer()
     {
         if (analyser is null) 

@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject HttpClient HttpClient;
 @inherits MudExample.PageComponentBase
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -43,6 +44,20 @@
                 <MudText>@Localizer["LBL0016"]: @_me.Gender</MudText>
                 <MudText>@Localizer["LBL0017"]: @_me.Email</MudText>
             </MudPaper>
+            <br/>
+            <MudPaper Class="mud-paper">
+                <CodeBlock
+                    Code="@myCode"
+                    Language="@CodeLanguages.CSharp"
+                    EnableLineNumbers="true" />                
+            </MudPaper>
+            <br/>
+            <MudPaper Class="mud-paper">
+                <CodeBlock
+                    Code="@myCode2"
+                    Language="@CodeLanguages.CSharp"
+                    EnableLineNumbers="true" />
+            </MudPaper>            
         </MudTabPanel>
         <MudTabPanel Text="@Localizer["LBL0005"]">
             <MudPaper>
@@ -147,15 +162,180 @@
 </svg>";
 
     string base64String;
+    string myCode = @"
+using System.Diagnostics;
+using Confluent.Kafka;
+using eXtensionSharp;
+using Features.Notification.Enums;
 
-    protected override void OnInitialized()
+namespace Infrastructure.Base;
+
+/// <summary>
+/// kafka 용 소비자 BackgroundService
+/// </summary>
+/// <typeparam name=""TSelf""></typeparam>
+public abstract class KafkaBackgroundService<TSelf> : BackgroundServiceBase<TSelf>
+    where TSelf : class
+{
+    protected readonly ENUM_MONGODB_DATABASE_TYPE MongodbDatabaseType;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly ENUM_KAFKA_TOPIC_TYPE _kafkaTopicType;
+    
+    /// <summary>
+    /// ctor
+    /// </summary>
+    /// <param name=""logger""></param>
+    /// <param name=""serviceScopeFactory""></param>
+    /// <param name=""mongodbDatabaseType""></param>
+    /// <param name=""kafkaTopicType""></param>
+    protected KafkaBackgroundService(ILogger<TSelf> logger, IServiceScopeFactory serviceScopeFactory, ENUM_MONGODB_DATABASE_TYPE mongodbDatabaseType,
+        ENUM_KAFKA_TOPIC_TYPE kafkaTopicType) : base(logger)
+    {
+        MongodbDatabaseType = mongodbDatabaseType;
+        _serviceScopeFactory = serviceScopeFactory;
+        _kafkaTopicType = kafkaTopicType;
+    }
+    
+    /// <summary>
+    /// 상속하여 사용하지 않습니다.
+    /// </summary>
+    /// <param name=""stoppingToken""></param>
+    protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        
+        var config = scope.ServiceProvider.GetRequiredService<ConsumerConfig>();
+        config.ClientId = $""{Environment.MachineName}-{Guid.NewGuid()}"";
+        using var consumer = new ConsumerBuilder<string, string>(config).Build();
+        consumer.Subscribe(_kafkaTopicType.Name);
+
+        try
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+#if TRACE
+                if (Logger.IsEnabled(LogLevel.Information))
+                {
+                    Logger.LogInformation(""{name} Worker running at: {time}"", this.SelfName, DateTimeOffset.Now);
+                }
+#endif
+
+                await Task.Factory.StartNew(async () =>
+                {
+                    var consumeResult = consumer.Consume(stoppingToken);
+
+                    try
+                    {
+                        await using var subScope = scope.ServiceProvider.CreateAsyncScope();
+                        await ExecuteConsumeAsync(subScope, consumeResult, stoppingToken);
+                        consumer.Commit(consumeResult);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, ""{name} Worker Error: {message}"", this.SelfName, e.Message);
+                    }
+                }, stoppingToken);
+
+                await Task.Delay(200, stoppingToken);
+            }
+        }
+        catch (OperationCanceledException e)
+        {
+            Logger.LogError(e, ""{name} Worker Consumer Error: {message}"", this.SelfName, e.Message);
+        }
+        finally
+        {
+            consumer.Close();    
+        }
+    }
+
+    /// <summary>
+    /// Kafka consume data를 처리한다. 반드시 재구현하여 처리합니다.
+    /// </summary>
+    /// <param name=""scope"">ioc container</param>
+    /// <param name=""consumeResult"">kafka consumer result</param>
+    /// <param name=""stoppingToken"">cancellation token</param>
+    /// <returns></returns>
+    protected abstract Task ExecuteConsumeAsync(AsyncServiceScope scope, 
+        ConsumeResult<string, string> consumeResult,
+        CancellationToken stoppingToken);
+}
+
+";
+
+    string myCode2 = @"
+using eXtensionSharp;
+
+namespace Kafka.Healthcare.Workers;
+
+/// <summary>
+/// 패킷 작업자
+/// </summary>
+public class ParallelConsumerWorker : BackgroundService
+{
+    private readonly ILogger<ParallelConsumerWorker> _logger;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+    /// <summary>
+    /// ctor
+    /// </summary>
+    /// <param name=""logger""></param>
+    /// <param name=""serviceServiceScopeFactory""></param>
+    public ParallelConsumerWorker(ILogger<ParallelConsumerWorker> logger, IServiceScopeFactory serviceServiceScopeFactory)
+    {
+        this._logger = logger;
+        this._serviceScopeFactory = serviceServiceScopeFactory;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(""Worker running at: {time}"", DateTimeOffset.Now);
+        }
+
+        try
+        {
+            var envTaskNum = Environment.GetEnvironmentVariable(""ENV_TASK_NUM"").xValue<int>();
+            var taskNum = envTaskNum <= 0 ? Environment.ProcessorCount / 2 : envTaskNum;
+            var tasks = new Task[taskNum];
+            for (var i = 0; i < tasks.Length; i++)
+            {
+                var ii = i;
+                tasks[i] = Task.Run(async () =>
+                {
+                    var consumerExecutor = new ConsumerExecutor(ii, _logger, _serviceScopeFactory, stoppingToken);
+                    try
+                    {
+                        await consumerExecutor.Execute();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        _logger.LogInformation(""Task {taskIndex} was canceled."", ii);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, ""Error in task {taskIndex}"", ii);
+                    }
+                }, stoppingToken);
+            }
+
+            await Task.WhenAll(tasks);  // 비동기적으로 Task 실행
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, ""{name} Error: {message}"", nameof(ParallelConsumerWorker), e.Message);
+        }
+    }
+}
+";
+
+    protected override async Task OnInitializedAsync()
     {
         _me = new Person();
         _me.Name = "SEOKWON HONG";
         _me.Birth = new DateTime(1982, 12, 31);
         _me.Gender = "Male";
         _me.Email = "h20913@gmail.com";
-        base.OnInitialized();
     }
 
     // protected override async Task OnInitializedAsync()
