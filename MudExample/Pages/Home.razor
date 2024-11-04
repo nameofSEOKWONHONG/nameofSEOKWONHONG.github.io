@@ -1,6 +1,6 @@
 ﻿@page "/"
 @inject HttpClient HttpClient;
-@inherits MudExample.PageComponentBase
+@inherits MudExample.Components.Base.PageComponentBase
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudTabs Rounded="true">
@@ -266,10 +266,10 @@ public abstract class KafkaBackgroundService<TSelf> : BackgroundServiceBase<TSel
     string myCode2 = @"
 using eXtensionSharp;
 
-namespace Kafka.Healthcare.Workers;
+namespace Kafka.Demo.Workers;
 
 /// <summary>
-/// 패킷 작업자
+/// ParallelConsumerWorker
 /// </summary>
 public class ParallelConsumerWorker : BackgroundService
 {

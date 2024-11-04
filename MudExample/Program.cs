@@ -1,5 +1,6 @@
 using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
+using BlazorWorker.Core;
 using Brism;
 using KristofferStrube.Blazor.MediaCaptureStreams;
 using Magic.IndexedDb.Extensions;
@@ -24,6 +25,7 @@ await Task.Delay(TimeSpan.FromSeconds(2));
 #endif
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddMudServices(config =>
@@ -73,8 +75,7 @@ builder.Services.AddMediaDevicesService();
 builder.Services.AddScoped<Selector>();
 builder.Services.AddScoped<Selector2>();
 builder.Services.AddBrism();
-
-
+builder.Services.AddWorkerFactory();
 builder.Services.AddMudExtensions();
 
 var app = builder.Build();

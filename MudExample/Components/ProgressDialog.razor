@@ -1,0 +1,12 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div style="display: flex; justify-content: center; align-items: center; height: 100px;">
+            <MudProgressCircular Indeterminate="true" Size="Size.Medium" Color="Color.Success"/>
+        </div>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }    
+}

@@ -1,13 +1,31 @@
-﻿@page "/settings/users"
+﻿@page "/settings/users/{allowdRole:?}"
+@using System.Data.Common
+@using eXtensionSharp
+@using MudBlazor.Extensions
 @using MudExample.Components
 @using MudExample.Data
-@inherits PageComponentBase
 @inject Selector Selector
 @inject Selector2 Selector2
+@inject HttpClient HttpClient
+
+@inherits MudExample.Components.Base.SessionPageComponent
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+        <MudSelect T="string" Label="Role" ValueChanged="RoleChanged" Value="allowdRole">
+            <MudSelectItem Value="@("administrator")">administrator</MudSelectItem>
+            <MudSelectItem Value="@("user")">user</MudSelectItem>
+            <MudSelectItem Value="@("guest")">guest</MudSelectItem>
+        </MudSelect>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => OnRetrieve(null!))">@Localizer["LBL0043"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => OnCreate(null!))">@Localizer["LBL0020"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => OnUpdate(null!))">@Localizer["LBL0022"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null!))">@Localizer["LBL0021"]</MudButton>
+    </MudPaper>
+    <br/>
+    
     <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
         <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
             <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
@@ -29,14 +47,19 @@
                     <MudForm>
                         <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
                         <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
-                        <MudSelect Label="Role" @bind-Value="@SelectedUser.RoleId" @bind-Text="@SelectedUser.RoleName">
+                        <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName">
                             @foreach (var role in Role.GetRoles())
                             {
-                                <MudSelectItem Value="role.Id">@role.RoleName</MudSelectItem>    
+                                <MudSelectItem Value="role">@role.RoleName</MudSelectItem>    
                             }
                         </MudSelect>
                         <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value"/>
-                        <RestSelectControl Label="Rest Select Control2" Selector="Selector2" @bind-SelectedValue="selected2Value"/>
+                        <MudSelect Label="Rest Select Control2" @bind-Value="selected2Value">
+                            @foreach (var item in SelectItems)
+                            {
+                            <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
+                            }
+                        </MudSelect>                        
                     </MudForm>                    
                 </MudPaper>
             </MudItem>
@@ -48,31 +71,54 @@
 </MudContainer>
 
 @code {
+    [Parameter] public string allowdRole { get; set; }
     List<User> UserList = new List<User>();
     User SelectedUser = new User();
+    List<SelectItem>? SelectItems = new();
 
     string selected1Value;
     string selected2Value;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitViewData()
+    {
+        this.RoleName = allowdRole.xValue<string>("Guest");
+        
+        var res = await HttpClient.GetAsync("/data/select-data2.json");
+        res.EnsureSuccessStatusCode();
+        SelectItems = await res.Content.ReadFromJsonAsync<List<SelectItem>>();
+        await base.OnInitViewData();
+    }
+
+    protected override Task OnInitRetrieve()
     {
         var roles = Role.GetRoles();
-        UserList.Add(new User(1, "test1", "test1@test.com", roles[0].Id, roles[0].RoleName));
-        UserList.Add(new User(2, "test2", "test2@test.com", roles[1].Id, roles[1].RoleName));
-        UserList.Add(new User(3, "test3", "test3@test.com", roles[1].Id, roles[1].RoleName));
-        UserList.Add(new User(4, "test4", "test4@test.com", roles[2].Id, roles[2].RoleName));
+        UserList.Add(new User(1, "test1", "test1@test.com", roles[0]));
+        UserList.Add(new User(2, "test2", "test2@test.com", roles[1]));
+        UserList.Add(new User(3, "test3", "test3@test.com", roles[1]));
+        UserList.Add(new User(4, "test4", "test4@test.com", roles[2]));
+        return base.OnInitRetrieve();
     }
 
-    public void OnChanged(SelectItem item)
+    protected override Task OnRetrieve(Func<Task> func)
     {
-        Console.WriteLine(item.Text + ":" + item.Value);
+        func = async () =>
+        {
+            await Task.Delay(1000);
+        };
+        return base.OnRetrieve(func);
     }
 
-    public void OnRoleChanged(int v)
+    protected override Task OnDelete(Func<Task> func)
     {
-        this.SelectedUser.RoleId = Role.GetRoles()[v-1].Id;
-        this.SelectedUser.RoleName = Role.GetRoles()[v-1].RoleName;
-        StateHasChanged();
+        func = async () =>
+        {
+            await Task.Delay(1000);
+        };
+        return base.OnDelete(func);
     }
 
+    void RoleChanged(string p)
+    {
+        this.NavigationManager.NavigateTo(@$"/settings/users/{p}", true);
+    }
 }

@@ -3,7 +3,7 @@
 @using Blazored.LocalStorage
 @using eXtensionSharp
 @using MudExample.Data
-@inherits PageComponentBase
+@inherits MudExample.Components.Base.PageComponentBase
 
 <style type="text/css">
     .mud-table-head .header-centered th {
@@ -32,7 +32,7 @@
     {
         <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
             <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => Remove(null))">@Localizer["LBL0021"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null))">@Localizer["LBL0021"]</MudButton>
         </MudPaper>
         <br/>
         <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
@@ -86,7 +86,6 @@
 
         if (result is { Canceled: false })
         {
-            this.ShowProgress();
             await Task.Delay(1000);
             if (result.Data is WeatherForecast t)
             {
@@ -109,7 +108,6 @@
                 }
             }
 
-            this.CloseProgress();
             this.Snackbar.Add($"success", Severity.Success);
         }
         else
@@ -120,7 +118,7 @@
         StateHasChanged();
     }
 
-    protected override Task Remove(Func<Task> func)
+    protected override Task OnDelete(Func<Task> func)
     {
         if (_selectedItems.Count <= 0)
         {
@@ -138,7 +136,7 @@
 
             await Task.Delay(1000);
         };
-        return base.Remove(func);
+        return base.OnDelete(func);
     }
 
     private MudDataGrid<Dictionary<string, string>> dataGrid = null;

@@ -8,21 +8,24 @@ public class User
     public int Id { get; set; }
     public string Name { get; set; }
     public string Email { get; set; }
-    public int RoleId { get; set; }
-    public string RoleName { get; set; }
+
+    public int RoleId => this.Role.Id;
+
+    public string RoleName => this.Role.RoleName;
+
+    public Role Role { get; set; }
 
     public User()
     {
         
     }
 
-    public User(int id, string name, string email, int roleId, string roleName)
+    public User(int id, string name, string email, Role role)
     {
         this.Id = id;
         this.Name = name;
         this.Email = email;
-        this.RoleId = roleId;
-        this.RoleName = roleName;
+        this.Role = role;
     }
 }
 
@@ -55,6 +58,8 @@ public class Role
             new Role(3, "Guest", "Guest", null),
         };
     }
+    
+    public static Func<Role, string> ConvertRoleToRoleName = ci => ci?.RoleName;
 }
 
 public interface IUserService
