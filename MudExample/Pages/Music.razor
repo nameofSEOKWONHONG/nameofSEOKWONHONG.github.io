@@ -6,9 +6,10 @@
 @using Size = MudBlazor.Size
 @using KristofferStrube.Blazor.MediaCaptureStreams
 @using KristofferStrube.Blazor.WebIDL
-@inject IMediaDevicesService MediaDevicesService
+
 @inject HttpClient HttpClient
 @inject IJSRuntime JSRuntime
+
 @inherits MudExample.Components.Base.PageComponentBase
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -16,11 +17,27 @@
 
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
         <div class="visualizer-container">
-            @for (int i = 0; i < 32; i++)
+            @if (tracks[currentTrack].Contains("INDIGO.mp3"))
             {
-                var height = _visualizerData[i];
-                var hue = (i * 360 / _visualizerData.Length);
-                <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                var t1 = playTime * 1.2;
+                var t2 = playTime;
+                if (t1 >= 80) t1 = 80;
+                if (t2 >= 60) t2 = 60;
+                for (int i = 0; i < 32; i++)
+                {
+                    var height = visualizerData[i];
+                    var hue = (i * 360) / visualizerData.Length;
+                    <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
+                }                 
+            }
+            else
+            {
+                @for (int i = 0; i < 32; i++)
+                {
+                    var height = visualizerData[i];
+                    var hue = (i * 360) / visualizerData.Length;
+                    <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                }
             }
         </div>
 
@@ -41,13 +58,13 @@
             }
         </style>
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
-            @if (_isShuffle)
+            @if (isShuffle)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="@(() => _isShuffle = false)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="@(() => isShuffle = false)"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="@(() => _isShuffle = true)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="@(() => isShuffle = true)"/>
             }
             <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack"/>
             @if (playing)
@@ -56,21 +73,21 @@
             }
             else
             {
-                <MudLoadingButton Variant="Variant.Text" @bind-Loading="_loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow"/>
+                <MudLoadingButton Variant="Variant.Text" @bind-Loading="loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow"/>
             }
             <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight" OnClick="NextTrack"/>
 
-            @if (_repeatMode == 0)
+            @if (repeatMode == 0)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="@(() => _repeatMode = 1)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="@(() => repeatMode = 1)"/>
             }
-            else if (_repeatMode == 1)
+            else if (repeatMode == 1)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="@(() => _repeatMode = 2)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="@(() => repeatMode = 2)"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="@(() => _repeatMode = 0)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="@(() => repeatMode = 0)"/>
             }
         </MudPaper>
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
@@ -88,17 +105,15 @@
 </MudContainer>
 
 @code {
-    string url;
-    private int _repeatMode;
-    private bool _isShuffle;
-    private bool _loading;
+    private string url;
+    private int repeatMode;
+    private bool isShuffle;
+    private bool loading;
     
     private AudioContext context = default!;
     private AudioDestinationNode destination = default!;
     private AudioBufferSourceNode currentAudioBufferNode = default!;
     private AudioBuffer currentAudioBuffer = default!;
-
-
     
     private bool playing;
     private bool currentTrackLoaded = false;
@@ -110,15 +125,23 @@
     private double trackDuration;
     private int interactions;
     private List<string> tracks = new() {
-        "mp3/Adam_MacDougall.mp3"
+        "mp3/Adam_MacDougall.mp3",
+        "mp3/INDIGO.mp3"
     };
     private byte[]?[] loadedTracks = new byte[]?[4];
+    
+    private double[] visualizerData = new double[32];
+    private AnalyserNode? analyser;
+    private MediaDevices? mediaDevices;
+    private string? error;
+    private bool makeMeasurements = false;
+    private MediaStream? mediaStream;
+    private string? selectedAudioSource;
+    private double peakFrequency = 0;
 
-    private double[] _visualizerData = new double[32];
-
-    private async Task UpdateVisualizer()
+    async Task UpdateVisualizer()
     {
-        if (analyser is null) 
+        if (analyser.xIsEmpty()) 
         {
             analyser = await context.CreateAnalyserAsync();
             await currentAudioBufferNode.ConnectAsync(analyser);
@@ -136,11 +159,11 @@
         
         for (int i = 0; i < 32; i++)
         {
-            _visualizerData[i] = (await uint8Array.AtAsync(i)) / 255.0 * 100;
+            visualizerData[i] = (await uint8Array.AtAsync(i)) / 255.0 * 100;
         }
     }
 
-    public async Task EnsureInitialized()
+    async Task EnsureInitialized()
     {
         if (context is { }) return;
 
@@ -148,17 +171,17 @@
         destination = await context.GetDestinationAsync();
     }
     
-    public async Task EnsureCurrentTrackLoaded()
+    async Task EnsureCurrentTrackLoaded()
     {
         if (currentTrackLoaded) return;
 
         // Dispose old audio buffer
-        if (currentAudioBuffer is not null)
+        if (currentAudioBuffer.xIsNotEmpty())
         {
             await currentAudioBuffer.DisposeAsync();
         }
 
-        if (loadedTracks[currentTrack] is null)
+        if (loadedTracks[currentTrack].xIsEmpty())
         {
             loadedTracks[currentTrack] = await HttpClient.GetByteArrayAsync(tracks[currentTrack]);
         }
@@ -168,18 +191,12 @@
         trackDuration = await currentAudioBuffer.GetDurationAsync();
 
         currentTrackLoaded = true;
+
+        if (tracks[currentTrack].Contains("INDIGO.mp3"))
+        {
+            Console.WriteLine("♬ NXCRE & The Villains - INDIGO ♬");
+        }
     }
-    
-    private AnalyserNode? analyser;
-    private MediaDevices? mediaDevices;
-    private string? error;
-    private byte[] timeDomainMeasurements = Array.Empty<byte>();
-    private byte[] frequencyMeasurements = Array.Empty<byte>();
-    private bool makeMeasurements = false;
-    private MediaStream? mediaStream;
-    private List<(string label, string id)> audioOptions = new();
-    private string? selectedAudioSource;
-    private double peakFrequency = 0;
     
     public async Task Play()
     {
@@ -202,7 +219,7 @@
         startTime = await context.GetCurrentTimeAsync();
 
         playing = true;
-        _loading = true;
+        loading = true;
         
         var currentInteractions = interactions;
         while (currentInteractions == interactions)
@@ -218,10 +235,10 @@
         }
     }
     
-    public async Task Pause()
+    async Task Pause()
     {
         if (!playing) return;
-        _loading = false;
+        loading = false;
         interactions++;
 
         await currentAudioBufferNode.DisconnectAsync();
@@ -241,17 +258,17 @@
 
         for (var i = 0; i < 32; i++)
         {
-            _visualizerData[i] = 0;
+            visualizerData[i] = 0;
         }
-        StateHasChanged();
-        
         playing = false;
+        
+        StateHasChanged();
     }
     
-    public Task PreviousTrack() => SwitchTrack(() => currentTrack = (currentTrack - 1 + tracks.Count) % tracks.Count);
-    public Task NextTrack() => SwitchTrack(() => currentTrack = (currentTrack + 1) % tracks.Count);
+    Task PreviousTrack() => SwitchTrack(() => currentTrack = (currentTrack - 1 + tracks.Count) % tracks.Count);
+    Task NextTrack() => SwitchTrack(() => currentTrack = (currentTrack + 1) % tracks.Count);
     
-    private async Task SwitchTrack(Action changeTrack)
+    async Task SwitchTrack(Action changeTrack)
     {
         await EnsureInitialized();
 
