@@ -6,6 +6,7 @@
 @using Size = MudBlazor.Size
 @using KristofferStrube.Blazor.MediaCaptureStreams
 @using KristofferStrube.Blazor.WebIDL
+@using MudExample.Data
 
 @inject HttpClient HttpClient
 @inject IJSRuntime JSRuntime
@@ -16,39 +17,79 @@
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
-        <div class="visualizer-container">
-            @if (tracks[currentTrack].Contains("INDIGO.mp3"))
+        @{
+            if (LayoutState.IsDark)
             {
-                var t1 = playTime * 1.2;
-                var t2 = playTime;
-                if (t1 >= 80) t1 = 80;
-                if (t2 >= 60) t2 = 60;
-                for (int i = 0; i < 32; i++)
-                {
-                    var height = visualizerData[i];
-                    var hue = (i * 360) / visualizerData.Length;
-                    <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
-                }                 
+                <div class="visualizer-container-dark">
+                    @if (tracks[currentTrack].Contains("INDIGO.mp3"))
+                    {
+                        var t1 = playTime * 1.2;
+                        var t2 = playTime;
+                        if (t1 >= 80) t1 = 80;
+                        if (t2 >= 60) t2 = 60;
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        }
+                    }                    
+                </div>
             }
             else
             {
-                @for (int i = 0; i < 32; i++)
-                {
-                    var height = visualizerData[i];
-                    var hue = (i * 360) / visualizerData.Length;
-                    <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
-                }
-            }
-        </div>
+                <div class="visualizer-container-light">
+                    @if (tracks[currentTrack].Contains("INDIGO.mp3"))
+                    {
+                        var t1 = playTime * 1.2;
+                        var t2 = playTime;
+                        if (t1 >= 80) t1 = 80;
+                        if (t2 >= 60) t2 = 60;
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        }
+                    }                    
+                </div>
+            }            
+        }
 
         <style>
-            .visualizer-container {
+            .visualizer-container-dark {
                 display: flex;
                 align-items: flex-end;  /* 아래쪽 정렬을 제거하고 기본값으로 */
                 height: 300px;
                 gap: 2px;
                 padding: 10px;
                 background-color: #373740;
+            }
+            .visualizer-container-light {
+                display: flex;
+                align-items: flex-end;  /* 아래쪽 정렬을 제거하고 기본값으로 */
+                height: 300px;
+                gap: 2px;
+                padding: 10px;
+                background-color: white;
             }
 
             .bar {
@@ -60,11 +101,11 @@
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
             @if (isShuffle)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="@(() => isShuffle = false)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="RandomizeTracks"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="@(() => isShuffle = true)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="RandomizeTracks"/>
             }
             <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack"/>
             @if (playing)
@@ -105,6 +146,8 @@
 </MudContainer>
 
 @code {
+    [Inject] LayoutState LayoutState { get; set; }
+
     private string url;
     private int repeatMode;
     private bool isShuffle;
@@ -138,6 +181,11 @@
     private MediaStream? mediaStream;
     private string? selectedAudioSource;
     private double peakFrequency = 0;
+
+    private bool isDarkMode;
+    protected override async Task OnInitializedAsync()
+    {
+    }
 
     async Task UpdateVisualizer()
     {
@@ -287,9 +335,47 @@
             await Play();
         }
     }
+
+    List<string> srcTracks = new(); 
+    public async Task RandomizeTracks()
+    {
+        isShuffle = !isShuffle;
+
+        var wasPlaying = playing;
+        if (wasPlaying)
+        {
+            await Pause();
+        }
+
+        if (isShuffle)
+        {
+            tracks = tracks.OrderBy(x => Random.Shared.Next()).ToList();            
+        }
+        else
+        {
+            srcTracks = tracks.ToList();    
+        }
+        
+        loadedTracks = new byte[]?[4];
+        currentTrackLoaded = false;
+        currentTrack = 0;
+        offset = 0;
+        playTime = 0;
+        if (wasPlaying)
+        {
+            await Play();
+        }
+        
+        StateHasChanged();
+    }
     
     public override async ValueTask DisposeAsync()
     {
         await Pause();
+    }
+
+    string ChangeStyle()
+    {
+        return @" display: flex; align-items: flex-end; height: 300px; gap: 2px; padding: 10px; background-color: #373740; ";
     }
 }
