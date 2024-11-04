@@ -122,7 +122,6 @@
         {
             analyser = await context.CreateAnalyserAsync();
             await currentAudioBufferNode.ConnectAsync(analyser);
-            await analyser.ConnectAsync(destination);
         }
 
         if (currentAudioBufferNode.DisposesJSReference)
