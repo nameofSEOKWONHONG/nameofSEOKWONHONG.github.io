@@ -19,10 +19,10 @@
             <MudSelectItem Value="@("user")">user</MudSelectItem>
             <MudSelectItem Value="@("guest")">guest</MudSelectItem>
         </MudSelect>
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => OnRetrieve(null!))">@Localizer["LBL0043"]</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => OnCreate(null!))">@Localizer["LBL0020"]</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => OnUpdate(null!))">@Localizer["LBL0022"]</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null!))">@Localizer["LBL0021"]</MudButton>
+        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Success" OnClick="@(() => OnRetrieve(null!))">@Localizer["LBL0043"]</MudButton>
+        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Info" OnClick="@(() => OnCreate(null!))">@Localizer["LBL0020"]</MudButton>
+        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Warning" OnClick="@(() => OnUpdate(null!))">@Localizer["LBL0022"]</MudButton>
+        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Error" OnClick="@(() => OnDelete(null!))">@Localizer["LBL0021"]</MudButton>
     </MudPaper>
     <br/>
     
@@ -99,20 +99,22 @@
         return base.OnInitRetrieve();
     }
 
-    protected override Task OnRetrieve(Func<Task> func)
+    protected override Task OnRetrieve(Func<Task<Result>> func)
     {
         func = async () =>
         {
             await Task.Delay(1000);
+            return new Result(true, "succeed");
         };
         return base.OnRetrieve(func);
     }
 
-    protected override Task OnDelete(Func<Task> func)
+    protected override Task OnDelete(Func<Task<Result>> func)
     {
         func = async () =>
         {
             await Task.Delay(1000);
+            return new Result(false, "null reference exception");
         };
         return base.OnDelete(func);
     }

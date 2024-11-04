@@ -62,22 +62,22 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
 
     #region [click events]
 
-    protected virtual async Task OnRetrieve(Func<Task> func)
+    protected virtual async Task OnRetrieve(Func<Task<Result>> func)
     {   
         await Progress(func);
     }
     
-    protected virtual async Task OnCreate(Func<Task> func)
+    protected virtual async Task OnCreate(Func<Task<Result>> func)
     {
         await Progress(func);
     }
     
-    protected virtual async Task OnUpdate(Func<Task> func)
+    protected virtual async Task OnUpdate(Func<Task<Result>> func)
     {
         await Progress(func);
     }    
 
-    protected virtual async Task OnDelete(Func<Task> func)
+    protected virtual async Task OnDelete(Func<Task<Result>> func)
     {
         bool? result = await DialogService.ShowMessageBox(
             "Warning", 
@@ -90,7 +90,7 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
     
     #endregion
     
-    private async Task Progress(Func<Task> func)
+    private async Task Progress(Func<Task<Result>> func)
     {
         if (func.xIsEmpty())
         {
@@ -108,7 +108,8 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
         // Show the dialog
         var dialog = await DialogService.ShowAsync<ProgressDialog>("Progress", options);
         
-        await func();
+        var result = await func();
+        this.Snackbar.Add(result.Message, result.Succeed ? Severity.Success : Severity.Error);
         
         dialog.Close();
     }

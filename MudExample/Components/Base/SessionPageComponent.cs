@@ -1,4 +1,5 @@
 ﻿using eXtensionSharp;
+using MudExample.Data;
 
 namespace MudExample.Components.Base;
 
@@ -7,7 +8,7 @@ public abstract class SessionPageComponent : PageComponentBase
     private bool _allowRemove;
     protected string RoleName { get; set; }
 
-    protected override async Task OnDelete(Func<Task> func)
+    protected override async Task OnDelete(Func<Task<Result>> func)
     {
         this.Logger.LogDebug(this.RoleName);
         var allowRemove = this.RoleName.xValue<string>("administrator").ToUpper() == "Administrator".ToUpper();

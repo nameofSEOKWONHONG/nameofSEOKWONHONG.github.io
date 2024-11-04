@@ -118,7 +118,7 @@
         StateHasChanged();
     }
 
-    protected override Task OnDelete(Func<Task> func)
+    protected override Task OnDelete(Func<Task<Result>> func)
     {
         if (_selectedItems.Count <= 0)
         {
@@ -135,6 +135,8 @@
             }
 
             await Task.Delay(1000);
+
+            return new Result(true, "succeed");
         };
         return base.OnDelete(func);
     }
