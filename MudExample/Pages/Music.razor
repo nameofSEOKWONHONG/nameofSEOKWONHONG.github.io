@@ -18,31 +18,60 @@
 
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
         @{
-            var cssDark = LayoutState.IsDark ? "visualizer-container-dark" : "visualizer-container-light";
-            <div class="mud-paper @cssDark">
-                @if (tracks[currentTrack].Contains("INDIGO.mp3"))
-                {
-                    var t1 = playTime * 1.2;
-                    var t2 = playTime;
-                    if (t1 >= 80) t1 = 80;
-                    if (t2 >= 60) t2 = 60;
-                    for (int i = 0; i < 32; i++)
+            if (LayoutState.IsDark)
+            {
+                <div class="visualizer-container-dark">
+                    @if (tracks[currentTrack].Contains("INDIGO.mp3"))
                     {
-                        var height = visualizerData[i];
-                        var hue = (i * 360) / visualizerData.Length;
-                        <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
+                        var t1 = playTime * 1.2;
+                        var t2 = playTime;
+                        if (t1 >= 80) t1 = 80;
+                        if (t2 >= 60) t2 = 60;
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
+                        }
                     }
-                }
-                else
-                {
-                    for (int i = 0; i < 32; i++)
+                    else
                     {
-                        var height = visualizerData[i];
-                        var hue = (i * 360) / visualizerData.Length;
-                        <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        }
+                    }                    
+                </div>
+            }
+            else
+            {
+                <div class="visualizer-container-light">
+                    @if (tracks[currentTrack].Contains("INDIGO.mp3"))
+                    {
+                        var t1 = playTime * 1.2;
+                        var t2 = playTime;
+                        if (t1 >= 80) t1 = 80;
+                        if (t2 >= 60) t2 = 60;
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%)"></div>
+                        }
                     }
-                }                    
-            </div>
+                    else
+                    {
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        }
+                    }                    
+                </div>
+            }            
         }
 
         <style>
@@ -52,6 +81,7 @@
                 height: 300px;
                 gap: 2px;
                 padding: 10px;
+                background-color: #373740;
             }
             .visualizer-container-light {
                 display: flex;
@@ -59,6 +89,7 @@
                 height: 300px;
                 gap: 2px;
                 padding: 10px;
+                background-color: white;
             }
 
             .bar {
@@ -77,7 +108,6 @@
                 <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="RandomizeTracks"/>
             }
             <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack"/>
-            
             @if (playing)
             {
                 <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PauseCircle" OnClick="Pause"/>
@@ -86,8 +116,6 @@
             {
                 <MudLoadingButton Variant="Variant.Text" @bind-Loading="loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow"/>
             }
-
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Stop" OnClick="Stop"/>
             <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight" OnClick="NextTrack"/>
 
             @if (repeatMode == 0)
@@ -191,8 +219,6 @@
     async Task EnsureCurrentTrackLoaded()
     {
         if (currentTrackLoaded) return;
-        
-        loading = true;
 
         // Dispose old audio buffer
         if (currentAudioBuffer.xIsNotEmpty())
@@ -215,14 +241,10 @@
         {
             Console.WriteLine("♬ NXCRE & The Villains - INDIGO ♬");
         }
-
-        loading = false;
     }
     
     public async Task Play()
     {
-        StateHasChanged();
-        
         await EnsureInitialized();
         if (playing) return;
         interactions++;
@@ -240,8 +262,9 @@
             await currentAudioBufferNode.StartAsync(when: 0, offset: offset);
         }
         startTime = await context.GetCurrentTimeAsync();
-        
+
         playing = true;
+        loading = true;
         
         var currentInteractions = interactions;
         while (currentInteractions == interactions)
@@ -256,31 +279,11 @@
             await Task.Delay(16);
         }
     }
-
-    async Task Stop()
-    {
-        if (!playing) return;
-        interactions++;
-
-        await currentAudioBufferNode.DisconnectAsync();
-        await currentAudioBufferNode.StopAsync();
-        await currentAudioBufferNode.DisposeAsync();
-
-        playTime = 0;
-        offset = 0;
-
-        for (var i = 0; i < 32; i++)
-        {
-            visualizerData[i] = 0;
-        }
-        playing = false;
-        
-        StateHasChanged();
-    }
     
     async Task Pause()
     {
         if (!playing) return;
+        loading = false;
         interactions++;
 
         await currentAudioBufferNode.DisconnectAsync();
@@ -312,6 +315,8 @@
     
     async Task SwitchTrack(Action changeTrack)
     {
+        await EnsureInitialized();
+
         var wasPlaying = playing;
         if (wasPlaying)
         {
@@ -319,7 +324,7 @@
         }
         changeTrack();
         currentTrackLoaded = false;
-        
+        await EnsureCurrentTrackLoaded();
         offset = 0;
         playTime = 0;
         if (wasPlaying)

@@ -19,10 +19,7 @@
             <MudSelectItem Value="@("administrator")">administrator</MudSelectItem>
             <MudSelectItem Value="@("user")">user</MudSelectItem>
             <MudSelectItem Value="@("guest")">guest</MudSelectItem>
-        </MudSelect>        
-    </MudPaper>
-    <br/>
-    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+        </MudSelect>
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Success" OnClick="@(() => OnRetrieve(null!))">@Localizer["LBL0043"]</MudButton>
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Info" OnClick="@(() => OnCreate(null!))">@Localizer["LBL0020"]</MudButton>
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Warning" OnClick="@(() => OnUpdate(null!))">@Localizer["LBL0022"]</MudButton>

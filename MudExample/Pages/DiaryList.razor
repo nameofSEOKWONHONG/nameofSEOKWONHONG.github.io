@@ -1,4 +1,5 @@
 ﻿@page "/diary/list"
+@using Blazored.TextEditor
 @using MudExample.Data
 @inherits MudExample.Components.Base.PageComponentBase
 
@@ -29,7 +30,41 @@
         <ChildRowContent>
             <MudCard>
                 <MudCardContent>
-                    <MarkdownViewer Value="@context.Item.Content" />
+                    <BlazoredTextEditor @ref="@QuillReadOnly"
+                                        ReadOnly="true"
+                                        Theme="bubble"
+                                        DebugLevel="log">
+                        <ToolbarContent>
+                            <select class="ql-header">
+                                <option selected=""></option>
+                                <option value="1"></option>
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option value="4"></option>
+                                <option value="5"></option>
+                            </select>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-strike"></button>
+                            </span>
+                                                <span class="ql-formats">
+                                <select class="ql-color"></select>
+                                <select class="ql-background"></select>
+                            </span>
+                                                <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                            </span>
+                                                <span class="ql-formats">
+                                <button class="ql-link"></button>
+                            </span>
+                        </ToolbarContent>
+                        <EditorContent>
+                            @((MarkupString)@context.Item.Content)
+                        </EditorContent>
+                    </BlazoredTextEditor>
                 </MudCardContent>
             </MudCard>
         </ChildRowContent>
@@ -47,6 +82,8 @@
 
 
 @code {
+    BlazoredTextEditor QuillReadOnly;
+
     string title;
     [Inject] DiaryViewModel ViewModel { get; set; }
 
