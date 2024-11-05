@@ -21,7 +21,7 @@
             @foreach (var item in ViewModel.GetAllMenus())
             {
                 <MudTooltip Text="@item.Name">
-                    <MudIconButton Icon=@item.Icon OnClick="@(() => Callback(item.Href))"/>
+                    <MudIconButton Icon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
                 </MudTooltip>
             }
             <MudSpacer/>
@@ -143,12 +143,6 @@
     {
         LocalStorageService.SetItemAsync<string>(nameof(LayoutState.Culture), culture);
         NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
-    }
-    
-    private void Callback(string? href)
-    {
-        ViewModel.SelectedHref = href;        
-        NavigationManager.NavigateTo(href);
     }
 }
 

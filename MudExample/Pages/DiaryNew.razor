@@ -1,5 +1,4 @@
 ﻿@page "/diary/new"
-@using Blazored.TextEditor
 @using MudExample.Data
 @inherits MudExample.Components.Base.PageComponentBase
 
@@ -14,57 +13,17 @@
         <MudTextField T="string" Label="Title" Required="true" RequiredError="Title is required!" @bind-Value="title"/>
     </MudPaper>
     <br/>
-    <BlazoredTextEditor @ref="@QuillNative"
-                        Placeholder="@Localizer["LBL0042"]"
-                        EditorCssStyle="height: 500px;">
-        <ToolbarContent>
-            <span class="ql-formats">
-                <select class="ql-font">
-                    <option selected=""></option>
-                    <option value="serif"></option>
-                    <option value="monospace"></option>
-                </select>
-                <select class="ql-size">
-                    <option value="small"></option>
-                    <option selected=""></option>
-                    <option value="large"></option>
-                    <option value="huge"></option>
-                </select>
-            </span>
-            <span class="ql-formats">
-                <button class="ql-bold"></button>
-                <button class="ql-italic"></button>
-                <button class="ql-underline"></button>
-                <button class="ql-strike"></button>
-            </span>
-            <span class="ql-formats">
-                <select class="ql-color"></select>
-                <select class="ql-background"></select>
-            </span>
-            <span class="ql-formats">
-                <button class="ql-list" value="ordered"></button>
-                <button class="ql-list" value="bullet"></button>
-                <button class="ql-indent" value="-1"></button>
-                <button class="ql-indent" value="+1"></button>
-                <select class="ql-align">
-                    <option selected=""></option>
-                    <option value="center"></option>
-                    <option value="right"></option>
-                    <option value="justify"></option>
-                </select>
-            </span>
-            <span class="ql-formats">
-                <button class="ql-link"></button>
-            </span>
-        </ToolbarContent>
-    </BlazoredTextEditor>
+    <MarkdownEditor @bind-Value="markdownValue"
+                    Placeholder="@Localizer["LBL0043"]"
+                    Theme="MarkdownEditorTheme.Light"
+                    @ref="editor"/>
 </MudContainer>
 
 
 @code {
-    BlazoredTextEditor QuillNative;
-
-    string QuillContent;
+    MarkdownEditor editor;
+    string markdownValue;
+    string markdownHtml;
 
     bool mode = false;
 
@@ -72,36 +31,42 @@
     
     [Inject] DiaryViewModel viewModel { get; set; }
 
-    public async void GetContent()
+    protected override void OnInitialized()
     {
-        QuillContent = await this.QuillNative.GetContent();
-        StateHasChanged();
-    }
-    public async void LoadContent()
-    {
-        await this.QuillNative.LoadContent(QuillContent);
-        StateHasChanged();
+        base.OnInitialized();
     }
 
-    public async void InsertImage()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await this.QuillNative.InsertImage("images/BlazorHelpWebsite.gif");
-        StateHasChanged();
+        if (firstRender)
+        {
+            // await editor.SetValueAsync("hello");
+        }
+    }
+    
+
+    protected override Task OnRetrieve(Func<Task<Result>> func)
+    {
+        return Task.CompletedTask;
     }
 
-    public async void InsertText()
+    Task OnMarkdownValueChanged(string value)
+    {   
+        return Task.CompletedTask;
+    }
+
+    Task OnMarkdownValueHTMLChanged(string value)
     {
-        await this.QuillNative.InsertText("Some Text");
-        StateHasChanged();
+        markdownHtml = value;
+        return Task.CompletedTask;
     }
 
     async Task Save()
     {
-        var content = await this.QuillNative.GetHTML();
         await viewModel.AddDiary(new Diary()
         {
             Title = this.title,
-            Content = content,
+            Content = markdownValue,
         });
     }
 }

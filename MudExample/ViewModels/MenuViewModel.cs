@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Blazor.SubtleCrypto;
+using Blazored.LocalStorage;
 using eXtensionSharp;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -13,14 +14,21 @@ public class MenuViewModel
     public List<Menu> Menus { get; private set; }
     public string? SelectedHref { get; set; }
 
-    public MenuViewModel(IMenuService menuService)
+    private readonly NavigationManager _navigationManager;
+    private readonly ILocalStorageService _localStorage;
+
+    public MenuViewModel(IMenuService menuService, NavigationManager navigationManager, ILocalStorageService localStorageService)
     {
         _menuService = menuService;
+        _navigationManager = navigationManager;
+        _localStorage = localStorageService;
     }
 
     public async Task InitializeAsync()
     {
         this.Menus = await _menuService.GetMenuListAsync();
+        var href = await _localStorage.GetItemAsync<string>("href");
+        this.SelectedHref = href;
     }
 
     public IEnumerable<Menu> GetAllMenus()
@@ -43,5 +51,12 @@ public class MenuViewModel
         }
 
         return menus;
+    }
+
+    public async Task NavigateTo(string href)
+    {
+        this.SelectedHref = href;
+        _navigationManager.NavigateTo(href);
+        await _localStorage.SetItemAsync(nameof(href), href);
     }
 }
