@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MudExample",
   "resources": {
-    "hash": "sha256-2DD5W+ftLKmCzr4kadFZBhgL6xwhqDzYpEuTgWAHEgs=",
+    "hash": "sha256-9ODPFtg0+UKiM6eYUhAktJmco0F+Z5UMrNCQqWq7L+8=",
     "jsModuleNative": {
       "dotnet.native.8.0.10.3ff9hib3de.js": "sha256-A2nld61445/tX3gNhwfoHhQtB8eK+Z5Hvi048HsR3xI="
     },
@@ -36,6 +36,7 @@
       "Microsoft.AspNetCore.Components.wasm": "sha256-dCsc3IxBzlYUWPVekrNdaizOw+pJDLRZgpUM2+vp0NI=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-b6hO82N6noSBofathGjYbdZQo+AMsMPcC3FwYXetvaY=",
       "Microsoft.AspNetCore.Components.WebAssembly.wasm": "sha256-TPxg5pcnEtLl998VtFhXONI5I8T4pU4M3X0RCWG+M3Y=",
+      "Microsoft.AspNetCore.WebUtilities.wasm": "sha256-B5wtu0s3SmgV8GvarQwKemorbBGoLRUQKHR83F2eeQI=",
       "Microsoft.Bcl.AsyncInterfaces.wasm": "sha256-yuzrj2gVBa2pXkUEhSbUEhCJ4p9FjtL8n8x5tBO9+DU=",
       "Microsoft.CSharp.wasm": "sha256-xTlje/MgUpf057OvXPpdQ+GnwE+aNxm1iozZaCAYfBs=",
       "Microsoft.Extensions.Configuration.Abstractions.wasm": "sha256-87sn2TYqgdZ95sXmavjKEzoEfMgHnYQ9LOvnMX+aZcI=",
@@ -51,11 +52,11 @@
       "Microsoft.Extensions.Logging.Abstractions.wasm": "sha256-PqW7/7ncU9BBP7eI3Yj/Vhq05k0szN8HTBDtABX4C0U=",
       "Microsoft.Extensions.Logging.wasm": "sha256-hs9jYWOUyEFqFdE3QI7P9N1ZNcEYty75T2c+Vnicetc=",
       "Microsoft.Extensions.Options.wasm": "sha256-iRFKIZppdsDcIezL/0NgJnvtz8gfDuEqQxGRoAhklXM=",
-      "Microsoft.Extensions.Primitives.wasm": "sha256-Ms2HR5Gpug/0uRAzdk4SUNT76Ml3CjFv9Jo+dUIMGac=",
+      "Microsoft.Extensions.Primitives.wasm": "sha256-ua1wkm/TaUVHLRtctUs/Y1edQGwgGt4ABa/len7PZng=",
       "Microsoft.JSInterop.wasm": "sha256-OgzkjYglni5VFs0eFAoRAabrpcwfGKemNDwhXRIkOP8=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-r/+bWAAxKn2+Wu3MRYDXvKEbHjLNuptflgNuNhQdK6w=",
       "MudBlazor.wasm": "sha256-ZYpK/ESkw0B03Oefxrcno9Ynd8XC3neIFnUyl1FD170=",
-      "MudExample.wasm": "sha256-/JUknMncQIlTl+m91ivy74sZRa9U74ins+oXnTNvG0U=",
+      "MudExample.wasm": "sha256-62XLX+6xjJ1wuUCNGpEkpyCBsfN/94FezsBqOSpblQI=",
       "netstandard.wasm": "sha256-tLwOW5jqzGH8uBoDrmj4+eLxC5yA6ZawGZkQl4u9Xy8=",
       "Newtonsoft.Json.wasm": "sha256-GlXMWKvDs45M2pACoR3Y4Qh8mcrOZGljqmvJY+6JZ5s=",
       "OllamaSharp.wasm": "sha256-WxVh+V2QPi+4Gk6mEeGH27H3igcyufrBYPR8uqX4+G4=",
