@@ -70,37 +70,37 @@
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
             @if (isShuffle)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="RandomizeTracks"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ShuffleOn" OnClick="RandomizeTracks" Size="Size.Small"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="RandomizeTracks"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Shuffle" OnClick="RandomizeTracks" Size="Size.Small"/>
             }
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowLeft" OnClick="PreviousTrack" Size="Size.Small"/>
             
             @if (playing)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PauseCircle" OnClick="Pause"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.PauseCircle" OnClick="Pause" Size="Size.Small"/>
             }
             else
             {
-                <MudLoadingButton Variant="Variant.Text" @bind-Loading="loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow"/>
+                <MudLoadingButton Variant="Variant.Text" @bind-Loading="loading" ButtonVariant="ButtonVariant.IconButton" OnClick="Play" Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Small"/>
             }
 
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Stop" OnClick="Stop"/>
-            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight" OnClick="NextTrack"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Stop" OnClick="Stop" Size="Size.Small"/>
+            <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.ArrowRight" OnClick="NextTrack" Size="Size.Small"/>
 
             @if (repeatMode == 0)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="@(() => repeatMode = 1)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="@(() => repeatMode = 1)" Size="Size.Small"/>
             }
             else if (repeatMode == 1)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="@(() => repeatMode = 2)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="@(() => repeatMode = 2)" Size="Size.Small"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="@(() => repeatMode = 0)"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="@(() => repeatMode = 0)" Size="Size.Small"/>
             }
         </MudPaper>
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
