@@ -11,7 +11,7 @@ public abstract class SessionPageComponent : PageComponentBase
     protected override async Task OnDelete(Func<Task<Result>> func)
     {
         this.Logger.LogDebug(this.RoleName);
-        var allowRemove = this.RoleName.xValue<string>("administrator").ToUpper() == "Administrator".ToUpper();
+        var allowRemove = this.RoleName.xValue<string>("guest").ToUpper() == "Administrator".ToUpper();
         this.Logger.LogDebug($"allowRemove:{allowRemove}");
         if (!allowRemove)
         {
