@@ -51,16 +51,7 @@
                     }
                 </MudMenu>
             </MudBadge>
-            <MudIconButton Icon="" Color="Color.Inherit" Edge="Edge.End" OnClick="ChangeDarkMode">
-                @if (_isDarkMode)
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.LightMode"/>
-                }
-                else
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.DarkMode"/>
-                }
-            </MudIconButton>
+            <MudIconButton Icon="@darkButtonIcon" OnClick="ChangeDarkMode"/>
             <MudMenu Icon="@Icons.Material.Filled.Language">
                 <MudMenuItem OnClick='(() => OnCultureChanged("en-US"))'>@Localizer["LBL0019"]</MudMenuItem>
                 <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>                
@@ -68,8 +59,6 @@
             <MudMenu Icon="@Icons.Material.Filled.Source">
                 <MudMenuItem OnClick="@(() => ViewModel.NavigateTo("/opensource"))">open source</MudMenuItem>
             </MudMenu>
-                
-            
         </MudAppBar>
     <MudDrawer @bind-Open="LayoutState.DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu/>
@@ -91,12 +80,14 @@
     [Inject] INotifyService NotifyService { get; set; }
     List<Notify> _notifies;
     Color Color = Color.Success;
+    string darkButtonIcon;
 
     protected override async Task OnInitializedAsync()
     {
         LayoutState.DrawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.DrawerOpen));
         LayoutState.IsDark = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.IsDark));
         _notifies = await this.NotifyService.GetNotify();
+        darkButtonIcon = !LayoutState.IsDark ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode;
     }
 
     void DrawerToggle()
@@ -129,6 +120,7 @@
     {
         LayoutState.IsDark = !LayoutState.IsDark;
         LocalStorageService.SetItemAsync(nameof(LayoutState.IsDark), LayoutState.IsDark);
+        darkButtonIcon = !LayoutState.IsDark ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode;
         StateHasChanged();
     }
     
