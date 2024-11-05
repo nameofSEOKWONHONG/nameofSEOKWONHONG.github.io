@@ -1,6 +1,17 @@
 ﻿@using eXtensionSharp
 @using MudExample.Data
+@inject NavigationManager NavMgr
 @inject MenuViewModel ViewModel
+
+@code {
+    private void Callback(string? href)
+    {
+        ViewModel.SelectedHref = href;        
+        NavMgr.NavigateTo(href);
+    }
+}
+
+
 
 <MudNavMenu>
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
@@ -13,22 +24,22 @@
     {
         if (item.MenuDirection == MenuDirection.Root)
         {
-            <MudNavLink Href=@item.Href Match="NavLinkMatch.All" Icon="@item.Icon">@item.Name</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@item.Icon" OnClick="(() => Callback(item.Href))">@item.Name</MudNavLink>
         }
         else if(item.MenuDirection == MenuDirection.Normal)
         {
-            <MudNavLink Href=@item.Href  Match="NavLinkMatch.Prefix" Icon="@item.Icon">@item.Name</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.Prefix" Icon="@item.Icon" OnClick="(() => Callback(item.Href))">@item.Name</MudNavLink>
         }
         else if (item.MenuDirection == MenuDirection.Sub)
         {
             <MudNavGroup Title="@item.Name" Expanded="true" Icon="@item.Icon">
-            @if (item.SubMenus.xIsNotEmpty())
-            {
-                foreach (var subItem in item.SubMenus)
+                @if (item.SubMenus.xIsNotEmpty())
                 {
-                    <MudNavLink Href=@subItem.Href Match="NavLinkMatch.Prefix" Icon=@subItem.Icon IconColor=@subItem.IconColor>@subItem.Name</MudNavLink>        
-                }
-            }                
+                    foreach (var subItem in item.SubMenus)
+                    {
+                        <MudNavLink Match="NavLinkMatch.Prefix" Icon=@subItem.Icon IconColor=@subItem.IconColor OnClick="(() => Callback(subItem.Href))">@subItem.Name</MudNavLink>        
+                    }
+                }                
             </MudNavGroup>
         }
     }

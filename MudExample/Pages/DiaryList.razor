@@ -87,7 +87,7 @@
     string title;
     [Inject] DiaryViewModel ViewModel { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitViewData()
     {
         await ViewModel.GetDiaries();
     }

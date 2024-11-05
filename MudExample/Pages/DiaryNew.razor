@@ -3,7 +3,9 @@
 @using MudExample.Data
 @inherits MudExample.Components.Base.PageComponentBase
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
+
     <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">@Localizer["LBL0041"]</MudButton>
     </MudPaper>
@@ -16,46 +18,46 @@
                         Placeholder="@Localizer["LBL0042"]"
                         EditorCssStyle="height: 500px;">
         <ToolbarContent>
-        <span class="ql-formats">
-            <select class="ql-font">
-                <option selected=""></option>
-                <option value="serif"></option>
-                <option value="monospace"></option>
-            </select>
-            <select class="ql-size">
-                <option value="small"></option>
-                <option selected=""></option>
-                <option value="large"></option>
-                <option value="huge"></option>
-            </select>
-        </span>
             <span class="ql-formats">
-            <button class="ql-bold"></button>
-            <button class="ql-italic"></button>
-            <button class="ql-underline"></button>
-            <button class="ql-strike"></button>
-        </span>
+                <select class="ql-font">
+                    <option selected=""></option>
+                    <option value="serif"></option>
+                    <option value="monospace"></option>
+                </select>
+                <select class="ql-size">
+                    <option value="small"></option>
+                    <option selected=""></option>
+                    <option value="large"></option>
+                    <option value="huge"></option>
+                </select>
+            </span>
             <span class="ql-formats">
-            <select class="ql-color"></select>
-            <select class="ql-background"></select>
-        </span>
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+                <button class="ql-strike"></button>
+            </span>
             <span class="ql-formats">
-            <button class="ql-list" value="ordered"></button>
-            <button class="ql-list" value="bullet"></button>
-            <button class="ql-indent" value="-1"></button>
-            <button class="ql-indent" value="+1"></button>
-            <select class="ql-align">
-                <option selected=""></option>
-                <option value="center"></option>
-                <option value="right"></option>
-                <option value="justify"></option>
-            </select>
-        </span>
+                <select class="ql-color"></select>
+                <select class="ql-background"></select>
+            </span>
             <span class="ql-formats">
-            <button class="ql-link"></button>
-        </span>
+                <button class="ql-list" value="ordered"></button>
+                <button class="ql-list" value="bullet"></button>
+                <button class="ql-indent" value="-1"></button>
+                <button class="ql-indent" value="+1"></button>
+                <select class="ql-align">
+                    <option selected=""></option>
+                    <option value="center"></option>
+                    <option value="right"></option>
+                    <option value="justify"></option>
+                </select>
+            </span>
+            <span class="ql-formats">
+                <button class="ql-link"></button>
+            </span>
         </ToolbarContent>
-    </BlazoredTextEditor>    
+    </BlazoredTextEditor>
 </MudContainer>
 
 
@@ -69,11 +71,6 @@
     string title;
     
     [Inject] DiaryViewModel viewModel { get; set; }
-
-    protected override void OnInitialized()
-    {
-        
-    }
 
     public async void GetContent()
     {

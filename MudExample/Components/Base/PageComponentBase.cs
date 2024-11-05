@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using eXtensionSharp;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MudBlazor;
 using MudExample.Data;
 
@@ -15,6 +16,7 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
     [Inject] protected NavigationManager NavigationManager { get; set; }
     [Inject] protected ILocalizer Localizer { get; set; }
     [Inject] protected ILogger<PageComponentBase> Logger { get; set; }
+    [Inject] private MenuViewModel MenuViewModel { get; set; }
     
     protected bool ProgressVisible { get; set; }
     protected List<BreadcrumbItem> Breadcrumbs = new();
@@ -23,7 +25,8 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        var items = NavigationManager.Uri.xSplit("/");
+        var items = MenuViewModel.SelectedHref.xSplit("/");
+        
         foreach (var item in items)
         {
             if(item.Contains("http") || item.Contains("localhost") || item.Contains("nameofseokwonhong.github.io")) continue;

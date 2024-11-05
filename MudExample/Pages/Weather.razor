@@ -143,7 +143,7 @@
 
     private MudDataGrid<Dictionary<string, string>> dataGrid = null;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitRetrieve()
     {
         var list = await this.LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
         if (list.xIsEmpty())
@@ -170,4 +170,5 @@
         dataGrid?.RenderedColumns.Clear();
         await Task.Delay(10);
     }
+
 }

@@ -11,6 +11,7 @@ public class MenuViewModel
 {
     private readonly IMenuService _menuService;
     public List<Menu> Menus { get; private set; }
+    public string? SelectedHref { get; set; }
 
     public MenuViewModel(IMenuService menuService)
     {
