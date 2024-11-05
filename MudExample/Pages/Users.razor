@@ -88,7 +88,7 @@
         var queryParameters = QueryHelpers.ParseQuery(uri.Query);
         if (queryParameters.TryGetValue("rolename", out var rolename))
         {
-            this.RoleName = rolename.xValue<string>("guest");
+            this.RoleName = rolename.ToString().xValue<string>("guest");
         }
         
         var res = await HttpClient.GetAsync("/data/select-data2.json");
