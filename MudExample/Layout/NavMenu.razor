@@ -22,7 +22,7 @@
     }
     else if (item.MenuDirection == MenuDirection.Sub)
     {
-    <MudNavGroup Title="@item.Name" Expanded="true" Icon="@item.Icon">
+    <MudNavGroup Title="@item.Name" Expanded="false" Icon="@item.Icon">
         @if (item.SubMenus.xIsNotEmpty())
         {
         foreach (var subItem in item.SubMenus)

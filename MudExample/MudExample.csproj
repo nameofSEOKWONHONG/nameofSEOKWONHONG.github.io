@@ -24,7 +24,6 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
         <PackageReference Include="MudBlazor" Version="7.14.0" />
         <PackageReference Include="OllamaSharp" Version="3.0.15" />
-        <PackageReference Include="Tewr.BlazorWorker.BackgroundService" Version="4.1.2" />
         <PackageReference Include="Toolbelt.Blazor.HttpClientInterceptor" Version="10.2.0" />        
     </ItemGroup>
 

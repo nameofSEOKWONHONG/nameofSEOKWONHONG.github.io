@@ -1,6 +1,5 @@
 using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
-using BlazorWorker.Core;
 using Brism;
 using KristofferStrube.Blazor.MediaCaptureStreams;
 using Magic.IndexedDb.Extensions;
@@ -75,7 +74,6 @@ builder.Services.AddMediaDevicesService();
 builder.Services.AddScoped<Selector>();
 builder.Services.AddScoped<Selector2>();
 builder.Services.AddBrism();
-builder.Services.AddWorkerFactory();
 builder.Services.AddMudExtensions();
 
 var app = builder.Build();

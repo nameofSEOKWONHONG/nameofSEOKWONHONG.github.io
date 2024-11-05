@@ -61,11 +61,15 @@
                     <MudIcon Icon="@Icons.Material.Filled.DarkMode"/>
                 }
             </MudIconButton>
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                     AriaLabel="Open user menu">
+            <MudMenu Icon="@Icons.Material.Filled.Language">
                 <MudMenuItem OnClick='(() => OnCultureChanged("en-US"))'>@Localizer["LBL0019"]</MudMenuItem>
-                <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>
+                <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>                
             </MudMenu>
+            <MudMenu Icon="@Icons.Material.Filled.Source">
+                <MudMenuItem OnClick="@(() => ViewModel.NavigateTo("/opensource"))">open source</MudMenuItem>
+            </MudMenu>
+                
+            
         </MudAppBar>
     <MudDrawer @bind-Open="LayoutState.DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu/>
