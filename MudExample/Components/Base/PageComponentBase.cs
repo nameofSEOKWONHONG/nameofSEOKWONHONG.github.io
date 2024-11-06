@@ -7,7 +7,7 @@ using MudExample.Data;
 
 namespace MudExample.Components.Base;
 
-public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
+public abstract class PageComponentBase : MudComponentBase, IAsyncDisposable
 {
     [Parameter] public RenderFragment ChildContent {get;set;}
     [Inject] protected IDialogService DialogService { get; set; }
@@ -15,7 +15,6 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
     [Inject] protected ILocalStorageService LocalStorageService { get; set; }
     [Inject] protected NavigationManager NavigationManager { get; set; }
     [Inject] protected ILocalizer Localizer { get; set; }
-    [Inject] protected ILogger<PageComponentBase> Logger { get; set; }
     [Inject] private MenuViewModel MenuViewModel { get; set; }
     
     protected bool ProgressVisible { get; set; }
@@ -25,6 +24,8 @@ public abstract class PageComponentBase : ComponentBase, IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
+        this.Logger.LogInformation("OnInitializedAsync");
+        
         var items = MenuViewModel.SelectedHref.xSplit("/");
         
         foreach (var item in items)

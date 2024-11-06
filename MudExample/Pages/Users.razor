@@ -57,7 +57,13 @@
                                 <MudSelectItem Value="role">@role.RoleName</MudSelectItem>    
                             }
                         </MudSelect>
-                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value"/>
+                        <MudSelect Label="Parameter Test" @bind-Value="_itemId">
+                            <MudSelectItem Value="0">0</MudSelectItem>
+                            <MudSelectItem Value="1">1</MudSelectItem>
+                            <MudSelectItem Value="2">2</MudSelectItem>
+                            <MudSelectItem Value="3">3</MudSelectItem>
+                        </MudSelect>
+                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="_itemId"/>
                         <MudSelect Label="Rest Select Control2" @bind-Value="selected2Value">
                             @foreach (var item in SelectItems)
                             {
@@ -78,6 +84,8 @@
     List<User> UserList = new List<User>();
     User SelectedUser = new User();
     List<SelectItem>? SelectItems = new();
+
+    int _itemId;
 
     string selected1Value;
     string selected2Value;

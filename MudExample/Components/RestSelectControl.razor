@@ -8,8 +8,12 @@ worst case implement. why??? A very large number of calls due to the implementat
         <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
     }
 </MudSelect>
+<br/>
+<MudText>Parameter : @ItemId</MudText>
+<MudText>ItemId Display : @_selectedItemId</MudText>
 
 @code {
+    [Parameter] public int ItemId { get; set; }
     [Parameter] public ISelector Selector { get; set; }
     [Parameter] public string Label { get; set; }
     private string _selectedValue;
@@ -33,9 +37,19 @@ worst case implement. why??? A very large number of calls due to the implementat
     }
 
     List<SelectItem> SelectItems = new();
+    private string _selectedItemId;
 
     protected override async Task OnInitializedAsync()
     {
         this.SelectItems = await this.Selector.GetItems();
     }
+
+    protected override Task OnParametersSetAsync()
+    {
+        var item = this.SelectItems[ItemId];
+        _selectedItemId = $"{item.Text}, {item.Value}";
+        SelectedValue = item.Value;
+        return base.OnParametersSetAsync();
+    }
+
 }
