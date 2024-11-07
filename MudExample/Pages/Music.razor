@@ -1,5 +1,6 @@
 ﻿@page "/music"
 
+@using System.Timers
 @using eXtensionSharp
 @using KristofferStrube.Blazor.WebAudio
 @using Color = MudBlazor.Color
@@ -92,15 +93,15 @@
 
             @if (repeatMode == 0)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="@(() => repeatMode = 1)" Size="Size.Small"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.Repeat" OnClick="Repeat" Size="Size.Small"/>
             }
             else if (repeatMode == 1)
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="@(() => repeatMode = 2)" Size="Size.Small"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOn" OnClick="Repeat" Size="Size.Small"/>
             }
             else
             {
-                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="@(() => repeatMode = 0)" Size="Size.Small"/>
+                <MudIconButton Variant="Variant.Text" Icon="@Icons.Material.Filled.RepeatOne" OnClick="Repeat" Size="Size.Small"/>
             }
         </MudPaper>
         <MudPaper Class="d-flex justify-center flex-grow-1 gap-4" Elevation="0">
@@ -155,6 +156,35 @@
     private double peakFrequency = 0;
 
     private bool isDarkMode;
+
+    System.Timers.Timer _timer;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _timer = new Timer();
+            _timer.Interval = 500;
+            _timer.Elapsed += TimerOnElapsed;
+            _timer.Start();
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+    private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (!playing)
+        {
+            if (repeatMode == 1)
+            {
+                await NextTrack();
+            }
+            else if (repeatMode == 2)
+            {
+                await Play();
+            }
+        }
+    }
 
     async Task UpdateVisualizer()
     {
@@ -359,6 +389,12 @@
         }
         
         StateHasChanged();
+    }
+
+    public async Task Repeat()
+    {
+        repeatMode++;
+        if (repeatMode > 2) repeatMode = 0;
     }
     
     public override async ValueTask DisposeAsync()
