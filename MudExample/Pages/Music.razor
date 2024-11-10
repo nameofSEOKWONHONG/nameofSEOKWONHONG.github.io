@@ -22,7 +22,9 @@
     <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
         @{
             var cssDark = LayoutState.IsDark ? "visualizer-container-dark" : "visualizer-container-light";
-            <div class="mud-paper @cssDark">
+            <div class="mud-paper @cssDark">            
+            @if (playing)
+            {   
                 @if (tracks[currentTrack].Contains("INDIGO.mp3"))
                 {
                     var t1 = playTime * 1.2;
@@ -32,7 +34,7 @@
                     {
                         alpha -= 0.0023;
                     }
-                    
+                
                     if (t1 >= 80) t1 = 80;
                     if (t2 >= 60) t2 = 60;
 
@@ -40,12 +42,12 @@
                     {
                         var height = visualizerData[i];
                         var hue = (i * 360) / visualizerData.Length;
-                        
+                    
                         if (playTime > 179.3 && playTime < 203)
                         {
                             t2 = Random.Shared.Next(60, (int)(playTime / 2));
                         }
-                        
+                    
                         <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%, @alpha)"></div>
                     }
                 }
@@ -57,7 +59,8 @@
                         var hue = (i * 360) / visualizerData.Length;
                         <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
                     }
-                }                    
+                }
+            }
             </div>
         }
 
@@ -129,6 +132,16 @@
                 @TimeSpan.FromSeconds(trackDuration).ToString(@"mm\:ss")
             </MudText>
         </MudPaper>
+        <br/>
+        <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".mp3">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Upload Files
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
     </MudPaper>
 
 </MudContainer>
@@ -155,11 +168,8 @@
     private double offset;
     private double trackDuration;
     private int interactions;
-    private List<string> tracks = new() {
-        "mp3/Adam_MacDougall.mp3",
-        "mp3/INDIGO.mp3"
-    };
-    private byte[]?[] loadedTracks = new byte[]?[4];
+    private List<string> tracks = new() { };
+    private List<byte[]> loadedTracks = new List<byte[]>();
     
     private double[] visualizerData = new double[32];
     private AnalyserNode? analyser;
@@ -188,11 +198,14 @@
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        if (!playing)
+        if (tracks.xIsEmpty()) return;
+        if (playTime >= trackDuration)
         {
             if (repeatMode == 1)
             {
                 await NextTrack();
+                await Task.Delay(1000);
+                await Play();
             }
             else if (repeatMode == 2)
             {
@@ -270,6 +283,12 @@
     
     public async Task Play()
     {
+        if (tracks.xIsEmpty())
+        {
+            this.Snackbar.Add("track is empty", Severity.Error);
+            return;
+        }
+        
         alpha = 1;
         StateHasChanged();
         
@@ -398,7 +417,7 @@
             srcTracks = tracks.ToList();    
         }
         
-        loadedTracks = new byte[]?[4];
+        loadedTracks = new List<byte[]>();
         currentTrackLoaded = false;
         currentTrack = 0;
         offset = 0;
@@ -431,6 +450,24 @@
     {
         await Play();
     }    
+    
+    private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        if(files.Count <= 0) return;
+        
+        long maxFileSize = 1024 * 1024 * 15; // Example: 15 MB
+        foreach (var browserFile in files)
+        {
+            var filebytes = new byte[browserFile.Size];
+            var stream = await browserFile.OpenReadStream(maxFileSize).ReadAsync(filebytes);
+            tracks.Add(browserFile.Name);
+            loadedTracks.Add(filebytes);
+        }
+
+        await Task.Delay(200);
+
+        await Play();
+    }
     
     public override async ValueTask DisposeAsync()
     {
