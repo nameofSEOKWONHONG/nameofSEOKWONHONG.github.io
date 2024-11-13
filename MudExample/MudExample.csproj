@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
         <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+        <RunAOTCompilation>true</RunAOTCompilation>
     </PropertyGroup>
 
     <ItemGroup>        
