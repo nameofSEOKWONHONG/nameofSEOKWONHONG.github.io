@@ -3,6 +3,7 @@
 @using Blazored.LocalStorage
 @using eXtensionSharp
 @using MudExample.Data
+@using MudExample.Components
 @inherits MudExample.Components.Base.PageComponentBase
 
 <style type="text/css">
@@ -18,42 +19,13 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
-    <h1>Weather</h1>
-
-    <p>This component demonstrates fetching data from the server.</p>
-
-    @if (forecasts == null)
-    {
-        <p>
-            <em>Loading...</em>
-        </p>
-    }
-    else
-    {
-        <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null))">@Localizer["LBL0021"]</MudButton>
-        </MudPaper>
-        <br/>
-        <MudTable Items="@forecasts" MultiSelection="true" Hover="true" @bind-SelectedItems="_selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
-            <HeaderContent>
-                <MudTh>Date</MudTh>
-                <MudTh>Temp. (C)</MudTh>
-                <MudTh>Temp. (F)</MudTh>
-                <MudTh>Summary</MudTh>
-                <MudTh></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>@context.Date?.ToShortDateString()</MudTd>
-                <MudTd>@context.TemperatureC</MudTd>
-                <MudTd>@context.TemperatureF</MudTd>
-                <MudTd>@context.Summary</MudTd>
-                <MudTd>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await ShowDialog(context.Id))">@Localizer["LBL0022"]</MudButton>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-    }
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null))">@Localizer["LBL0021"]</MudButton>
+    </MudPaper>
+    <br/>
+    
+    <WeatherListComponent Weathers="forecasts" @bind-SelectedItems="selectedItems" ShowDialog="ShowDialog" OnDelete="OnDelete"/>
 </MudContainer>
 
 <MudOverlay @bind-Visible="ProgressVisible" DarkBackground="true" ZIndex="9999">
@@ -63,9 +35,35 @@
 </MudOverlay>
 
 @code {
-    private HashSet<WeatherForecast> _selectedItems = new();
+    private HashSet<WeatherForecast> selectedItems = new();
     private List<WeatherForecast>? forecasts;
 
+    protected override async Task OnInitRetrieve()
+    {
+        var list = await this.LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
+        if (list.xIsEmpty())
+        {
+            list =
+            [
+                new() { Date = DateTime.Parse("2022-01-06"), TemperatureC = 1, Summary = "Freezing" },
+                new() { Date = DateTime.Parse("2022-01-07"), TemperatureC = 14, Summary = "Bracing" },
+                new() { Date = DateTime.Parse("2022-01-08"), TemperatureC = -13, Summary = "Freezing" },
+                new() { Date = DateTime.Parse("2022-01-09"), TemperatureC = -16, Summary = "Balmy" },
+                new() { Date = DateTime.Parse("2022-01-10"), TemperatureC = -2, Summary = "Chilly" }
+            ];
+            var row = 1;
+            foreach (var item in list)
+            {
+                item.Id = row;
+                row += 1;
+            }
+
+            await this.LocalStorageService.SetItemAsync("weathers", list);
+        }
+
+        forecasts = list;
+        await Task.Delay(10);
+    }
     
     async Task ShowDialog(int? id)
     {
@@ -120,7 +118,7 @@
 
     protected override Task OnDelete(Func<Task<Result>> func)
     {
-        if (_selectedItems.Count <= 0)
+        if (selectedItems.Count <= 0)
         {
             this.Snackbar.Add("selected items is empty", Severity.Warning);
             return Task.CompletedTask;
@@ -128,7 +126,7 @@
 
         func = async () =>
         {
-            foreach (var weatherForecast in _selectedItems)
+            foreach (var weatherForecast in selectedItems)
             {
                 this.forecasts?.Remove(weatherForecast);
                 await this.LocalStorageService.SetItemAsync("weathers", this.forecasts);
@@ -140,35 +138,4 @@
         };
         return base.OnDelete(func);
     }
-
-    private MudDataGrid<Dictionary<string, string>> dataGrid = null;
-
-    protected override async Task OnInitRetrieve()
-    {
-        var list = await this.LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
-        if (list.xIsEmpty())
-        {
-            list =
-            [
-                new() { Date = DateTime.Parse("2022-01-06"), TemperatureC = 1, Summary = "Freezing" },
-                new() { Date = DateTime.Parse("2022-01-07"), TemperatureC = 14, Summary = "Bracing" },
-                new() { Date = DateTime.Parse("2022-01-08"), TemperatureC = -13, Summary = "Freezing" },
-                new() { Date = DateTime.Parse("2022-01-09"), TemperatureC = -16, Summary = "Balmy" },
-                new() { Date = DateTime.Parse("2022-01-10"), TemperatureC = -2, Summary = "Chilly" }
-            ];
-            var row = 1;
-            foreach (var item in list)
-            {
-                item.Id = row;
-                row += 1;
-            }
-
-            await this.LocalStorageService.SetItemAsync("weathers", list);
-        }
-
-        forecasts = list;
-        dataGrid?.RenderedColumns.Clear();
-        await Task.Delay(10);
-    }
-
 }

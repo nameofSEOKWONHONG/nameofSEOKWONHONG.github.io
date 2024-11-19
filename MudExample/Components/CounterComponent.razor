@@ -1,0 +1,134 @@
+﻿<MudCard Elevation="0" Outlined="true">
+    <MudCardHeader>
+        MudProgressLinear
+    </MudCardHeader>
+    <MudCardContent>
+        <MudProgressLinear Color="Color.Info" Size="Size.Large" Value="@Counter" Class="my-7">
+            <MudText Typo="Typo.subtitle1" Color="Color.Dark">
+                <b>@Counter%</b>
+            </MudText>
+        </MudProgressLinear>
+    </MudCardContent>
+</MudCard>
+
+<br/>
+
+<MudCard Elevation="0" Outlined="true">
+    <MudCardHeader>
+        MudProgressCircular (Interminate)
+    </MudCardHeader>
+    <MudCardContent>
+        <MudProgressCircular Color="Color.Default" Indeterminate="@(Counter < 100)"/>
+        <MudProgressCircular Color="Color.Primary" Indeterminate="@(Counter < 100)"/>
+        <MudProgressCircular Color="Color.Secondary" Indeterminate="@(Counter < 100)"/>
+        <MudProgressCircular Color="Color.Success" Indeterminate="@(Counter < 100)"/>
+        <MudProgressCircular Color="Color.Info" Indeterminate="@(Counter < 100)"/>
+    </MudCardContent>
+</MudCard>
+
+<br/>
+
+<MudCard Elevation="0" Outlined="true">
+    <MudCardHeader>
+        MudProgressCircular (Value)
+    </MudCardHeader>
+    <MudCardContent>
+        <MudProgressCircular Color="Color.Default" Value="@Counter"/>
+        <MudProgressCircular Color="Color.Primary" Value="@Counter"/>
+        <MudProgressCircular Color="Color.Secondary" Value="@Counter"/>
+        <MudProgressCircular Color="Color.Success" Value="@Counter"/>
+        <MudProgressCircular Color="Color.Info" Value="@Counter"/>
+    </MudCardContent>
+</MudCard>
+
+<br/>
+
+<MudCard Elevation="0" Outlined="true">
+    <MudCardHeader>
+        MudProgressLinear (Indeterminate)
+    </MudCardHeader>
+    <MudCardContent>
+        <MudProgressLinear Color="Color.Primary" Indeterminate="@(Counter < 100)" Class="my-7"/>
+        <MudProgressLinear Color="Color.Secondary" Indeterminate="@(Counter < 100)" Class="my-7"/>
+    </MudCardContent>
+</MudCard>
+
+<br/>
+
+<MudCard Elevation="0" Outlined="true">
+    <MudCardHeader>
+        MudProgressLinear (Value)
+    </MudCardHeader>
+    <MudCardContent>
+        <MudProgressLinear Color="Color.Primary" Value="@Counter" Class="my-7"/>
+        <MudProgressLinear Color="Color.Secondary" Value="@Counter" Class="my-7"/>
+    </MudCardContent>
+</MudCard>
+
+<br/>
+
+<MudCard Elevation="0" Outlined="true">
+    <MudCardHeader>
+        MudProgressLinear (Buffer)
+    </MudCardHeader>
+    <MudCardContent>
+        <MudProgressLinear Color="Color.Primary" Buffer="true" Value="@Counter"   BufferValue="@(Counter + 10)" Class="my-7" />
+        <MudProgressLinear Color="Color.Secondary" Buffer="true" Value="@Counter" BufferValue="@(Counter + 10)" Class="my-7" />
+        <MudProgressLinear Color="Color.Tertiary" Buffer="true" Value="@Counter"  BufferValue="@(Counter + 10)" Class="my-7" />
+        <MudProgressLinear Color="Color.Info" Buffer="true" Value="@Counter"      BufferValue="@(Counter + 10)" Class="my-7" />
+        <MudProgressLinear Color="Color.Warning" Buffer="true" Value="@Counter"   BufferValue="@(Counter + 10)" Class="my-7" />
+        <MudProgressLinear Color="Color.Error" Buffer="true" Value="@Counter"     BufferValue="@(Counter + 10)" Class="my-7" />
+    </MudCardContent>
+</MudCard>
+
+<MudStack Row="true" Justify="Justify.FlexEnd">
+    <MudText Typo="Typo.h6">MudBlazor is @_text</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ButtonOnClick">@_buttonText</MudButton>    
+</MudStack>
+
+@code {
+
+    private int _counter;
+    [Parameter]
+    public int Counter
+    {
+        get => _counter;
+        set
+        {
+            if (value == _counter)
+                return;
+
+            _text = _counter.ToString();
+
+            _counter = value;
+            if (CounterChanged.HasDelegate)
+            {
+                CounterChanged.InvokeAsync(_counter);
+            }
+        }        
+    }
+    [Parameter] public EventCallback<int> CounterChanged { get; set; }
+    
+    private string _text { get; set; } = "????";
+    private string _buttonText { get; set; } = "Click Me";
+
+    protected override void OnInitialized()
+    {
+        if (Counter > 0)
+        {
+            _text =  $"Awesome x {Counter}";
+            _buttonText = "Click Me Again";
+        }
+    }
+
+    void ButtonOnClick()
+    {
+        Counter += 10;
+        if (Counter > 100)
+        {
+            Counter = 0;
+        }
+        _text = $"Awesome x {Counter}";
+        _buttonText = "Click Me Again";
+    }
+}

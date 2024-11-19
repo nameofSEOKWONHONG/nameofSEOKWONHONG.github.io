@@ -1,0 +1,58 @@
+﻿@using Blazored.LocalStorage
+@using eXtensionSharp
+@using MudExample.Data
+@inject ILocalizer Localizer
+@inject ILocalStorageService LocalStorageService
+
+@inherits MudExample.Infrastructure.JComponentBase<WeatherForecast>
+
+@if (Weathers == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <MudTable Items="@Weathers" MultiSelection="true" Hover="true" @bind-SelectedItems="selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Temp. (F)</MudTh>
+            <MudTh>Summary</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Date?.ToShortDateString()</MudTd>
+            <MudTd>@context.TemperatureC</MudTd>
+            <MudTd>@context.TemperatureF</MudTd>
+            <MudTd>@context.Summary</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await ShowDialog(context.Id))">@Localizer["LBL0022"]</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    [Parameter] public List<WeatherForecast> Weathers { get; set; }
+    private HashSet<WeatherForecast> selectedItems { get; set; }
+
+    [Parameter]
+    public HashSet<WeatherForecast> SelectedItems
+    {
+        get => selectedItems;
+        set
+        {
+            if(value == selectedItems) return;
+            selectedItems = value;
+            if (SelectedItemsChanged.HasDelegate)
+            {
+                SelectedItemsChanged.InvokeAsync(selectedItems);
+            }
+        }
+    }
+    [Parameter] public EventCallback<HashSet<WeatherForecast>> SelectedItemsChanged { get; set; }
+    [Parameter] public Func<int?, Task> ShowDialog { get; set; }
+    [Parameter] public Func<Func<Task<Result>>, Task> OnDelete { get; set; }
+}

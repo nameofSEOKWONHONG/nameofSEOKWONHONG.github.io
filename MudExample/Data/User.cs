@@ -12,6 +12,9 @@ public class User
     public int RoleId => this.Role.Id;
 
     public string RoleName => this.Role.RoleName;
+    
+    public DateTime? WeatherDate { get; set; }
+    public string WeatherSummary { get; set; }
 
     public Role Role { get; set; }
 

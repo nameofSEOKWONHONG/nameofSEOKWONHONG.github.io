@@ -1,12 +1,9 @@
 ﻿@page "/settings/users"
-@using System.Data.Common
 @using eXtensionSharp
 @using Microsoft.AspNetCore.WebUtilities
-@using MudBlazor.Extensions
 @using MudExample.Components
 @using MudExample.Data
 @inject Selector Selector
-@inject Selector2 Selector2
 @inject HttpClient HttpClient
 
 @inherits MudExample.Components.Base.SessionPageComponent
@@ -39,6 +36,8 @@
                     <PropertyColumn Property="m => m.Name"/>
                     <PropertyColumn Property="m => m.Email"/>
                     <PropertyColumn Property="m => m.RoleName"/>
+                    <PropertyColumn Property="m => m.WeatherDate"/>
+                    <PropertyColumn Property="m => m.WeatherSummary"/>
                 </Columns>
                 <PagerContent>
                     <MudDataGridPager T="User" />
@@ -67,9 +66,9 @@
                         <MudSelect Label="Rest Select Control2" @bind-Value="selected2Value">
                             @foreach (var item in SelectItems)
                             {
-                            <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
+                                <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
                             }
-                        </MudSelect>                        
+                        </MudSelect>
                     </MudForm>                    
                 </MudPaper>
             </MudItem>

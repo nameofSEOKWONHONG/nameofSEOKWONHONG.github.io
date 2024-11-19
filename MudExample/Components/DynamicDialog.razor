@@ -1,0 +1,22 @@
+﻿<MudDialog>
+    <DialogContent>
+        @DynamicContent
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Error" OnClick="Save">Save</MudButton>
+    </DialogActions>    
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public RenderFragment DynamicContent { get; set; }
+    [Parameter] public string ComponentType { get; set; }
+    
+    private void Cancel() => MudDialog.Cancel();
+    void Save()
+    {
+        MudDialog.Close(DialogResult.Ok("ok"));
+    }
+}
