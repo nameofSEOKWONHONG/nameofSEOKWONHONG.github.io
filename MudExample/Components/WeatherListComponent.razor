@@ -25,7 +25,18 @@
 }
 else
 {
-    <MudTable Items="@Weathers" MultiSelection="true" Hover="true" @bind-SelectedItems="selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
+    <MudTable Items="@Weathers" MultiSelection="true" Hover="true" @bind-SelectedItems="selectedItems" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true"
+              FixedHeader="true"
+              Dense="true"
+              Height="800px"
+              Virtualize="true">
+        <ColGroup>
+            <col style="width: 60px;" />
+            <col />
+            <col />
+            <col />
+            <col />
+        </ColGroup>
         <HeaderContent>
             <MudTh>Date</MudTh>
             <MudTh>Temp. (C)</MudTh>

@@ -21,7 +21,7 @@
         <br/>
         <MudStack Spacing="2" Style="@stackStyle">
             <MudCollapse Expanded="_expanded">
-                <MudPage Column="2" Row="1" Height="60px">
+                <MudPage Column="2" Row="1" Height="@pageHeight">
                     <MudSection Column="1" Row="1">
                         <MudTextField T="int?" Label="Temperature" @bind-Value="searchTemp" Style="width: 80%;"/>
                     </MudSection>
@@ -55,10 +55,14 @@
     bool _expanded = false;
     string stackStyle = "content-visibility: hidden;";
     string menuButtonIcon = Icons.Material.Rounded.Menu;
+    int PageCol = 2;
+    int PageRow = 1;
+    string pageHeight;
 
-
+    
     protected override async Task OnInitRetrieve()
     {
+        pageHeight = $"{PageRow * 60}px";
         await OnRetrieve(null);
     }
 
