@@ -1,7 +1,12 @@
 [
-  {"Text": "World1", "Value": "Hello1"},
-  {"Text": "World2", "Value": "Hello2"},
-  {"Text": "World3", "Value": "Hello3"},
-  {"Text": "World4", "Value": "Hello4"},
-  {"Text": "World5", "Value": "Hello5"}
+  {"Text": "Kimchi", "Value": "Korean"},
+  {"Text": "Sushi", "Value": "Japanese"},
+  {"Text": "Pizza", "Value": "Italian"},
+  {"Text": "Tacos", "Value": "Mexican"},
+  {"Text": "Croissant", "Value": "French"},
+  {"Text": "Pad Thai", "Value": "Thai"},
+  {"Text": "Burger", "Value": "American"},
+  {"Text": "Biryani", "Value": "Indian"},
+  {"Text": "Pho", "Value": "Vietnamese"},
+  {"Text": "Paella", "Value": "Spanish"}
 ]
