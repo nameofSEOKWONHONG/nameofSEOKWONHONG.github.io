@@ -24,6 +24,7 @@
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Info" OnClick="@(() => OnCreate(null!))">@Localizer["LBL0020"]</MudButton>
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Warning" OnClick="@(() => OnUpdate(null!))">@Localizer["LBL0022"]</MudButton>
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Error" OnClick="@(() => OnDelete(null!))">@Localizer["LBL0021"]</MudButton>
+        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Error" OnClick="ShowSnackBar">SNACKBAR</MudButton>
     </MudPaper>
     <br/>
     
@@ -79,7 +80,7 @@
     int itemId;
 
     string selected1Value;
-
+    
     protected override async Task OnInitViewData()
     {
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
@@ -124,5 +125,41 @@
     void RoleChanged(string p)
     {
         this.NavigationManager.NavigateTo(@$"/settings/users?rolename={p}", true);
+    }
+
+    void ShowSnackBar()
+    {
+        RenderFragment fragment = (builder) =>
+        {
+            if (SelectedUser != null)
+            {
+                builder.OpenElement(0, "div");
+                builder.OpenElement(1, "h3");
+                builder.AddContent(2, "Hi from a RenderFragment");
+                builder.CloseElement();
+
+                builder.OpenElement(3, "ul");
+
+                builder.OpenElement(4, "li");
+                builder.AddContent(5, SelectedUser.Name);
+                builder.CloseElement();
+
+                builder.OpenElement(6, "li");
+                builder.AddContent(7, SelectedUser.Email);
+                builder.CloseElement();
+
+                builder.OpenElement(8, "li");
+                builder.AddContent(9, SelectedUser.RoleName);
+                builder.CloseElement();
+
+                builder.CloseElement(); // Close ul
+                builder.CloseElement(); // Close div
+            }
+            else
+            {
+                builder.AddContent(0, "No user selected.");
+            }
+        };
+        this.Snackbar.Add(fragment);
     }
 }

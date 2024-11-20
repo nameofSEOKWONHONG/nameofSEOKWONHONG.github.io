@@ -27,10 +27,7 @@ public class Selector : ISelector
         var res = await _httpClient.GetAsync("/data/select-data.json");
         res.EnsureSuccessStatusCode();
 
-        var items = await res.Content.ReadFromJsonAsync<List<SelectItem>>();
-        await Task.Delay(200);
-
-        return items;
+        return await res.Content.ReadFromJsonAsync<List<SelectItem>>();
     }
 }
 
@@ -46,9 +43,6 @@ public class Selector2 : ISelector
         var res = await _httpClient.GetAsync("/data/select-data2.json");
         res.EnsureSuccessStatusCode();
 
-        var items = await res.Content.ReadFromJsonAsync<List<SelectItem>>();
-        await Task.Delay(200);
-
-        return items;
+        return await res.Content.ReadFromJsonAsync<List<SelectItem>>();
     }
 }

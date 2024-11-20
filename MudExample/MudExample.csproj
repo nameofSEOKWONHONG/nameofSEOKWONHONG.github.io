@@ -37,5 +37,6 @@
       <_ContentIncludedByDefault Remove="wwwroot\mp3\Adam_MacDougall.mp3" />
       <_ContentIncludedByDefault Remove="wwwroot\mp3\INDIGO.mp3" />
       <_ContentIncludedByDefault Remove="wwwroot\mp3\Someone_You_Loved.mp3" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\ecg.js" />
     </ItemGroup>
 </Project>

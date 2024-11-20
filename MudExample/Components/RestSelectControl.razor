@@ -2,7 +2,7 @@
 worst case implement. why??? A very large number of calls due to the implementation of the control.
  *@
 
-<MudSelect Label="@Label" Value="SelectedValue">
+<MudSelect Label="@Label" @bind-Value="SelectedValue">
     @foreach (var item in SelectItems)
     {
         <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
@@ -39,22 +39,21 @@ worst case implement. why??? A very large number of calls due to the implementat
     List<SelectItem> SelectItems = new();
     private string _selectedItemId;
 
-    private bool _isInitialized = false;
     protected override async Task OnInitializedAsync()
     {
-        if (!_isInitialized)
-        {
-            this.SelectItems = await this.Selector.GetItems();
-            _isInitialized = true;
-        }
+        this.SelectItems = await this.Selector.GetItems();
     }
 
-    protected override Task OnParametersSetAsync()
+    private int previousItemId = int.MaxValue;
+    protected override void OnParametersSet()
     {
-        var item = this.SelectItems[ItemId];
-        _selectedItemId = $"{item.Text}, {item.Value}";
-        SelectedValue = item.Value;
-        return base.OnParametersSetAsync();
+        if (previousItemId != ItemId)
+        {
+            previousItemId = ItemId;
+            var item = this.SelectItems[ItemId];
+            _selectedItemId = $"{item.Text}, {item.Value}";
+            SelectedValue = item.Value;
+        }
     }
 
 }
