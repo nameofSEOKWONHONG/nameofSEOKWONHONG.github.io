@@ -4,37 +4,37 @@ using eXtensionSharp;
 
 namespace MudExample.Services;
 
-public interface INotifyService
+public interface INotificationService
 {
-    Task<List<Notify>> GetNotify();
-    Task<bool> SaveNotify(Notify model);
+    Task<List<Notification>> GetNotify();
+    Task<bool> SaveNotify(Notification model);
 }
 
-public class NotifyService : INotifyService
+public class NotificationService : INotificationService
 {
     private readonly HttpClient _httpClient;
     private readonly ILocalStorageService _localStorageService;
     private const string NotifyStorageKey = "notify";
-    public NotifyService(HttpClient client, ILocalStorageService localStorageService)
+    public NotificationService(HttpClient client, ILocalStorageService localStorageService)
     {
         _httpClient = client;
         _localStorageService = localStorageService;
     }
 
-    public async Task<List<Notify>> GetNotify()
+    public async Task<List<Notification>> GetNotify()
     {
         var res = await _httpClient.GetAsync("data/notification.json");
         res.EnsureSuccessStatusCode();
         
-        var result = await res.Content.ReadFromJsonAsync<List<Notify>>();
+        var result = await res.Content.ReadFromJsonAsync<List<Notification>>();
         await _localStorageService.SetItemAsync(NotifyStorageKey, result);
 
         return result;
     }
 
-    public async Task<bool> SaveNotify(Notify model)
+    public async Task<bool> SaveNotify(Notification model)
     {
-        var data = await _localStorageService.GetItemAsync<List<Notify>>(NotifyStorageKey);
+        var data = await _localStorageService.GetItemAsync<List<Notification>>(NotifyStorageKey);
         var exist = data.FirstOrDefault(m => m.Id == model.Id);
         if (exist.xIsEmpty()) return false;
         
@@ -46,7 +46,7 @@ public class NotifyService : INotifyService
     }
 }
 
-public class Notify
+public class Notification
 {
     public string Id { get; set; }
     public string Title { get; set; }
@@ -55,7 +55,7 @@ public class Notify
     public string DisplayName { get; set; }
     public DateTime PublishDate { get; set; }
 
-    public Notify()
+    public Notification()
     {
     }
 }

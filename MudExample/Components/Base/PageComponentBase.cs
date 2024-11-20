@@ -113,6 +113,8 @@ public abstract class PageComponentBase : MudComponentBase, IAsyncDisposable
         var dialog = await DialogService.ShowAsync<ProgressDialog>("Progress", options);
         
         var result = await func();
+        await Task.Delay(500);
+        
         this.Snackbar.Add(result.Message, result.Succeed ? Severity.Success : Severity.Error);
         
         dialog.Close();

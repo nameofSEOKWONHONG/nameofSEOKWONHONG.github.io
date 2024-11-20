@@ -12,7 +12,7 @@ public class SelectItem
 
 public interface ISelector
 {
-    Task<List<SelectItem>> GetItems();    
+    Task<List<SelectItem>> GetItems();
 }
 
 public class Selector : ISelector

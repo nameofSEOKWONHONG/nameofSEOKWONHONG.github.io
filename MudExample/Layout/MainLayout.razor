@@ -56,9 +56,7 @@
                 <MudMenuItem OnClick='(() => OnCultureChanged("en-US"))'>@Localizer["LBL0019"]</MudMenuItem>
                 <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>                
             </MudMenu>
-            <MudMenu Icon="@Icons.Material.Filled.Source">
-                <MudMenuItem OnClick="@(() => ViewModel.NavigateTo("/opensource"))">open source</MudMenuItem>
-            </MudMenu>
+            <MudIconButton Icon="@Icons.Material.Rounded.Source" OnClick="@(() => ViewModel.NavigateTo("/opensource"))"/>
         </MudAppBar>
     <MudDrawer @bind-Open="LayoutState.DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu/>
@@ -77,8 +75,8 @@
     [Inject] LayoutState LayoutState { get; set; }
     [Inject] ILocalizer? Localizer { get; set; }
     [Inject] ILocalStorageService? LocalStorageService { get; set; }
-    [Inject] INotifyService NotifyService { get; set; }
-    List<Notify> _notifies;
+    [Inject] INotificationService NotificationService { get; set; }
+    List<Notification> _notifies;
     Color Color = Color.Success;
     string darkButtonIcon;
 
@@ -86,7 +84,7 @@
     {
         LayoutState.DrawerOpen = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.DrawerOpen));
         LayoutState.IsDark = await LocalStorageService.GetItemAsync<bool>(nameof(LayoutState.IsDark));
-        _notifies = await this.NotifyService.GetNotify();
+        _notifies = await this.NotificationService.GetNotify();
         darkButtonIcon = !LayoutState.IsDark ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode;
     }
 
@@ -109,10 +107,10 @@
     }
 
     private bool _noticeVisible = true;
-    async Task NotificationClick(Notify item)
+    async Task NotificationClick(Notification item)
     {
         this._notifies.Remove(item);
-        await NotifyService.SaveNotify(item);
+        await NotificationService.SaveNotify(item);
         _noticeVisible = false;
     }
 

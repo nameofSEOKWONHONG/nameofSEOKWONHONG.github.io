@@ -56,25 +56,18 @@
                                 <MudSelectItem Value="role">@role.RoleName</MudSelectItem>    
                             }
                         </MudSelect>
-                        <MudSelect Label="Parameter Test" @bind-Value="_itemId">
+                        <MudSelect Label="Parameter Test" @bind-Value="itemId">
                             <MudSelectItem Value="0">0</MudSelectItem>
                             <MudSelectItem Value="1">1</MudSelectItem>
                             <MudSelectItem Value="2">2</MudSelectItem>
                             <MudSelectItem Value="3">3</MudSelectItem>
                         </MudSelect>
-                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="_itemId"/>
-                        <MudSelect Label="Rest Select Control2" @bind-Value="selected2Value">
-                            @foreach (var item in SelectItems)
-                            {
-                                <MudSelectItem Value="item.Value">@item.Text</MudSelectItem>
-                            }
-                        </MudSelect>
+                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/>
                     </MudForm>                    
                 </MudPaper>
             </MudItem>
 
             <label>SelectControl1 Result : @selected1Value</label>
-            <label>SelectControl2 Result : @selected2Value</label>
         </MudSection>
     </MudPage>
 </MudContainer>
@@ -82,12 +75,10 @@
 @code {
     List<User> UserList = new List<User>();
     User SelectedUser = new User();
-    List<SelectItem>? SelectItems = new();
 
-    int _itemId;
+    int itemId;
 
     string selected1Value;
-    string selected2Value;
 
     protected override async Task OnInitViewData()
     {
@@ -97,10 +88,6 @@
         {
             this.RoleName = rolename.ToString().xValue<string>("guest");
         }
-        
-        var res = await HttpClient.GetAsync("/data/select-data2.json");
-        res.EnsureSuccessStatusCode();
-        SelectItems = await res.Content.ReadFromJsonAsync<List<SelectItem>>();
         await base.OnInitViewData();
     }
 

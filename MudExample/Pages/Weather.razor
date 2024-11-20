@@ -6,22 +6,34 @@
 @using MudExample.Components
 @inherits MudExample.Components.Base.PageComponentBase
 
-<style type="text/css">
-    .mud-table-head .header-centered th {
-        text-align: center;
-        font-size: 1.2em;
-    }
 
-    .mud-table-foot .bold-text .mud-table-cell {
-        font-weight: 500;
-    }
-</style>
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
 
-    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4">
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null))">@Localizer["LBL0021"]</MudButton>
+    <MudPaper>
+        <MudStack Class="d-flex justify-end flex-grow-1 gap-4" Row="true">
+            <MudTextField T="string" Label="Summary" @bind-Value="searchValue"/>
+            <MudIconButton Icon="@menuButtonIcon" OnClick="OnExpandCollapseClick"/>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(() => OnRetrieve(null))">@Localizer["LBL0043"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(async () => await ShowDialog(null))">@Localizer["LBL0020"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => OnDelete(null))">@Localizer["LBL0021"]</MudButton>            
+        </MudStack>
+        <br/>
+        <MudStack Spacing="2" Style="@stackStyle">
+            <MudCollapse Expanded="_expanded">
+                <MudPage Column="2" Row="1" Height="60px">
+                    <MudSection Column="1" Row="1">
+                        <MudTextField T="int?" Label="Temperature" @bind-Value="searchTemp" Style="width: 80%;"/>
+                    </MudSection>
+                    <MudSection Column="2" Row="1">
+                        <MudDatePicker T="DateTime?" Label="Date" @bind-Date="searchDate" Style="width: 80%;"/>
+                    </MudSection>
+                </MudPage>
+                <MudPaper class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
+                    <MudIconButton Icon="@Icons.Material.Filled.ClearAll" OnClick="Callback"/>    
+                </MudPaper>
+            </MudCollapse>
+        </MudStack>        
     </MudPaper>
     <br/>
     
@@ -37,34 +49,68 @@
 @code {
     private HashSet<WeatherForecast> selectedItems = new();
     private List<WeatherForecast>? forecasts;
+    string searchValue;
+    int? searchTemp;
+    DateTime? searchDate;
+    bool _expanded = false;
+    string stackStyle = "content-visibility: hidden;";
+    string menuButtonIcon = Icons.Material.Rounded.Menu;
+
 
     protected override async Task OnInitRetrieve()
     {
-        var list = await this.LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
-        if (list.xIsEmpty())
+        await OnRetrieve(null);
+    }
+
+    protected override Task OnRetrieve(Func<Task<Result>> func)
+    {
+        func = async () =>
         {
-            list =
-            [
-                new() { Date = DateTime.Parse("2022-01-06"), TemperatureC = 1, Summary = "Freezing" },
-                new() { Date = DateTime.Parse("2022-01-07"), TemperatureC = 14, Summary = "Bracing" },
-                new() { Date = DateTime.Parse("2022-01-08"), TemperatureC = -13, Summary = "Freezing" },
-                new() { Date = DateTime.Parse("2022-01-09"), TemperatureC = -16, Summary = "Balmy" },
-                new() { Date = DateTime.Parse("2022-01-10"), TemperatureC = -2, Summary = "Chilly" }
-            ];
-            var row = 1;
-            foreach (var item in list)
+            var list = await this.LocalStorageService.GetItemAsync<List<WeatherForecast>>("weathers");
+            if (list.xIsEmpty())
             {
-                item.Id = row;
-                row += 1;
+                list =
+                [
+                    new() { Date = DateTime.Parse("2022-01-06"), TemperatureC = 1, Summary = "Freezing" },
+                    new() { Date = DateTime.Parse("2022-01-07"), TemperatureC = 14, Summary = "Bracing" },
+                    new() { Date = DateTime.Parse("2022-01-08"), TemperatureC = -13, Summary = "Freezing" },
+                    new() { Date = DateTime.Parse("2022-01-09"), TemperatureC = -16, Summary = "Balmy" },
+                    new() { Date = DateTime.Parse("2022-01-10"), TemperatureC = -2, Summary = "Chilly" }
+                ];
+                var row = 1;
+                foreach (var item in list)
+                {
+                    item.Id = row;
+                    row += 1;
+                }
+
+                await this.LocalStorageService.SetItemAsync("weathers", list);
             }
 
-            await this.LocalStorageService.SetItemAsync("weathers", list);
-        }
+            var searchList = list.AsEnumerable();
+            if (searchValue.xIsNotEmpty())
+            {
+                searchList = searchList.Where(m => m.Summary.ToUpper().Contains(searchValue.ToUpper()));
+            }
 
-        forecasts = list;
-        await Task.Delay(10);
+            if (searchTemp > 0)
+            {
+                searchList = searchList.Where(m => m.TemperatureC >= searchTemp);
+            }
+
+            if (searchDate.xIsNotEmpty())
+            {
+                searchList = searchList.Where(m => m.Date >= searchDate.Value);
+            }
+
+            forecasts = searchList.ToList();
+
+            return new Result(true, "Success");
+        };
+
+        return base.OnRetrieve(func);
     }
-    
+
     async Task ShowDialog(int? id)
     {
         var parameters = new DialogParameters();
@@ -138,4 +184,26 @@
         };
         return base.OnDelete(func);
     }
+    
+    private void OnExpandCollapseClick() {
+        _expanded = !_expanded;
+        if (_expanded)
+        {
+            stackStyle = "";
+            menuButtonIcon = Icons.Material.Rounded.MenuOpen;
+        }
+        else
+        {
+            stackStyle = "content-visibility: hidden;";
+            menuButtonIcon = Icons.Material.Rounded.Menu;
+        }
+    }
+
+    private void Callback(MouseEventArgs obj)
+    {
+        searchValue = string.Empty;
+        searchTemp = null;
+        searchDate = null;
+    }
+
 }
