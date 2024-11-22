@@ -152,7 +152,7 @@
     {
         @if (tracks[currentTrack].Contains("apt"))
         {
-            <MudDrawer @bind-Open="@_open" Width="@_width" Height="@_height" Anchor="@_anchor" Elevation="2" Variant="@DrawerVariant.Temporary" Style="padding: 20px;" >
+            <MudDrawer @bind-Open="@_open" Width="@_width" Height="@_height" Anchor="@_anchor" Elevation="2" Variant="@DrawerVariant.Temporary" Style="padding: 50px;">
                 <MudDrawerHeader>
                     <MudText Typo="Typo.h6">♬ @tracks[currentTrack].xGetFileNameWithoutExtension() ♬</MudText>
                 </MudDrawerHeader>
@@ -166,6 +166,8 @@
                         }
                     }
                 }
+                <MudSpacer/>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary" OnClick="CloseDrawer"/>
             </MudDrawer>        
         }        
     }
@@ -595,7 +597,7 @@
                 _height = "100%";
                 break;
             case Anchor.End:
-                _width = "400px";
+                _width = "100%";
                 _height = "100%";
                 break;
             case Anchor.Bottom:
@@ -612,6 +614,11 @@
         {
             Snackbar.Add("upload apt.mp3", Severity.Info);
         }
+    }
+
+    void CloseDrawer()
+    {
+        _open = false;
     }
     
     public override async ValueTask DisposeAsync()
