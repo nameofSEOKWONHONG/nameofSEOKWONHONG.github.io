@@ -2,6 +2,7 @@
 
 @page "/music"
 
+@using System.Drawing
 @using System.Timers
 @using eXtensionSharp
 @using KristofferStrube.Blazor.WebAudio
@@ -23,44 +24,44 @@
         @{
             var cssDark = LayoutState.IsDark ? "visualizer-container-dark" : "visualizer-container-light";
             <div class="mud-paper @cssDark">            
-            @if (playing)
-            {   
-                @if (tracks[currentTrack].Contains("INDIGO.mp3"))
-                {
-                    var t1 = playTime * 1.2;
-                    var t2 = playTime;
-
-                    if (playTime > 243)
+                @if (playing)
+                {   
+                    @if (tracks[currentTrack].Contains("INDIGO.mp3"))
                     {
-                        alpha -= 0.0023;
-                    }
-                
-                    if (t1 >= 80) t1 = 80;
-                    if (t2 >= 60) t2 = 60;
+                        var t1 = playTime * 1.2;
+                        var t2 = playTime;
 
-                    for (int i = 0; i < 32; i++)
-                    {
-                        var height = visualizerData[i];
-                        var hue = (i * 360) / visualizerData.Length;
-                    
-                        if (playTime > 179.3 && playTime < 203)
+                        if (playTime > 243)
                         {
-                            t2 = Random.Shared.Next(60, (int)(playTime / 2));
+                            alpha -= 0.0023;
                         }
+                
+                        if (t1 >= 80) t1 = 80;
+                        if (t2 >= 60) t2 = 60;
+
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
                     
-                        <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%, @alpha)"></div>
+                            if (playTime > 179.3 && playTime < 203)
+                            {
+                                t2 = Random.Shared.Next(60, (int)(playTime / 2));
+                            }
+                    
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, @t1%, @t2%, @alpha)"></div>
+                        }
                     }
-                }
-                else
-                {
-                    for (int i = 0; i < 32; i++)
+                    else
                     {
-                        var height = visualizerData[i];
-                        var hue = (i * 360) / visualizerData.Length;
-                        <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        for (int i = 0; i < 32; i++)
+                        {
+                            var height = visualizerData[i];
+                            var hue = (i * 360) / visualizerData.Length;
+                            <div class="bar" style="height: @height%; background-color: hsl(@hue, 80%, 60%)"></div>
+                        }
                     }
                 }
-            }
             </div>
         }
 
@@ -133,17 +134,41 @@
             </MudText>
         </MudPaper>
         <br/>
-        <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".mp3">
-            <ActivatorContent>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.CloudUpload">
-                    Upload Files
-                </MudButton>
-            </ActivatorContent>
-        </MudFileUpload>
+        <MudPaper Class="d-flex justify-space-between flex-grow-1 gap-4" Elevation="0">
+            <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".mp3">
+                <ActivatorContent>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.UploadFile">
+                        Upload Files
+                    </MudButton>
+                </ActivatorContent>
+            </MudFileUpload>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenDrawer(Anchor.End))" StartIcon="@Icons.Material.Filled.Lyrics">Lyrics</MudButton>
+        </MudPaper>
     </MudPaper>
 
+    @if (tracks.xIsNotEmpty())
+    {
+        @if (tracks[currentTrack].Contains("apt"))
+        {
+            <MudDrawer @bind-Open="@_open" Width="@_width" Height="@_height" Anchor="@_anchor" Elevation="2" Variant="@DrawerVariant.Temporary" Style="padding: 20px;" >
+                <MudDrawerHeader>
+                    <MudText Typo="Typo.h6">♬ @tracks[currentTrack].xGetFileNameWithoutExtension() ♬</MudText>
+                </MudDrawerHeader>
+                @if(playing) {
+                    var items = lyrics.Where(m => m.Item1 >= playTime).Take(20).ToList();
+                    if (items.xIsNotEmpty())
+                    {
+                        foreach (var item in items)
+                        {
+                            <MudText Typo="Typo.subtitle1">@item.Item2</MudText>
+                        }
+                    }
+                }
+            </MudDrawer>        
+        }        
+    }
 </MudContainer>
 
 @code {
@@ -183,6 +208,95 @@
     private bool isDarkMode;
 
     System.Timers.Timer _timer;
+    
+    private bool _open;
+    private Anchor _anchor;
+    private string _width, _height;
+
+    private List<ValueTuple<double, string>> lyrics = new()
+    {
+            new ValueTuple<double, string>(6, "수정이가 좋아하는 랜덤 게임"),
+            new ValueTuple<double, string>(10, "랜덤 게임"),
+            new ValueTuple<double, string>(12, "Game start"),
+            new ValueTuple<double, string>(13, "아파트, 아파트"),
+            new ValueTuple<double, string>(14, "아파트, 아파트"),
+            new ValueTuple<double, string>(15, "아파트, 아파트"),
+            new ValueTuple<double, string>(17, "Uh, uh-huh, uh-huh"),
+            new ValueTuple<double, string>(18, "아파트, 아파트"),
+            new ValueTuple<double, string>(19, "아파트, 아파트"),
+            new ValueTuple<double, string>(20, "아파트, 아파트"),
+            new ValueTuple<double, string>(22, "Uh, uh-huh, uh-huh"),
+            new ValueTuple<double, string>(30, "Kissy face, kissy face"),
+            new ValueTuple<double, string>(32, "Sent to your phone, but"),
+            new ValueTuple<double, string>(34, "I'm tryna kiss your lips for real (Uh-huh, uh-huh)"),
+            new ValueTuple<double, string>(36, "Red hearts, red hearts"),
+            new ValueTuple<double, string>(38, "That's what I'm on, yeah"),
+            new ValueTuple<double, string>(40, "Come give me somethin' I can feel, oh-oh, oh"),
+            new ValueTuple<double, string>(42, "Don't you want me like I want you, baby?"),
+            new ValueTuple<double, string>(44, "Don't you need me like I need you now?"),
+            new ValueTuple<double, string>(46, "Sleep tomorrow, but tonight, go crazy"),
+            new ValueTuple<double, string>(48, "All you gotta do is just meet me at the"),
+            new ValueTuple<double, string>(51, "아파트, 아파트"),
+            new ValueTuple<double, string>(52, "아파트, 아파트"),
+            new ValueTuple<double, string>(53, "아파트, 아파트"),
+            new ValueTuple<double, string>(54, "Uh, uh-huh, uh-huh"),
+            new ValueTuple<double, string>(56, "아파트, 아파트"),
+            new ValueTuple<double, string>(57, "아파트, 아파트"),
+            new ValueTuple<double, string>(58, "아파트, 아파트"),
+            new ValueTuple<double, string>(64, "Uh, uh-huh, uh-huh"),
+            new ValueTuple<double, string>(66, "It's whatever (Whatever), it's whatever (Whatever)"),
+            new ValueTuple<double, string>(68, "It's whatever (Whatever) you like (Woo)"),
+            new ValueTuple<double, string>(70, "Turn this 아파트 into a club (Uh-huh, uh-huh)"),
+            new ValueTuple<double, string>(72, "I'm talkin' drink, dance, smoke, freak, party all night (Come on)"),
+            new ValueTuple<double, string>(74, "건배, 건배, girl, what's up? Oh-oh, oh"),
+            new ValueTuple<double, string>(76, "Don't you want me like I want you, baby?"),
+            new ValueTuple<double, string>(78, "Don't you need me like I need you now?"),
+            new ValueTuple<double, string>(80, "Sleep tomorrow, but tonight, go crazy"),
+            new ValueTuple<double, string>(82, "All you gotta do is just meet me at the"),
+            new ValueTuple<double, string>(84, "아파트, 아파트"),
+            new ValueTuple<double, string>(86, "아파트, 아파트"),
+            new ValueTuple<double, string>(88, "아파트, 아파트"),
+            new ValueTuple<double, string>(90, "Uh, uh-huh, uh-huh"),
+            new ValueTuple<double, string>(92, "아파트, 아파트"),
+            new ValueTuple<double, string>(94, "아파트, 아파트"),
+            new ValueTuple<double, string>(96, "아파트, 아파트"),
+            new ValueTuple<double, string>(98, "Uh, uh-huh, uh-huh"),
+
+            new ValueTuple<double, string>(104, "Hey, so now you know the game"),
+            new ValueTuple<double, string>(108, "Are you ready?"),
+            new ValueTuple<double, string>(112, "’Cause I'm comin' to get ya, get ya, get ya"),
+            new ValueTuple<double, string>(116, "Hold on, hold on"),
+            new ValueTuple<double, string>(120, "I'm on my way"),
+            new ValueTuple<double, string>(124, "Yeah, yeah, yeah-yeah, yeah"),
+            new ValueTuple<double, string>(128, "I’m on my way"),
+            new ValueTuple<double, string>(134, "Hold on, hold on"),
+            new ValueTuple<double, string>(138, "I'm on my way"),
+            new ValueTuple<double, string>(142, "Yeah, yeah, yeah-yeah, yeah"),
+            new ValueTuple<double, string>(146, "I'm on my way"),
+            
+            new ValueTuple<double, string>(148, "Don't you want me like I want you, baby?"),
+            new ValueTuple<double, string>(150, "Don't you need me like I need you now?"),
+            new ValueTuple<double, string>(152, "Sleep tomorrow, but tonight, go crazy"),
+            new ValueTuple<double, string>(154, "All you gotta do is just meet me at the"),
+            new ValueTuple<double, string>(156, "아파트, 아파트"),
+            new ValueTuple<double, string>(157, "아파트, 아파트"),
+            new ValueTuple<double, string>(158, "아파트, 아파트"),
+            new ValueTuple<double, string>(160, "Just meet me at the (Uh-huh, uh-huh)"),
+            new ValueTuple<double, string>(162, "아파트, 아파트"),
+            new ValueTuple<double, string>(163, "아파트, 아파트"),
+            new ValueTuple<double, string>(164, "아파트, 아파트"),
+            new ValueTuple<double, string>(166, "Just meet me at the (Uh-huh, uh-huh)"),
+            new ValueTuple<double, string>(168, "아파트, 아파트"),
+            new ValueTuple<double, string>(179, "아파트, 아파트"),
+            new ValueTuple<double, string>(170, "아파트, 아파트"),
+            new ValueTuple<double, string>(172, "Just meet me at the (Uh-huh, uh-huh)"),
+            new ValueTuple<double, string>(173, "아파트, 아파트"),
+            new ValueTuple<double, string>(174, "아파트, 아파트"),
+            new ValueTuple<double, string>(175, "아파트, 아파트"),
+            new ValueTuple<double, string>(176, "Uh, uh-huh, uh-huh")
+
+
+    };
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -467,6 +581,37 @@
         await Task.Delay(200);
 
         await Play();
+    }
+    
+    private void OpenDrawer(Anchor anchor)
+    {
+        _open = true;
+        _anchor = anchor;
+
+        switch (anchor)
+        {
+            case Anchor.Start:
+                _width = "300px";
+                _height = "100%";
+                break;
+            case Anchor.End:
+                _width = "400px";
+                _height = "100%";
+                break;
+            case Anchor.Bottom:
+                _width = "100%";
+                _height = "200px";
+                break;
+            case Anchor.Top:
+                _width = "100%";
+                _height = "350px";
+                break;
+        }
+
+        if (tracks.xIsEmpty())
+        {
+            Snackbar.Add("upload apt.mp3", Severity.Info);
+        }
     }
     
     public override async ValueTask DisposeAsync()
