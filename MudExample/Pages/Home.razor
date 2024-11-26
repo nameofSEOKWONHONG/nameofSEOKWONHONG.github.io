@@ -78,21 +78,6 @@
     </MudItem>
     <MudItem xs="12" sm="8">
         <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
-            <MudChart ChartType="ChartType.Bar" ChartSeries="@_dataEnterBarChartSeries" XAxisLabels="@_dataEnterBarChartXAxisLabels.ToArray()" Width="100%" Height="300px"></MudChart>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="4">
-        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
-            <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@data" InputLabels="@labels"></MudChart>
-        </MudPaper>
-    </MudItem>    
-    <MudItem xs="12" sm="8">
-        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
-            <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" LegendPosition="@LegendPosition" XAxisLabels="@XAxisLabels" Width="100%" Height="320px"></MudChart>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="4">
-        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
             <ApexChart TItem="Order"
                        Title="Basic Sample"
                        Height="300"
@@ -115,5 +100,20 @@
                                  OrderByDescending="e=>e.Y" />
             </ApexChart>
         </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@_dataEnterBarChartSeries" XAxisLabels="@_dataEnterBarChartXAxisLabels.ToArray()" Width="100%" Height="300px"></MudChart>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@data" InputLabels="@labels"></MudChart>
+        </MudPaper>
     </MudItem>    
+    <MudItem xs="12" sm="8">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" LegendPosition="@LegendPosition" XAxisLabels="@XAxisLabels" Width="100%" Height="320px"></MudChart>
+        </MudPaper>
+    </MudItem>
 </MudGrid>
