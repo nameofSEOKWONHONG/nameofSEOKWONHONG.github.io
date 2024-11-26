@@ -129,9 +129,12 @@
 
     void ShowSnackBar()
     {
-        RenderFragment fragment = (builder) =>
+        if (SelectedUser.xIsNotEmpty())
         {
-            if (SelectedUser != null)
+            var name = SelectedUser.Name;
+            var rolename = SelectedUser.RoleName;
+            var email = SelectedUser.Email;
+            RenderFragment fragment = (builder) =>
             {
                 builder.OpenElement(0, "div");
                 builder.OpenElement(1, "h3");
@@ -141,25 +144,21 @@
                 builder.OpenElement(3, "ul");
 
                 builder.OpenElement(4, "li");
-                builder.AddContent(5, SelectedUser.Name);
+                builder.AddContent(5, name);
                 builder.CloseElement();
 
                 builder.OpenElement(6, "li");
-                builder.AddContent(7, SelectedUser.Email);
+                builder.AddContent(7, rolename);
                 builder.CloseElement();
 
                 builder.OpenElement(8, "li");
-                builder.AddContent(9, SelectedUser.RoleName);
+                builder.AddContent(9, email);
                 builder.CloseElement();
 
                 builder.CloseElement(); // Close ul
                 builder.CloseElement(); // Close div
-            }
-            else
-            {
-                builder.AddContent(0, "No user selected.");
-            }
-        };
-        this.Snackbar.Add(fragment);
+            };
+            this.Snackbar.Add(fragment);            
+        }        
     }
 }

@@ -1,354 +1,87 @@
 ﻿@page "/"
-@inject HttpClient HttpClient;
-@inherits MudExample.Components.Base.PageComponentBase
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudTabs Rounded="true">
-        <MudTabPanel Text="Me">
-            <MudCarousel Class="mud-width-full" Style="height:200px;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="true" TData="object">
-                <MudCarouselItem Transition="Transition.Slide" Color="@Color.Primary">
-                    <div class="d-flex" style="height:100%">
-                        <label class="mx-auto my-auto">@Localizer["LBL0001"]</label>
-                    </div>
-                </MudCarouselItem>
-                <MudCarouselItem Transition="Transition.Slide" Color="@Color.Secondary">
-                    <div class="d-flex" style="height:100%">
-                        <label class="mx-auto my-auto" style="color: white;">@string.Format(Localizer["LBL0002"], "SEOKWON HONG")</label>
-                    </div>
-                </MudCarouselItem>
-                <MudCarouselItem Transition="Transition.Slide">
-                    <div class="d-flex" style="height:100%">
-                        <label class="mx-auto my-auto">@Localizer["LBL0029"]</label>
-                    </div>
-                </MudCarouselItem>
-            </MudCarousel>
-            
-            <MudPaper Class="default-paper">
-                <h1>@Localizer["LBL0001"] @string.Format(Localizer["LBL0002"], _me.Name)</h1>
-                <MudTextField @bind-Value="_me.Name" Label="@Localizer["LBL0014"]" Variant="Variant.Outlined"/>
-                <MudDatePicker Label="@Localizer["LBL0015"]" @bind-Date="_me.Birth"/>
-                <MudTextField @bind-Value="_me.Gender" Label="@Localizer["LBL0016"]" Variant="Variant.Outlined"/>
-                <MudTextField @bind-Value="_me.Email" Label="@Localizer["LBL0017"]" Variant="Variant.Filled"/>
-                @{
-                    var mailto = $"mailto:{_me.Email}";
-                }
-                <div Class="d-flex justify-end flex-grow-1 gap-4">
-                    <MudIconButton Class="btn-primary" Href="@mailto" Icon="@Icons.Material.Filled.Email">Send Email</MudIconButton>
-                </div>
-            </MudPaper>
-            <br/>
-            <MudPaper Class="mud-paper">
-                <h1>[@Localizer["LBL0003"]]</h1>
-                <MudText>@Localizer["LBL0014"]: @_me.Name</MudText>
-                <MudText>@Localizer["LBL0015"]: @_me.Birth?.ToString("yyyy-MM-dd")</MudText>
-                <MudText>@Localizer["LBL0016"]: @_me.Gender</MudText>
-                <MudText>@Localizer["LBL0017"]: @_me.Email</MudText>
-            </MudPaper>
-            <br/>
-            <MudPaper Class="mud-paper">
-                <CodeBlock
-                    Code="@myCode"
-                    Language="@CodeLanguages.CSharp"
-                    EnableLineNumbers="true" />                
-            </MudPaper>
-            <br/>
-            <MudPaper Class="mud-paper">
-                <CodeBlock
-                    Code="@myCode2"
-                    Language="@CodeLanguages.CSharp"
-                    EnableLineNumbers="true" />
-            </MudPaper>            
-        </MudTabPanel>
-        <MudTabPanel Text="@Localizer["LBL0005"]">
-            <MudPaper>
-                <MudTimeline>
-                    <MudTimelineItem Color="Color.Info" Size="Size.Small">
-                        <ItemOpposite>
-                            <MudText Color="Color.Info" Typo="Typo.h5">2010</MudText>
-                        </ItemOpposite>
-                        <ItemContent>
-                            <MudText Color="Color.Info" Typo="Typo.h6" GutterBottom="true">
-                                <MudImage Src="https://www.douzone.com/html/images/lg-douzone-color.svg"/>
-                            </MudText>
-                            <MudText>
-                                @Localizer["LBL0023"]
-                            </MudText>
-                        </ItemContent>
-                    </MudTimelineItem>
-                    <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                        <ItemOpposite>
-                            <MudText Color="Color.Success" Typo="Typo.h5">2013</MudText>
-                        </ItemOpposite>
-                        <ItemContent>
-                            <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">Virtualize Console</MudText>
-                            <MudText>
-                                @Localizer["LBL0024"]
-                            </MudText>
-                        </ItemContent>
-                    </MudTimelineItem>
-                    <MudTimelineItem Color="Color.Error" Size="Size.Small">
-                        <ItemOpposite>
-                            <MudText Color="Color.Error" Typo="Typo.h5">2014</MudText>
-                        </ItemOpposite>
-                        <ItemContent>
-                            <MudText Color="Color.Error" Typo="Typo.h6" GutterBottom="true">
-                                <MudImage Src="https://www.skmnservice.com/resources/pc/images/logo.png"/>
-                            </MudText>
-                            <MudText>
-                                @Localizer["LBL0025"]
-                            </MudText>
-                        </ItemContent>
-                    </MudTimelineItem>
-                    <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                        <ItemOpposite>
-                            <MudText Color="Color.Success" Typo="Typo.h5">2017</MudText>
-                        </ItemOpposite>
-                        <ItemContent>
-                            <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">
-                                <MudImage Src="https://company.yes24.com/assets/yes24/images/etc/logo_yes24Book01.png"/>
-                            </MudText>
-                            <MudText>
-                                @Localizer["LBL0026"]
-                            </MudText>
-                        </ItemContent>
-                    </MudTimelineItem>
-                    <MudTimelineItem Color="Color.Error" Size="Size.Small">
-                        <ItemOpposite>
-                            <MudText Color="Color.Error" Typo="Typo.h5">2019</MudText>
-                        </ItemOpposite>
-                        <ItemContent>
-                            <MudText Color="Color.Error" Typo="Typo.h6" GutterBottom="true">
-                                <MudImage Src="https://www.ecount.com/kr/common/images/common/logo.svg?ver=2023102501"/>
-                            </MudText>
-                            <MudText>
-                                @Localizer["LBL0027"]
-                            </MudText>
-                        </ItemContent>
-                    </MudTimelineItem>
-                    <MudTimelineItem Color="Color.Success" Size="Size.Small">
-                        <ItemOpposite>
-                            <MudText Color="Color.Success" Typo="Typo.h5">@Localizer["LBL0031"]</MudText>
-                        </ItemOpposite>
-                        <ItemContent>
-                            <MudText Color="Color.Success" Typo="Typo.h6" GutterBottom="true">
-                                <MudImage Src="https://avatars.cloudflare.steamstatic.com/f12e47dc7d6556959a711d14e41d9d330b17c134_full.jpg"/>
-                            </MudText>
-                            <MudText>
-                                @Localizer["LBL0028"]
-                            </MudText>
-                        </ItemContent>
-                    </MudTimelineItem>                
-                </MudTimeline>
-            </MudPaper>
-        </MudTabPanel>
-    </MudTabs>
-</MudContainer>
-
-@code {
-    [Inject] HttpClient Http { get; set; }
-    [Inject] IJSRuntime JSRuntime { get; set; }
-    private Person _me;
-    
-    private int index = 0;
-    private string[] icons = { Icons.Custom.Brands.MudBlazor, cube, Icons.Custom.Brands.GitHub };
-
-    private void CycleIcons()
-    {
-        index = (index + 1) % 3;
-    }
-
-    const string cube = @"<svg style=""width:24px;height:24px"" viewBox=""0 0 24 24"">
-    <path fill=""currentColor"" d=""M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V9.21L13,12.58V19.29L19,15.91Z"" />
-</svg>";
-
-    string base64String;
-    string myCode = @"
-using System.Diagnostics;
-using Confluent.Kafka;
-using eXtensionSharp;
-using Features.Notification.Enums;
-
-namespace Infrastructure.Base;
-
-/// <summary>
-/// kafka 용 소비자 BackgroundService
-/// </summary>
-/// <typeparam name=""TSelf""></typeparam>
-public abstract class KafkaBackgroundService<TSelf> : BackgroundServiceBase<TSelf>
-    where TSelf : class
-{
-    protected readonly ENUM_MONGODB_DATABASE_TYPE MongodbDatabaseType;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ENUM_KAFKA_TOPIC_TYPE _kafkaTopicType;
-    
-    /// <summary>
-    /// ctor
-    /// </summary>
-    /// <param name=""logger""></param>
-    /// <param name=""serviceScopeFactory""></param>
-    /// <param name=""mongodbDatabaseType""></param>
-    /// <param name=""kafkaTopicType""></param>
-    protected KafkaBackgroundService(ILogger<TSelf> logger, IServiceScopeFactory serviceScopeFactory, ENUM_MONGODB_DATABASE_TYPE mongodbDatabaseType,
-        ENUM_KAFKA_TOPIC_TYPE kafkaTopicType) : base(logger)
-    {
-        MongodbDatabaseType = mongodbDatabaseType;
-        _serviceScopeFactory = serviceScopeFactory;
-        _kafkaTopicType = kafkaTopicType;
-    }
-    
-    /// <summary>
-    /// 상속하여 사용하지 않습니다.
-    /// </summary>
-    /// <param name=""stoppingToken""></param>
-    protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        await using var scope = _serviceScopeFactory.CreateAsyncScope();
-        
-        var config = scope.ServiceProvider.GetRequiredService<ConsumerConfig>();
-        config.ClientId = $""{Environment.MachineName}-{Guid.NewGuid()}"";
-        using var consumer = new ConsumerBuilder<string, string>(config).Build();
-        consumer.Subscribe(_kafkaTopicType.Name);
-
-        try
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-#if TRACE
-                if (Logger.IsEnabled(LogLevel.Information))
-                {
-                    Logger.LogInformation(""{name} Worker running at: {time}"", this.SelfName, DateTimeOffset.Now);
-                }
-#endif
-
-                await Task.Factory.StartNew(async () =>
-                {
-                    var consumeResult = consumer.Consume(stoppingToken);
-
-                    try
-                    {
-                        await using var subScope = scope.ServiceProvider.CreateAsyncScope();
-                        await ExecuteConsumeAsync(subScope, consumeResult, stoppingToken);
-                        consumer.Commit(consumeResult);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError(e, ""{name} Worker Error: {message}"", this.SelfName, e.Message);
-                    }
-                }, stoppingToken);
-
-                await Task.Delay(200, stoppingToken);
-            }
-        }
-        catch (OperationCanceledException e)
-        {
-            Logger.LogError(e, ""{name} Worker Consumer Error: {message}"", this.SelfName, e.Message);
-        }
-        finally
-        {
-            consumer.Close();    
-        }
-    }
-
-    /// <summary>
-    /// Kafka consume data를 처리한다. 반드시 재구현하여 처리합니다.
-    /// </summary>
-    /// <param name=""scope"">ioc container</param>
-    /// <param name=""consumeResult"">kafka consumer result</param>
-    /// <param name=""stoppingToken"">cancellation token</param>
-    /// <returns></returns>
-    protected abstract Task ExecuteConsumeAsync(AsyncServiceScope scope, 
-        ConsumeResult<string, string> consumeResult,
-        CancellationToken stoppingToken);
-}
-
-";
-
-    string myCode2 = @"
-using eXtensionSharp;
-
-namespace Kafka.Demo.Workers;
-
-/// <summary>
-/// ParallelConsumerWorker
-/// </summary>
-public class ParallelConsumerWorker : BackgroundService
-{
-    private readonly ILogger<ParallelConsumerWorker> _logger;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    /// <summary>
-    /// ctor
-    /// </summary>
-    /// <param name=""logger""></param>
-    /// <param name=""serviceServiceScopeFactory""></param>
-    public ParallelConsumerWorker(ILogger<ParallelConsumerWorker> logger, IServiceScopeFactory serviceServiceScopeFactory)
-    {
-        this._logger = logger;
-        this._serviceScopeFactory = serviceServiceScopeFactory;
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        if (_logger.IsEnabled(LogLevel.Information))
-        {
-            _logger.LogInformation(""Worker running at: {time}"", DateTimeOffset.Now);
-        }
-
-        try
-        {
-            var envTaskNum = Environment.GetEnvironmentVariable(""ENV_TASK_NUM"").xValue<int>();
-            var taskNum = envTaskNum <= 0 ? Environment.ProcessorCount / 2 : envTaskNum;
-            var tasks = new Task[taskNum];
-            for (var i = 0; i < tasks.Length; i++)
-            {
-                var ii = i;
-                tasks[i] = Task.Run(async () =>
-                {
-                    var consumerExecutor = new ConsumerExecutor(ii, _logger, _serviceScopeFactory, stoppingToken);
-                    try
-                    {
-                        await consumerExecutor.Execute();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        _logger.LogInformation(""Task {taskIndex} was canceled."", ii);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, ""Error in task {taskIndex}"", ii);
-                    }
-                }, stoppingToken);
-            }
-
-            await Task.WhenAll(tasks);  // 비동기적으로 Task 실행
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, ""{name} Error: {message}"", nameof(ParallelConsumerWorker), e.Message);
-        }
-    }
-}
-";
-
-    protected override async Task OnInitializedAsync()
-    {
-        _me = new Person();
-        _me.Name = "SEOKWON HONG";
-        _me.Birth = new DateTime(1982, 12, 31);
-        _me.Gender = "Male";
-        _me.Email = "h20913@gmail.com";
-    }
-
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     // var bytes = await Http.GetByteArrayAsync("/images/certification-aws-architecting_on_aws.pdf");
-    //     // base64String = Convert.ToBase64String(bytes);
-    // }
-    
-    class Person
-    {
-        public string Name { get; set; }
-        public DateTime? Birth { get; set; }
-        public string Gender { get; set; }
-        public string Email { get; set; }
-    }
-}
+<MudGrid>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.ViewCarousel" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Products</MudText>
+                <MudText Typo="Typo.h5">10,000</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.PanoramaPhotosphereSelect" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Brands</MudText>
+                <MudText Typo="Typo.h5">201,050</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.AttachFile" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Documents</MudText>
+                <MudText Typo="Typo.h5">45,030</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.FileCopy" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Document Types</MudText>
+                <MudText Typo="Typo.h5">240,000</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Assignment" Color="Color.Error" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Document Extended Attributes</MudText>
+                <MudText Typo="Typo.h5">11,000</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Face" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Registered Users</MudText>
+                <MudText Typo="Typo.h5">2,400</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Registered Roles</MudText>
+                <MudText Typo="Typo.h5">30</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="8">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@_dataEnterBarChartSeries" XAxisLabels="@_dataEnterBarChartXAxisLabels.ToArray()" Width="100%" Height="300px"></MudChart>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.Line" ChartSeries="@_dataEnterBarChartSeries" XAxisLabels="@_dataEnterBarChartXAxisLabels.ToArray()" Width="100%" Height="100%"></MudChart>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="8">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" LegendPosition="@LegendPosition" XAxisLabels="@XAxisLabels" Width="100%" Height="320px"></MudChart>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
+            <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@data" InputLabels="@labels"></MudChart>
+        </MudPaper>
+    </MudItem>    
+</MudGrid>

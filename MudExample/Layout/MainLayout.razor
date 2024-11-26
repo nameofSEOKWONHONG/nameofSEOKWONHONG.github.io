@@ -14,55 +14,71 @@
 <MudDialogProvider FullWidth="true"/>
 
 <MudLayout>
-        <MudAppBar Color="Color.Transparent" Elevation="0" Dense="false" Style="backdrop-filter: blur(12px);background-image: linear-gradient( 109.6deg,  rgba(0,182,255,0.2) 11.2%, rgba(102,51,153,0.2) 91.1% );overflow: auto;">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
-            <MudText Typo="Typo.h5" Class="ml-3">@Localizer["LBL0000"]</MudText>
-            <MudSpacer/>
-            @foreach (var item in ViewModel.GetAllMenus())
+    <MudAppBar Color="Color.Transparent" Elevation="0" Dense="false" Style="backdrop-filter: blur(12px);background-image: linear-gradient( 109.6deg,  rgba(0,182,255,0.2) 11.2%, rgba(102,51,153,0.2) 91.1% );overflow: auto;">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
+        <MudText Typo="Typo.h5" Class="ml-3">@Localizer["LBL0000"]</MudText>
+        <MudSpacer/>
+        @foreach (var item in ViewModel.Menus)
+        {
+            if (item.MenuDirection == MenuDirection.Root)
             {
-                <MudTooltip Text="@item.Name">
-                    <MudIconButton Icon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
-                </MudTooltip>
+                <MudIconButton Icon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
             }
-            <MudSpacer/>
-            <MudBadge Color="Color.Secondary" Dot="true" Overlap="true" Visible="_noticeVisible">
-                <MudMenu Icon="@Icons.Material.Outlined.Notifications" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter" PopoverClass="docs-layout-menu-shadow" ListClass="pa-2 docs-menu-list" LockScroll="true">
-                    <div class="d-flex justify-space-between align-center px-2">
-                        <MudText Typo="Typo.subtitle2">Notifications</MudText>
-                        <MudButton Disabled="false" StartIcon="@Icons.Material.Filled.DoneAll" Variant="Variant.Text" Color="Color.Primary" Class="ml-16 mr-n2">Mark as read</MudButton>
-                    </div>
-                    @if (_notifies.xIsNotEmpty())
-                    {
-                        @foreach (var item in _notifies.Take(5))
+            else if(item.MenuDirection == MenuDirection.Normal)
+            {
+                <MudIconButton Icon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
+            }
+            else if (item.MenuDirection == MenuDirection.Sub)
+            {
+                <MudMenu Icon="@item.Icon">
+                    @{
+                        foreach (var subMenu in item.SubMenus)
                         {
-                            <MudMenuItem Class="px-2 py-0 rounded" OnClick="@(() => NotificationClick(item))">
-                                <MudText Typo="Typo.subtitle2">@item.Title</MudText>
-                                <MudText Typo="Typo.body2">@($"{item.DisplayName} • {item.PublishDate.ToShortDateString()}")</MudText>
-                            </MudMenuItem>
-                            <MudDivider Class="my-2"/>
+                            <MudMenuItem Icon="@subMenu.Icon" OnClick="@(() => ViewModel.NavigateTo(subMenu.Href))">@subMenu.Name</MudMenuItem>
                         }
                     }
-                    else
-                    {
-                        <div class="d-flex justify-center align-center px-2 py-8 relative">
-                            <MudText Class="mud-text-secondary my-12">Nothing new :(</MudText>
-                            <MudBlazorLogo Class="docs-logo-filter mx-16 absolute"/>
-                        </div>
-                    }
                 </MudMenu>
-            </MudBadge>
-            <MudIconButton Icon="@darkButtonIcon" OnClick="ChangeDarkMode"/>
-            <MudMenu Icon="@Icons.Material.Filled.Language">
-                <MudMenuItem OnClick='(() => OnCultureChanged("en-US"))'>@Localizer["LBL0019"]</MudMenuItem>
-                <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>                
+            }
+        }
+        <MudSpacer/>
+        <MudBadge Color="Color.Secondary" Dot="true" Overlap="true" Visible="_noticeVisible">
+            <MudMenu Icon="@Icons.Material.Outlined.Notifications" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter" PopoverClass="docs-layout-menu-shadow" ListClass="pa-2 docs-menu-list" LockScroll="true">
+                <div class="d-flex justify-space-between align-center px-2">
+                    <MudText Typo="Typo.subtitle2">Notifications</MudText>
+                    <MudButton Disabled="false" StartIcon="@Icons.Material.Filled.DoneAll" Variant="Variant.Text" Color="Color.Primary" Class="ml-16 mr-n2">Mark as read</MudButton>
+                </div>
+                @if (_notifies.xIsNotEmpty())
+                {
+                    @foreach (var item in _notifies.Take(5))
+                    {
+                        <MudMenuItem Class="px-2 py-0 rounded" OnClick="@(() => NotificationClick(item))">
+                            <MudText Typo="Typo.subtitle2">@item.Title</MudText>
+                            <MudText Typo="Typo.body2">@($"{item.DisplayName} • {item.PublishDate.ToShortDateString()}")</MudText>
+                        </MudMenuItem>
+                        <MudDivider Class="my-2"/>
+                    }
+                }
+                else
+                {
+                    <div class="d-flex justify-center align-center px-2 py-8 relative">
+                        <MudText Class="mud-text-secondary my-12">Nothing new :(</MudText>
+                        <MudBlazorLogo Class="docs-logo-filter mx-16 absolute"/>
+                    </div>
+                }
             </MudMenu>
-            <MudIconButton Icon="@Icons.Material.Rounded.Source" OnClick="@(() => ViewModel.NavigateTo("/opensource"))"/>
-        </MudAppBar>
+        </MudBadge>
+        <MudIconButton Icon="@darkButtonIcon" OnClick="ChangeDarkMode"/>
+        <MudMenu Icon="@Icons.Material.Filled.Language">
+            <MudMenuItem OnClick='(() => OnCultureChanged("en-US"))'>@Localizer["LBL0019"]</MudMenuItem>
+            <MudMenuItem OnClick='(() => OnCultureChanged("ko-KR"))'>@Localizer["LBL0018"]</MudMenuItem>                
+        </MudMenu>
+        <MudIconButton Icon="@Icons.Material.Rounded.Source" OnClick="@(() => ViewModel.NavigateTo("/opensource"))"/>
+    </MudAppBar>
     <MudDrawer @bind-Open="LayoutState.DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu/>
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="margin: 10px 10px 0 0;">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Style="padding: 10px;">
             @Body
         </MudContainer>
     </MudMainContent>

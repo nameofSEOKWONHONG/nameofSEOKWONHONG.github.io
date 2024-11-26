@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
+using eXtensionSharp;
 
 namespace MudExample.Data;
 
@@ -9,9 +10,27 @@ public class User
     public string Name { get; set; }
     public string Email { get; set; }
 
-    public int RoleId => this.Role.Id;
+    public int RoleId
+    {
+        get
+        {
+            if (this.Role.xIsNotEmpty())
+                return this.Role.Id;
 
-    public string RoleName => this.Role.RoleName;
+            return 0;
+        }
+    }
+
+    public string RoleName
+    {
+        get
+        {
+            if (this.Role.xIsNotEmpty())
+                return this.Role.RoleName;
+            
+            return string.Empty;
+        }
+    }
     
     public DateTime? WeatherDate { get; set; }
     public string WeatherSummary { get; set; }
