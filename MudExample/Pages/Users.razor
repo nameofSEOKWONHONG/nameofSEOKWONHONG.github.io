@@ -28,54 +28,61 @@
     </MudPaper>
     <br/>
     
-    <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
-        <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
-            <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
-                <Columns>
-                    <SelectColumn T="User" />
-                    <PropertyColumn Property="m => m.Id"/>
-                    <PropertyColumn Property="m => m.Name"/>
-                    <PropertyColumn Property="m => m.Email"/>
-                    <PropertyColumn Property="m => m.RoleName"/>
-                    <PropertyColumn Property="m => m.WeatherDate"/>
-                    <PropertyColumn Property="m => m.WeatherSummary"/>
-                </Columns>
-                <PagerContent>
-                    <MudDataGridPager T="User" />
-                </PagerContent>
-            </MudDataGrid>
-        </MudSection>
-        <MudSection Column="2" ColSpan="1" Row="1" RowSpan="4" Class="pa-4">
-            <MudItem>
-                <MudPaper Class="pa-4">
-                    <MudForm>
-                        <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
-                        <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
-                        <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName">
-                            @foreach (var role in Role.GetRoles())
-                            {
-                                <MudSelectItem Value="role">@role.RoleName</MudSelectItem>    
-                            }
-                        </MudSelect>
-                        <MudSelect Label="Parameter Test" @bind-Value="itemId">
-                            <MudSelectItem Value="0">0</MudSelectItem>
-                            <MudSelectItem Value="1">1</MudSelectItem>
-                            <MudSelectItem Value="2">2</MudSelectItem>
-                            <MudSelectItem Value="3">3</MudSelectItem>
-                        </MudSelect>
-                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/>
-                    </MudForm>                    
-                </MudPaper>
-            </MudItem>
+    @if (UserList.xIsEmpty())
+    {
+        
+    }
+    else
+    {
+        <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
+            <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
+                <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
+                    <Columns>
+                        <SelectColumn T="User" />
+                        <PropertyColumn Property="m => m.Id"/>
+                        <PropertyColumn Property="m => m.Name"/>
+                        <PropertyColumn Property="m => m.Email"/>
+                        <PropertyColumn Property="m => m.RoleName"/>
+                        <PropertyColumn Property="m => m.WeatherDate"/>
+                        <PropertyColumn Property="m => m.WeatherSummary"/>
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="User" />
+                    </PagerContent>
+                </MudDataGrid>
+            </MudSection>
+            <MudSection Column="2" ColSpan="1" Row="1" RowSpan="4" Class="pa-4">
+                <MudItem>
+                    <MudPaper Class="pa-4">
+                        <MudForm>
+                            <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
+                            <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
+                            <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName">
+                                @foreach (var role in Role.GetRoles())
+                                {
+                                    <MudSelectItem Value="role">@role.RoleName</MudSelectItem>    
+                                }
+                            </MudSelect>
+                            <MudSelect Label="Parameter Test" @bind-Value="itemId">
+                                <MudSelectItem Value="0">0</MudSelectItem>
+                                <MudSelectItem Value="1">1</MudSelectItem>
+                                <MudSelectItem Value="2">2</MudSelectItem>
+                                <MudSelectItem Value="3">3</MudSelectItem>
+                            </MudSelect>
+                            <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/>
+                        </MudForm>                    
+                    </MudPaper>
+                </MudItem>
 
-            <label>SelectControl1 Result : @selected1Value</label>
-        </MudSection>
-    </MudPage>
+                <label>SelectControl1 Result : @selected1Value</label>
+            </MudSection>
+        </MudPage>        
+    }
 </MudContainer>
 
 @code {
-    List<User> UserList = new List<User>();
-    User SelectedUser = new User();
+    List<User> UserList;
+    User SelectedUser;
 
     int itemId;
 
@@ -95,10 +102,13 @@
     protected override Task OnInitRetrieve()
     {
         var roles = Role.GetRoles();
+        UserList = new List<User>();
         UserList.Add(new User(1, "test1", "test1@test.com", roles[0]));
         UserList.Add(new User(2, "test2", "test2@test.com", roles[1]));
         UserList.Add(new User(3, "test3", "test3@test.com", roles[1]));
         UserList.Add(new User(4, "test4", "test4@test.com", roles[2]));
+
+        this.SelectedUser = UserList[0];
         return base.OnInitRetrieve();
     }
 
@@ -129,36 +139,33 @@
 
     void ShowSnackBar()
     {
-        if (SelectedUser.xIsNotEmpty())
+        var name = SelectedUser.Name;
+        var rolename = SelectedUser.RoleName;
+        var email = SelectedUser.Email;
+        RenderFragment fragment = (builder) =>
         {
-            var name = SelectedUser.Name;
-            var rolename = SelectedUser.RoleName;
-            var email = SelectedUser.Email;
-            RenderFragment fragment = (builder) =>
-            {
-                builder.OpenElement(0, "div");
-                builder.OpenElement(1, "h3");
-                builder.AddContent(2, "Hi from a RenderFragment");
-                builder.CloseElement();
+            builder.OpenElement(0, "div");
+            builder.OpenElement(1, "h3");
+            builder.AddContent(2, "Hi from a RenderFragment");
+            builder.CloseElement();
 
-                builder.OpenElement(3, "ul");
+            builder.OpenElement(3, "ul");
 
-                builder.OpenElement(4, "li");
-                builder.AddContent(5, name);
-                builder.CloseElement();
+            builder.OpenElement(4, "li");
+            builder.AddContent(5, name);
+            builder.CloseElement();
 
-                builder.OpenElement(6, "li");
-                builder.AddContent(7, rolename);
-                builder.CloseElement();
+            builder.OpenElement(6, "li");
+            builder.AddContent(7, rolename);
+            builder.CloseElement();
 
-                builder.OpenElement(8, "li");
-                builder.AddContent(9, email);
-                builder.CloseElement();
+            builder.OpenElement(8, "li");
+            builder.AddContent(9, email);
+            builder.CloseElement();
 
-                builder.CloseElement(); // Close ul
-                builder.CloseElement(); // Close div
-            };
-            this.Snackbar.Add(fragment);            
-        }        
+            builder.CloseElement(); // Close ul
+            builder.CloseElement(); // Close div
+        };
+        this.Snackbar.Add(fragment);   
     }
 }

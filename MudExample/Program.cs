@@ -81,4 +81,6 @@ await app.UseLocalizer();
 using var scope = app.Services.CreateScope();
 var vm = scope.ServiceProvider.GetService<MenuViewModel>();
 await vm.InitializeAsync();
+var state = scope.ServiceProvider.GetRequiredService<LayoutState>();
+await state.InitializeAsync();
 await app.RunAsync();
