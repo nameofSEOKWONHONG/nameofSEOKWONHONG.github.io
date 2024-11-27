@@ -1,3 +1,4 @@
+@using eXtensionSharp
 @* 
 worst case implement. why??? A very large number of calls due to the implementation of the control.
  *@
@@ -47,6 +48,7 @@ worst case implement. why??? A very large number of calls due to the implementat
     private int previousItemId = int.MaxValue;
     protected override void OnParametersSet()
     {
+        if (this.SelectItems.xIsEmpty()) return;
         if (previousItemId != ItemId)
         {
             previousItemId = ItemId;

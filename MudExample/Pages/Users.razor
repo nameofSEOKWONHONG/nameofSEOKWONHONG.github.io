@@ -27,62 +27,55 @@
         <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Error" OnClick="ShowSnackBar">SNACKBAR</MudButton>
     </MudPaper>
     <br/>
-    
-    @if (UserList.xIsEmpty())
-    {
-        
-    }
-    else
-    {
-        <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
-            <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
-                <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
-                    <Columns>
-                        <SelectColumn T="User" />
-                        <PropertyColumn Property="m => m.Id"/>
-                        <PropertyColumn Property="m => m.Name"/>
-                        <PropertyColumn Property="m => m.Email"/>
-                        <PropertyColumn Property="m => m.RoleName"/>
-                        <PropertyColumn Property="m => m.WeatherDate"/>
-                        <PropertyColumn Property="m => m.WeatherSummary"/>
-                    </Columns>
-                    <PagerContent>
-                        <MudDataGridPager T="User" />
-                    </PagerContent>
-                </MudDataGrid>
-            </MudSection>
-            <MudSection Column="2" ColSpan="1" Row="1" RowSpan="4" Class="pa-4">
-                <MudItem>
-                    <MudPaper Class="pa-4">
-                        <MudForm>
-                            <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
-                            <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
-                            <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName">
-                                @foreach (var role in Role.GetRoles())
-                                {
-                                    <MudSelectItem Value="role">@role.RoleName</MudSelectItem>    
-                                }
-                            </MudSelect>
-                            <MudSelect Label="Parameter Test" @bind-Value="itemId">
-                                <MudSelectItem Value="0">0</MudSelectItem>
-                                <MudSelectItem Value="1">1</MudSelectItem>
-                                <MudSelectItem Value="2">2</MudSelectItem>
-                                <MudSelectItem Value="3">3</MudSelectItem>
-                            </MudSelect>
-                            <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/>
-                        </MudForm>                    
-                    </MudPaper>
-                </MudItem>
 
-                <label>SelectControl1 Result : @selected1Value</label>
-            </MudSection>
-        </MudPage>        
-    }
+    <MudPage Class="mud-border-info border-2 border-solid" Column="2" Row="4" Height="1200px">
+        <MudSection Column="1" ColSpan="1" Row="1" RowSpan="4">
+            <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
+                <Columns>
+                    <SelectColumn T="User" />
+                    <PropertyColumn Property="m => m.Id"/>
+                    <PropertyColumn Property="m => m.Name"/>
+                    <PropertyColumn Property="m => m.Email"/>
+                    <PropertyColumn Property="m => m.RoleName"/>
+                    <PropertyColumn Property="m => m.WeatherDate"/>
+                    <PropertyColumn Property="m => m.WeatherSummary"/>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="User" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudSection>
+        <MudSection Column="2" ColSpan="1" Row="1" RowSpan="4" Class="pa-4">
+            <MudItem>
+                <MudPaper Class="pa-4">
+                    <MudForm>
+                        <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
+                        <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
+                        <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName">
+                            @foreach (var role in Role.GetRoles())
+                            {
+                                <MudSelectItem Value="role">@role.RoleName</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect Label="Parameter Test" @bind-Value="itemId">
+                            <MudSelectItem Value="0">0</MudSelectItem>
+                            <MudSelectItem Value="1">1</MudSelectItem>
+                            <MudSelectItem Value="2">2</MudSelectItem>
+                            <MudSelectItem Value="3">3</MudSelectItem>
+                        </MudSelect>
+                        <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/>
+                    </MudForm>
+                </MudPaper>
+            </MudItem>
+
+            <label>SelectControl1 Result : @selected1Value</label>
+        </MudSection>
+    </MudPage>
 </MudContainer>
 
 @code {
-    List<User> UserList;
-    User SelectedUser;
+    List<User> UserList = new();
+    User SelectedUser = new();
 
     int itemId;
 
