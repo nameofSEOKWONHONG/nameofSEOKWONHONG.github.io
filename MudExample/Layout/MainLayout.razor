@@ -22,15 +22,15 @@
         {
             if (item.MenuDirection == MenuDirection.Root)
             {
-                <MudIconButton Icon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
+                <MudButton StartIcon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
             }
             else if(item.MenuDirection == MenuDirection.Normal)
             {
-                <MudIconButton Icon=@item.Icon OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
+                <MudButton StartIcon="@item.Icon" OnClick="@(() => ViewModel.NavigateTo(item.Href))"/>
             }
             else if (item.MenuDirection == MenuDirection.Sub)
             {
-                <MudMenu Icon="@item.Icon">
+                <MudMenu StartIcon="@item.Icon" EndIcon="@Icons.Material.Filled.ArrowDropDown">
                     @{
                         foreach (var subMenu in item.SubMenus)
                         {
