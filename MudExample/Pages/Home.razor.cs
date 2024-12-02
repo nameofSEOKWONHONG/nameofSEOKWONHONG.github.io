@@ -121,5 +121,9 @@ public partial class Home
             Background = "transparent",
             ForeColor = "var(--mud-palette-text-primary)",
         };
+        _options.Tooltip = new Tooltip()
+        {
+            Theme = LayoutState.IsDark ? Mode.Dark : Mode.Light,
+        };
     }
 }
