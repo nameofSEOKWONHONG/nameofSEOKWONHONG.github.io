@@ -106,7 +106,20 @@ public partial class Home
             {
                 Mode = LayoutState.IsDark ? Mode.Dark : Mode.Light,
                 Palette = PaletteType.Palette1,
-            }
+            },
+        };
+        _options.Chart = new ApexCharts.Chart()
+        {
+            Toolbar = new Toolbar()
+            {
+                Tools = new Tools()
+                {
+                    Zoomin = false, Zoomout = false, Download = false, Pan = false, Selection = false, Reset = false,
+                    Zoom = false
+                },
+            },
+            Background = "transparent",
+            ForeColor = "var(--mud-palette-text-primary)",
         };
     }
 }

@@ -56,6 +56,7 @@ builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
 builder.Services.AddScoped<DiaryViewModel>();
 builder.Services.AddScoped<IDiaryService, DiaryService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSingleton<IProfileService, ProfileService>();
 builder.Services.AddLocalizerAsSingleton();
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddSingleton<LayoutState>();
