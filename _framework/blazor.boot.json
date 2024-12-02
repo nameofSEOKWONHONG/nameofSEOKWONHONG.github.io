@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MudExample",
   "resources": {
-    "hash": "sha256-rEBr5X2GYcjS1Ic/1uHEUvIG+8ib49of6VIvJ76psDk=",
+    "hash": "sha256-Oh2QoNDtJA5r6nLohHZMjlScnVi+Fpo37+r4I5YrUKc=",
     "fingerprinting": {
       "Blazor-ApexCharts.gb4ejsisbx.wasm": "Blazor-ApexCharts.wasm",
       "Blazor.SubtleCrypto.zeoyflq4xz.wasm": "Blazor.SubtleCrypto.wasm",
@@ -40,8 +40,8 @@
       "Microsoft.Extensions.Primitives.ory5sfp8mt.wasm": "Microsoft.Extensions.Primitives.wasm",
       "Microsoft.JSInterop.o9w8iyf93h.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.heoad7mujs.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
-      "MudBlazor.udylsks52t.wasm": "MudBlazor.wasm",
-      "MudExample.c86zpn3s6l.wasm": "MudExample.wasm",
+      "MudBlazor.5yt25hntf6.wasm": "MudBlazor.wasm",
+      "MudExample.fkusyc07ts.wasm": "MudExample.wasm",
       "netstandard.0ccxbhyv6d.wasm": "netstandard.wasm",
       "Newtonsoft.Json.qkbufwhni2.wasm": "Newtonsoft.Json.wasm",
       "OllamaSharp.l4gwpy9fsx.wasm": "OllamaSharp.wasm",
@@ -160,8 +160,8 @@
       "Microsoft.Extensions.Primitives.ory5sfp8mt.wasm": "sha256-vPhp59NjtqbOjFelQNr7ShU1Vj0MrSUpnS6H7Qv6BhM=",
       "Microsoft.JSInterop.o9w8iyf93h.wasm": "sha256-pGB5O+W6J2y4Zo2y+BjHvPYrP8/k0v3p2mfBG4ay1Dg=",
       "Microsoft.JSInterop.WebAssembly.heoad7mujs.wasm": "sha256-99wG3VH14sWkwPaF5rX6YAcJvtAhDuqonwihvj2m5HA=",
-      "MudBlazor.udylsks52t.wasm": "sha256-rvJaW0e792aH+1c/cOeDA9l2IwZeK/Ib6sl9gamcJRU=",
-      "MudExample.c86zpn3s6l.wasm": "sha256-tFD7pzsJ8cmvX678FBxWE7LyQsZ+3F2ZQQZB1reM6Eg=",
+      "MudBlazor.5yt25hntf6.wasm": "sha256-40Kqln1dxUXMu1svo8vJpVq8ShW0bp9iSSM4RyqoEVk=",
+      "MudExample.fkusyc07ts.wasm": "sha256-v1uM0kIAjt1GTwaj9QoG2OPujLDI2KS10KAtKir5JA8=",
       "netstandard.0ccxbhyv6d.wasm": "sha256-sGta0U6Q0Ogu9TJXB+s5BUW7eANf8WVQSn8zoqHmAGU=",
       "Newtonsoft.Json.qkbufwhni2.wasm": "sha256-GlXMWKvDs45M2pACoR3Y4Qh8mcrOZGljqmvJY+6JZ5s=",
       "OllamaSharp.l4gwpy9fsx.wasm": "sha256-WxVh+V2QPi+4Gk6mEeGH27H3igcyufrBYPR8uqX4+G4=",
