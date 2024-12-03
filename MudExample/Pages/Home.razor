@@ -4,6 +4,15 @@
 @using ChartType = MudBlazor.ChartType
 
 <MudGrid>
+    <MudItem xs="12" sm="12" md="12">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Newspaper" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.body1">On December 3, 2024, South Korean President Yoon Suk-yeol declared martial law and now seeks to become a dictator.</MudText>
+                <MudText Typo="Typo.body1">The military is attempting to seize control of the National Assembly. Please pray for us.</MudText>                
+            </div>
+        </MudPaper>
+    </MudItem>
     <MudItem xs="12" sm="6" md="3">
         <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
             <MudIcon Icon="@Icons.Material.Filled.ViewCarousel" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
@@ -89,7 +98,7 @@
                                  Name="Gross Value"
                                  XValue="@(e => e.Country)"
                                  YAggregate="@(e => e.Sum(e => e.GrossValue))"
-                                 OrderByDescending="e=>e.Y"/>
+                                 OrderByDescending="e => e.Y"/>
 
                 <ApexPointSeries TItem="Order"
                                  Items="orders"
@@ -97,7 +106,7 @@
                                  Name="Net Value"
                                  XValue="@(e => e.Country)"
                                  YAggregate="@(e => e.Sum(e => e.NetValue))"
-                                 OrderByDescending="e=>e.Y" />
+                                 OrderByDescending="e => e.Y"/>
             </ApexChart>
         </MudPaper>
     </MudItem>
@@ -110,7 +119,7 @@
         <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
             <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@data" InputLabels="@labels"></MudChart>
         </MudPaper>
-    </MudItem>    
+    </MudItem>
     <MudItem xs="12" sm="8">
         <MudPaper Elevation="25" Class="pa-4" Style="height:400px;">
             <MudChart ChartType="ChartType.StackedBar" ChartSeries="@Series" LegendPosition="@LegendPosition" XAxisLabels="@XAxisLabels" Width="100%" Height="320px"></MudChart>
