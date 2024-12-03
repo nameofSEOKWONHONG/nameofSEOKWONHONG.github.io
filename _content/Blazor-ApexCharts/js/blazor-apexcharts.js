@@ -1,4 +1,4 @@
-﻿import ApexCharts from './apexcharts.esm.js?ver=3.54.0'
+﻿import ApexCharts from './apexcharts.esm.js?ver=4.0.0'
 
 // export function for Blazor to point to the window.blazor_apexchart. To be compatible with the most JS Interop calls the window will be return.
 export function get_apexcharts() {
@@ -7,7 +7,6 @@ export function get_apexcharts() {
 }
 
 window.blazor_apexchart = {
-
 
     getDotNetObjectReference(index, w) {
         var chartId = null;
@@ -95,6 +94,20 @@ window.blazor_apexchart = {
                 console.log('------');
             }
         }
+    },
+
+    setGlobalOptions(options) {
+        var opt = this.parseOptions(options);
+      
+        if (opt.debug === true) {
+            console.log('------');
+            console.log('Method: setGlobalOptions');
+            console.log(opt);
+            console.log('------');
+        }
+
+        opt._chartInstances = Apex._chartInstances;
+        Apex = opt;
     },
 
     updateOptions(id, options, redrawPaths, animate, updateSyncedCharts, zoom) {
