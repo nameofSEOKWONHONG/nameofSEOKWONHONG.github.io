@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MudExample",
   "resources": {
-    "hash": "sha256-p9XFbSutnTQNvZKrLurN25jqOFZC4qSCbhXVMXMDfrY=",
+    "hash": "sha256-d6ewAwoPMDHWAWZbqaIaPYeC93NnMVr6iZhVMkInIY8=",
     "fingerprinting": {
       "Blazor-ApexCharts.78o5xq44n0.wasm": "Blazor-ApexCharts.wasm",
       "Blazor.SubtleCrypto.zeoyflq4xz.wasm": "Blazor.SubtleCrypto.wasm",
@@ -42,7 +42,7 @@
       "Microsoft.JSInterop.o9w8iyf93h.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.heoad7mujs.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
       "MudBlazor.5yt25hntf6.wasm": "MudBlazor.wasm",
-      "MudExample.06e30xg8db.wasm": "MudExample.wasm",
+      "MudExample.494d94q6vc.wasm": "MudExample.wasm",
       "netstandard.0qrr8sejm6.wasm": "netstandard.wasm",
       "Newtonsoft.Json.qkbufwhni2.wasm": "Newtonsoft.Json.wasm",
       "OllamaSharp.6695az0na6.wasm": "OllamaSharp.wasm",
@@ -163,7 +163,7 @@
       "Microsoft.JSInterop.o9w8iyf93h.wasm": "sha256-pGB5O+W6J2y4Zo2y+BjHvPYrP8/k0v3p2mfBG4ay1Dg=",
       "Microsoft.JSInterop.WebAssembly.heoad7mujs.wasm": "sha256-99wG3VH14sWkwPaF5rX6YAcJvtAhDuqonwihvj2m5HA=",
       "MudBlazor.5yt25hntf6.wasm": "sha256-40Kqln1dxUXMu1svo8vJpVq8ShW0bp9iSSM4RyqoEVk=",
-      "MudExample.06e30xg8db.wasm": "sha256-eI6tiXdnm48keL8EXJ8Ih/hqrnPW7yPsYEyqhc5hzFA=",
+      "MudExample.494d94q6vc.wasm": "sha256-yK9m5YAxTTATK1LzjhAI9FlxZqgQri/qCU1797sSEsU=",
       "netstandard.0qrr8sejm6.wasm": "sha256-6KL1ChtWqC3cYZxMW85/PqiN1QyfmW4mKBR5rCW1tjk=",
       "Newtonsoft.Json.qkbufwhni2.wasm": "sha256-GlXMWKvDs45M2pACoR3Y4Qh8mcrOZGljqmvJY+6JZ5s=",
       "OllamaSharp.6695az0na6.wasm": "sha256-UsytV2Vh3R/repGn4nfYikbKfHqaS1PYL7va8XxYelo=",
