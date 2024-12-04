@@ -5,7 +5,7 @@ namespace MudExample.Infrastructure;
 
 public class JComponentBase<TParameter> : ComponentBase
 {
-    [CascadingParameter] public MudDialogInstance DialogInstance { get; set; }
+    [CascadingParameter] public IMudDialogInstance DialogInstance { get; set; }
 
     public void ClickOk(TParameter parameter)
     {

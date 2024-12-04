@@ -13,7 +13,7 @@ using MudExample.Components;
 using MudExample.Data;
 using MudExample.Infrastructure;
 using MudExample.Services;
-using MudExtensions.Services;
+// using MudExtensions.Services;
 using OllamaSharp;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 
@@ -75,7 +75,7 @@ builder.Services.AddMediaDevicesService();
 builder.Services.AddScoped<Selector>();
 builder.Services.AddScoped<Selector2>();
 builder.Services.AddBrism();
-builder.Services.AddMudExtensions();
+// builder.Services.AddMudExtensions();
 
 var app = builder.Build();
 await app.UseLocalizer();
