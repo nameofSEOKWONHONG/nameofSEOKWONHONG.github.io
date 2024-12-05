@@ -1,194 +1,38 @@
 ﻿@page "/chart"
-@using System.Security.Cryptography
-@using System.Threading.Channels
-@using ApexCharts
-@inherits MudExample.Components.Base.PageComponentBase
+@inherits MudExample.Components.Base.SessionPageComponent
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+<style>
+    canvas {
+        display: block;
+        margin: auto;
+        border: 1px solid #444;
+        background-color: #000;
+    }
+</style>
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge">
     <MudBreadcrumbs Items="@Breadcrumbs"></MudBreadcrumbs>
-    <MudCard>
+    <MudCard Elevation="0" Outlined="true">
+        <MudCardHeader>
+            CHART
+        </MudCardHeader>
         <MudCardContent>
-            <ApexChart TItem="DataItem"
-                       Title="Transactions"
-                       Options="@_radialChartOptions"
-                       @ref="_radialChart">
-
-                <ApexPointSeries TItem="DataItem"
-                                 Items="_radialData"
-                                 SeriesType="SeriesType.RadialBar"
-                                 Name="Variation"
-                                 XValue="@(e => "Variation")"
-                                 YAggregate="@(e => e.Average(e => e.Value))"/>
-            </ApexChart>
+            <canvas id="ecgCanvas" width="1200" height="400" class="mud-paper"></canvas>
         </MudCardContent>
-    </MudCard>
-    <br/>
-    <MudCard>
-        <MudCardContent>
-            <ApexChart TItem="DataItem"
-                       Title="Currency Exchange Rates in USD"
-                       Options="@_lineChartOptions"
-                       @ref="_lineChart">
-
-                <ApexPointSeries TItem="DataItem"
-                                 Items="_yenSeries"
-                                 Name="Yen"
-                                 SeriesType="SeriesType.Line"
-                                 XValue="@(e => e.Minute)"
-                                 YAggregate="@(e => e.Sum(e => e.Value))"/>
-
-                <ApexPointSeries TItem="DataItem"
-                                 Items="_euroSeries"
-                                 Name="Euro"
-                                 SeriesType="SeriesType.Line"
-                                 XValue="@(e => e.Minute)"
-                                 YAggregate="@(e => e.Sum(e => e.Value))"/>
-            </ApexChart>
-        </MudCardContent>
-    </MudCard>
+    </MudCard>    
+    
 </MudContainer>
 
+
+@inject IJSRuntime JSRuntime;
+
 @code {
-    private readonly IList<DataItem> _yenSeries = new List<DataItem>();
-    private readonly IList<DataItem> _euroSeries = new List<DataItem>();
-    private DataItem[] _radialData = default!;
-    private ApexChart<DataItem> _radialChart = default!;
-    private ApexChart<DataItem> _lineChart = default!;
-    private ApexChartOptions<DataItem> _lineChartOptions = new ApexChartOptions<DataItem>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Theme = new Theme()
+        if (firstRender)
         {
-          Mode = Mode.Dark,
-          Monochrome = new ThemeMonochrome()
-          {
-              Enabled = false
-          }
-        },
-        Chart = new ApexCharts.Chart
-        {
-            Animations = new()
-            {
-                Enabled = true,
-                Easing = Easing.Linear,
-                DynamicAnimation = new()
-                {
-                    Speed = 1000
-                }
-            },
-            Toolbar = new()
-            {
-                Show = false
-            },
-            Zoom = new()
-            { 
-                Enabled = false
-            }
-        },
-        Stroke = new Stroke { Curve = Curve.Straight },
-        Xaxis = new()
-        {
-            Range = 12
-        },
-        Yaxis = new()
-        {
-            new()
-            {
-                DecimalsInFloat = 2,
-                TickAmount = 5,
-                Min = 0,
-                Max = 5
-            }
-        }
-    };
-    
-    private ApexChartOptions<DataItem> _radialChartOptions = new ApexChartOptions<DataItem>
-    {
-        Theme = new Theme()
-        {
-          Mode = Mode.Dark
-        },
-        PlotOptions = new()
-        {
-            RadialBar = new()
-            {
-                StartAngle = -135,
-                EndAngle = 135
-            }
-        },
-        Stroke = new()
-        {
-            DashArray = 4
-        },
-        Chart = new ApexCharts.Chart
-        {
-            Animations = new()
-            {
-                Enabled = true,
-                Easing = Easing.Linear,
-                DynamicAnimation = new()
-                {
-                    Speed = 1100
-                }
-            }
-        }
-    };
-
-    protected override async Task OnInitRetrieve()
-    {
-        _radialData = new DataItem[1] {
-            new(DateTime.Now.ToString("mm:ss"), 0)
-        };
-        
-        _ = ReadCurrencyStreamAsync();
-        _ = ReadVariationStreamAsync();
-
-        await Task.Delay(1000);
-    }
-
-    decimal _currentYenValue;
-    decimal _currentEuroValue;
-    private async Task ReadCurrencyStreamAsync()
-    {
-        while (true)
-        {
-            await Task.Delay(1000);
-            
-            var date = DateTime.Now;
-
-            var yenDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
-            var euroDecimals = RandomNumberGenerator.GetInt32(-20, 20) / 100M;
-            
-            _currentYenValue = Math.Max(0.5M, _currentYenValue + yenDecimals);
-            _currentEuroValue = Math.Max(0.5M, _currentEuroValue + euroDecimals);                
-    
-            var min = date.ToString("HH:mm:ss");
-            var item1 = new DataItem(min, _currentYenValue);
-            var item2 = new DataItem(min, _currentEuroValue); 
-            
-            _yenSeries.Add(item1);
-            _euroSeries.Add(item2);
-
-            await _lineChart.UpdateSeriesAsync();
+            await JSRuntime.InvokeVoidAsync("ecgInterop.ecgLoad");    
         }
     }
-    
-    private async Task ReadVariationStreamAsync()
-    {
-        while (true)
-        {
-            await Task.Delay(1000);
-            var date = DateTime.Now;
-            var min = date.ToString("HH:mm:ss");
-            var v = _currentYenValue * 100;
-            if (v >= 100) v = 100;
-            var item1 = new DataItem(min, v);
-            _radialData[0] = item1;
 
-            await _radialChart.UpdateSeriesAsync();
-        }
-    }
-    
-    
-    
-    public record DataItem(string Minute, decimal Value);
 }
