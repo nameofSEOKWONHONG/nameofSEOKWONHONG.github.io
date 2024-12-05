@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "MudExample",
   "resources": {
-    "hash": "sha256-48h9snMO1T2vxj8HQ2GNp3Qymj/MMIOcMiTdO4JdClY=",
+    "hash": "sha256-2IKQZIbiFLWmkJbyuEdc09EEkFHSYwLc4Qc+VKrEiHo=",
     "fingerprinting": {
       "Blazor-ApexCharts.78o5xq44n0.wasm": "Blazor-ApexCharts.wasm",
       "Blazor.SubtleCrypto.zeoyflq4xz.wasm": "Blazor.SubtleCrypto.wasm",
@@ -39,8 +39,8 @@
       "Microsoft.Extensions.Primitives.ory5sfp8mt.wasm": "Microsoft.Extensions.Primitives.wasm",
       "Microsoft.JSInterop.o9w8iyf93h.wasm": "Microsoft.JSInterop.wasm",
       "Microsoft.JSInterop.WebAssembly.heoad7mujs.wasm": "Microsoft.JSInterop.WebAssembly.wasm",
-      "MudBlazor.a9rmzwkwjl.wasm": "MudBlazor.wasm",
-      "MudExample.7zvgzkbvug.wasm": "MudExample.wasm",
+      "MudBlazor.x2qekftgfy.wasm": "MudBlazor.wasm",
+      "MudExample.lsjtrxsprz.wasm": "MudExample.wasm",
       "netstandard.0qrr8sejm6.wasm": "netstandard.wasm",
       "Newtonsoft.Json.qkbufwhni2.wasm": "Newtonsoft.Json.wasm",
       "OllamaSharp.6695az0na6.wasm": "OllamaSharp.wasm",
@@ -157,8 +157,8 @@
       "Microsoft.Extensions.Primitives.ory5sfp8mt.wasm": "sha256-vPhp59NjtqbOjFelQNr7ShU1Vj0MrSUpnS6H7Qv6BhM=",
       "Microsoft.JSInterop.o9w8iyf93h.wasm": "sha256-pGB5O+W6J2y4Zo2y+BjHvPYrP8/k0v3p2mfBG4ay1Dg=",
       "Microsoft.JSInterop.WebAssembly.heoad7mujs.wasm": "sha256-99wG3VH14sWkwPaF5rX6YAcJvtAhDuqonwihvj2m5HA=",
-      "MudBlazor.a9rmzwkwjl.wasm": "sha256-ggn+bn4ABZLJ3yhEq1XvYvcxUl0vhEyoJgDPpZBbXUY=",
-      "MudExample.7zvgzkbvug.wasm": "sha256-40gfMf17TKNsaBTqfo28HSLo/jc+zKiSeCHt0TOEklE=",
+      "MudBlazor.x2qekftgfy.wasm": "sha256-d4Rl+PEPjlzhQCrsSp/9PyqtM5I8lHfSlR1HlBDS7LE=",
+      "MudExample.lsjtrxsprz.wasm": "sha256-i9fGfDO3fzC2gUcf3tB3tLoQc0Qj4o/1E0p5/3laTpw=",
       "netstandard.0qrr8sejm6.wasm": "sha256-6KL1ChtWqC3cYZxMW85/PqiN1QyfmW4mKBR5rCW1tjk=",
       "Newtonsoft.Json.qkbufwhni2.wasm": "sha256-GlXMWKvDs45M2pACoR3Y4Qh8mcrOZGljqmvJY+6JZ5s=",
       "OllamaSharp.6695az0na6.wasm": "sha256-UsytV2Vh3R/repGn4nfYikbKfHqaS1PYL7va8XxYelo=",
