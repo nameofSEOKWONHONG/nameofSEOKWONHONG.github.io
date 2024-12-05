@@ -28,47 +28,60 @@
     </MudPaper>
     <br/>
 
-    <MudDataGrid Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
+    <MudDataGrid T="User" Items="@UserList" EditMode="DataGridEditMode.Form" @bind-SelectedItem="SelectedUser">
         <Columns>
-            <SelectColumn T="User" />
+            @if (IsMultiSelection)
+            {
+                <SelectColumn T="User"/>    
+            }
             <PropertyColumn Property="m => m.Id"/>
             <PropertyColumn Property="m => m.Name"/>
             <PropertyColumn Property="m => m.Email"/>
             <PropertyColumn Property="m => m.RoleName"/>
-            <PropertyColumn Property="m => m.WeatherDate"/>
-            <PropertyColumn Property="m => m.WeatherSummary"/>
+            @if (IsMultiSelection.xIsFalse())
+            {
+                <TemplateColumn>
+                    <CellTemplate>
+                        <MudButton OnClick="@(() => MudDialog.Close(context.Item))">apply</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            }
         </Columns>
         <PagerContent>
             <MudDataGridPager T="User" />
         </PagerContent>
     </MudDataGrid>
 
-    <MudItem>
-        <MudPaper Class="pa-4">
-            <MudForm>
-                <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/>
-                <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/>
-                <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName">
-                    @foreach (var role in Role.GetRoles())
-                    {
-                        <MudSelectItem Value="role">@role.RoleName</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudSelect Label="Parameter Test" @bind-Value="itemId">
-                    <MudSelectItem Value="0">0</MudSelectItem>
-                    <MudSelectItem Value="1">1</MudSelectItem>
-                    <MudSelectItem Value="2">2</MudSelectItem>
-                    <MudSelectItem Value="3">3</MudSelectItem>
-                </MudSelect>
-                <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/>
-            </MudForm>
-        </MudPaper>
-    </MudItem>
+    @* <MudItem> *@
+    @*     <MudPaper Class="pa-4"> *@
+    @*         <MudForm> *@
+    @*             <MudTextField T="string" Label="Name" Required="true" RequiredError="User name is required!" @bind-Value="SelectedUser.Name"/> *@
+    @*             <MudTextField T="string" Label="Email" Required="true" RequiredError="User email is required!" @bind-Value="SelectedUser.Email"/> *@
+    @*             <MudSelect T="Role" Label="Role" @bind-Value="@SelectedUser.Role" ToStringFunc="@Role.ConvertRoleToRoleName"> *@
+    @*                 @foreach (var role in Role.GetRoles()) *@
+    @*                 { *@
+    @*                     <MudSelectItem Value="role">@role.RoleName</MudSelectItem> *@
+    @*                 } *@
+    @*             </MudSelect> *@
+    @*             <MudSelect Label="Parameter Test" @bind-Value="itemId"> *@
+    @*                 <MudSelectItem Value="0">0</MudSelectItem> *@
+    @*                 <MudSelectItem Value="1">1</MudSelectItem> *@
+    @*                 <MudSelectItem Value="2">2</MudSelectItem> *@
+    @*                 <MudSelectItem Value="3">3</MudSelectItem> *@
+    @*             </MudSelect> *@
+    @*             <RestSelectControl Label="Rest Select Control1" Selector="Selector" @bind-SelectedValue="selected1Value" ItemId="itemId"/> *@
+    @*         </MudForm> *@
+    @*     </MudPaper> *@
+    @* </MudItem> *@
 
-    <label>SelectControl1 Result : @selected1Value</label>
+    @* <label>SelectControl1 Result : @selected1Value</label> *@
 </MudContainer>
 
+<MudButton OnClick="OpenDialog">Dialog Open</MudButton>
+<MudText>MultiSelection Mode: @IsMultiSelection</MudText>
+<MudDialog></MudDialog>
 @code {
+    
     List<User> UserList = new();
     User SelectedUser = new();
 
@@ -155,5 +168,24 @@
             builder.CloseElement(); // Close div
         };
         this.Snackbar.Add(fragment);   
+    }
+
+    private async Task OpenDialog()
+    {
+        var parameters = new DialogParameters<Users>()
+        {
+            {m => m.IsMultiSelection, false}
+        };
+        var options = new DialogOptions()
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            CloseButton = true,
+        };
+        var dlg = await DialogService.ShowAsync<Users>("user dlg", parameters, options);
+        var result = await dlg.Result;
+        if (!result.Canceled)
+        {
+            this.Snackbar.Add($"selected id: {result.Data.xAs<User>().Id}", Severity.Info);
+        }
     }
 }

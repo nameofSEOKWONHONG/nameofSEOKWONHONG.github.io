@@ -33,12 +33,11 @@
 
     private Scene scene = new Scene();
 
-
-    protected override Task OnInitializedAsync()
+    protected override Task OnInitViewData()
     {
         AddLights();
         FillScene();
-        return base.OnInitializedAsync();
+        return base.OnInitViewData();
     }
 
     private void AddLights()

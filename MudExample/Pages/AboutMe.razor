@@ -147,7 +147,7 @@
 @code {
     [Inject] HttpClient Http { get; set; }
     [Inject] IJSRuntime JSRuntime { get; set; }
-    private Person _me;
+    private Person _me = new();
 
     private int index = 0;
     private string[] icons = { Icons.Custom.Brands.MudBlazor, cube, Icons.Custom.Brands.GitHub };
@@ -329,13 +329,20 @@ public class ParallelConsumerWorker : BackgroundService
 }
 ";
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitViewData()
     {
-        _me = new Person();
+        return Task.CompletedTask;
+    }
+
+    protected override Task OnInitRetrieve()
+    {
+        _me = new();
         _me.Name = "SEOKWON HONG";
         _me.Birth = new DateTime(1982, 12, 31);
         _me.Gender = "Male";
         _me.Email = "h20913@gmail.com";
+
+        return Task.CompletedTask;
     }
 
     // protected override async Task OnInitializedAsync()

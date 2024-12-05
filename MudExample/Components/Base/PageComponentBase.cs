@@ -9,7 +9,17 @@ namespace MudExample.Components.Base;
 
 public abstract class PageComponentBase : MudComponentBase, IAsyncDisposable
 {
+    /// <summary>
+    /// MudDialog Tag를 선언해야만 사용할 수 있습니다.
+    /// </summary>
+    [CascadingParameter] protected IMudDialogInstance MudDialog { get; set; }
+    
+    /// <summary>
+    /// DataGrid 및 Table용 MultiSelection 처리를 위한 파라메터 입니다.
+    /// </summary>
+    [Parameter] public bool IsMultiSelection { get; set; } = true;
     [Parameter] public RenderFragment ChildContent {get;set;}
+    
     [Inject] protected IDialogService DialogService { get; set; }
     [Inject] protected ISnackbar Snackbar { get; set; }
     [Inject] protected ILocalStorageService LocalStorageService { get; set; }
@@ -19,10 +29,10 @@ public abstract class PageComponentBase : MudComponentBase, IAsyncDisposable
     
     protected bool ProgressVisible { get; set; }
     protected List<BreadcrumbItem> Breadcrumbs = new();
-
+    
     #region [intialize]
 
-    protected override async Task OnInitializedAsync()
+    protected sealed override async Task OnInitializedAsync()
     {
         this.Logger.LogInformation("OnInitializedAsync");
         
@@ -119,6 +129,27 @@ public abstract class PageComponentBase : MudComponentBase, IAsyncDisposable
         
         dialog.Close();
     }
+
+    #region [simple dialog]
+
+    protected async Task<bool?> ShowDialogAsync(string title, string message)
+    {
+        return await DialogService.ShowMessageBox(title, message);
+    }
+
+    protected async Task<bool?> ShowDialogAsync(string title, string message, string yesText, string noText)
+    {
+        return await DialogService.ShowMessageBox(title, message, yesText, noText);
+    }
+
+    protected async Task<bool?> ShowDialogAsync(string title, string message, string yesText, string noText,
+        string cancelText)
+    {
+        return await DialogService.ShowMessageBox(title, message, yesText, noText, cancelText);
+    }
+
+    #endregion
+    
 
     public virtual ValueTask DisposeAsync()
     {
