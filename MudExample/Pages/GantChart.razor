@@ -1,0 +1,234 @@
+﻿@page "/gantchart"
+
+
+<PageTitle>Gantt Chart Table</PageTitle>
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h5">Task 추가</MudText>
+    <MudForm @ref="form">
+        <MudTextField @bind-Value="newTaskName" Label="Task 이름" Required="true" />
+        <MudDatePicker @bind-Date="newTaskStart" Label="시작일" Required="true" />
+        <MudDatePicker @bind-Date="newTaskEnd" Label="종료일" Required="true" />
+        <MudSelect T="int?" @bind-Value="newTaskParentId" Label="상위 Task">
+            <MudSelectItem T="int?" Value="@((int?)null)">없음</MudSelectItem>
+            @foreach (var task in tasks)
+            {
+                <MudSelectItem T="int?" Value="@((int?)task.Id)">@task.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudButton OnClick="AddTask" Color="Color.Primary" Variant="Variant.Filled">추가</MudButton>
+    </MudForm>
+</MudPaper>
+
+<MudPaper Class="pa-4 mt-4">
+    <MudText Typo="Typo.h5">간트차트 (Table)</MudText>
+    <MudTable Items="@flattenedTasks" Dense="true">
+        <HeaderContent>
+            <MudTh>Task</MudTh>
+            <MudTh>Schedule</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <!-- 왼쪽 셀: 삭제 버튼과 Task 이름 (하위 Task는 들여쓰기 적용) -->
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteTask(context.Task.Id))" />
+                <span style="margin-left:@(context.Indent * 20)px">@context.Task.Name</span>
+            </MudTd>
+            <MudTd>
+                <!-- 오른쪽 셀: 타임라인 영역 -->
+                <div class="gantt-cell">
+                    <div class="task-bar" style="@GetTaskBarStyle(context.Task)">
+                        @($"{context.Task.Start:yyyy-MM-dd} ~ {context.Task.End:yyyy-MM-dd}")
+                    </div>
+                </div>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+<style>
+    /* 타임라인 영역 셀 스타일 */
+    .gantt-cell {
+        position: relative;
+        height: 40px;
+        background-color: #f9f9f9;
+    }
+    /* Task 막대 스타일 */
+    .task-bar {
+        position: absolute;
+        background: #3b82f6;
+        border-radius: 4px;
+        height: 20px;
+        top: 10px;
+        color: white;
+        text-align: center;
+        font-size: 12px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+</style>
+
+@code {
+    #region Data Models
+    // Task 데이터 모델 (계층 구조를 위한 Children 포함)
+    public class TaskModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public int? ParentId { get; set; }
+        public List<TaskModel> Children { get; set; } = new List<TaskModel>();
+    }
+
+    // Table에 표시하기 위해 평면화한 Task 정보 (들여쓰기 수준 포함)
+    public class GanttTask
+    {
+        public TaskModel Task { get; set; }
+        public int Indent { get; set; }
+    }
+    #endregion
+
+    #region Fields & Properties
+    // 원본 Task 목록 (계층 정보를 포함하는 평면 리스트)
+    private List<TaskModel> tasks = new List<TaskModel>();
+    // Table에 표시할 평면화된 Task 목록
+    private List<GanttTask> flattenedTasks = new List<GanttTask>();
+    private int nextId = 1;
+
+    // Task 추가 입력 필드
+    private string newTaskName = "";
+    private DateTime? newTaskStart;
+    private DateTime? newTaskEnd;
+    private int? newTaskParentId;
+
+    private MudForm form;
+    #endregion
+
+    #region Task 추가/삭제
+    // Task 추가
+    private void AddTask()
+    {
+        if (!string.IsNullOrWhiteSpace(newTaskName) && newTaskStart.HasValue && newTaskEnd.HasValue)
+        {
+            tasks.Add(new TaskModel
+            {
+                Id = nextId++,
+                Name = newTaskName,
+                Start = newTaskStart.Value,
+                End = newTaskEnd.Value,
+                ParentId = newTaskParentId
+            });
+            newTaskName = "";
+            newTaskStart = null;
+            newTaskEnd = null;
+            newTaskParentId = null;
+            BuildFlattenedTasks();
+        }
+    }
+
+    // Task 삭제 (하위 Task도 재귀적으로 삭제)
+    private void DeleteTask(int id)
+    {
+        void RemoveTask(int taskId)
+        {
+            var toRemove = tasks.Where(t => t.Id == taskId).ToList();
+            foreach (var t in toRemove)
+            {
+                tasks.Remove(t);
+                var children = tasks.Where(child => child.ParentId == t.Id).Select(child => child.Id).ToList();
+                foreach (var childId in children)
+                {
+                    RemoveTask(childId);
+                }
+            }
+        }
+        RemoveTask(id);
+        BuildFlattenedTasks();
+    }
+    #endregion
+
+    #region Hierarchy & Flattening
+    // Task 목록을 계층 구조로 구성
+    private List<TaskModel> BuildHierarchy()
+    {
+        // 각 Task의 Children 초기화
+        foreach (var t in tasks)
+        {
+            t.Children.Clear();
+        }
+        var taskMap = tasks.ToDictionary(t => t.Id);
+        List<TaskModel> roots = new List<TaskModel>();
+        foreach (var t in tasks)
+        {
+            if (t.ParentId.HasValue && taskMap.ContainsKey(t.ParentId.Value))
+            {
+                taskMap[t.ParentId.Value].Children.Add(t);
+            }
+            else
+            {
+                roots.Add(t);
+            }
+        }
+        return roots;
+    }
+
+    // 계층 구조를 평면화하여 Table에 표시 (들여쓰기 수준 포함)
+    private void BuildFlattenedTasks()
+    {
+        flattenedTasks.Clear();
+        var hierarchy = BuildHierarchy();
+        void Flatten(TaskModel task, int indent)
+        {
+            flattenedTasks.Add(new GanttTask { Task = task, Indent = indent });
+            foreach (var child in task.Children)
+            {
+                Flatten(child, indent + 1);
+            }
+        }
+        foreach (var root in hierarchy)
+        {
+            Flatten(root, 0);
+        }
+        ComputeTimelineParameters();
+    }
+    #endregion
+
+    #region Timeline 계산 및 막대 스타일
+    // 타임라인 계산용 변수
+    private DateTime minDate;
+    private DateTime maxDate;
+    private double totalDays;
+    private double dayWidth; // 오른쪽 영역(800px)을 totalDays로 나눈 값
+
+    // 전체 Task 중 최소 시작일과 최대 종료일로 타임라인 파라미터 계산
+    private void ComputeTimelineParameters()
+    {
+        if (tasks.Any())
+        {
+            minDate = tasks.Min(t => t.Start);
+            maxDate = tasks.Max(t => t.End);
+            totalDays = (maxDate - minDate).TotalDays + 1;
+            double timelineWidth = 800; // 오른쪽 영역 고정 너비
+            dayWidth = timelineWidth / totalDays;
+        }
+    }
+
+    // Task에 해당하는 막대의 left, width 스타일 문자열 생성
+    private string GetTaskBarStyle(TaskModel task)
+    {
+        if (!tasks.Any())
+            return "";
+
+        int offsetDays = (task.Start - minDate).Days;
+        int durationDays = (task.End - task.Start).Days + 1;
+        double left = offsetDays * dayWidth;
+        double width = durationDays * dayWidth;
+        return $"left: {left}px; width: {width}px;";
+    }
+    #endregion
+
+    protected override void OnInitialized()
+    {
+        BuildFlattenedTasks();
+    }
+}
