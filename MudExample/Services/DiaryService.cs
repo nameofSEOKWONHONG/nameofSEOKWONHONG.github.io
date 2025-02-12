@@ -30,8 +30,8 @@ public class DiaryService : IDiaryService
 
     public async Task<List<Diary>> GetDiaries()
     {
-        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
-        var items = await db.GetAll<Diary>();
+        var db = await _magicDbFactory.GetDbManagerAsync("MudExampleDb");
+        var items = await db.GetAllAsync<Diary>();
         foreach (var diary in items)
         {
             diary.Content = await _cryptoService.DecryptAsync(diary.Content);
@@ -41,8 +41,8 @@ public class DiaryService : IDiaryService
     
     public async Task<List<Diary>> GetDiaries(string title)
     {
-        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
-        var items = await db.GetAll<Diary>();
+        var db = await _magicDbFactory.GetDbManagerAsync("MudExampleDb");
+        var items = await db.GetAllAsync<Diary>();
         foreach (var diary in items)
         {
             diary.Content = await _cryptoService.DecryptAsync(diary.Content);
@@ -52,26 +52,26 @@ public class DiaryService : IDiaryService
 
     public async Task<Diary> GetDiary(int id)
     {
-        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
-        var item = await db.GetById<Diary>(id);
+        var db = await _magicDbFactory.GetDbManagerAsync("MudExampleDb");
+        var item = await db.GetByIdAsync<Diary>(id);
         item.Content = await _cryptoService.DecryptAsync(item.Content);
         return item;
     }
 
     public async Task<bool> SaveDiary(Diary diary)
     {
-        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
+        var db = await _magicDbFactory.GetDbManagerAsync("MudExampleDb");
         var enc = await _cryptoService.EncryptAsync(diary.Content);
         diary.Content = enc.Value;
-        await db.Add(diary);
+        await db.AddAsync(diary);
         return true;
     }
 
     public async Task<bool> DeleteDiary(int id)
     {
-        var db = await _magicDbFactory.GetDbManager("MudExampleDb");
-        var exists = await db.GetById<Diary>(id);
-        await db.Delete(exists);
+        var db = await _magicDbFactory.GetDbManagerAsync("MudExampleDb");
+        var exists = await db.GetByIdAsync<Diary>(id);
+        await db.DeleteAsync(exists);
         return true;
     }
 }

@@ -10,21 +10,21 @@
     </PropertyGroup>
 
     <ItemGroup>        
-        <PackageReference Include="Blazor-ApexCharts" Version="4.0.1" />
+        <PackageReference Include="Blazor-ApexCharts" Version="5.1.0" />
         <PackageReference Include="Blazor.SubtleCrypto" Version="6.0.1" />
         <PackageReference Include="Blazor3D" Version="0.1.42" />
         <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-        <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
-        <PackageReference Include="Brism" Version="1.0.0" />
-        <PackageReference Include="eXtensionSharp" Version="1.0.1.12" />
+        <PackageReference Include="Blazored.TextEditor" Version="1.1.2" />
+        <PackageReference Include="Brism" Version="1.0.1" />
+        <PackageReference Include="eXtensionSharp" Version="1.0.2" />
         <PackageReference Include="KristofferStrube.Blazor.WebAudio" Version="0.1.0-alpha.12" />
-        <PackageReference Include="Magic.IndexedDb" Version="1.0.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all"/>
-        <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
-        <PackageReference Include="MudBlazor" Version="8.0.0-preview.5" />
-        <PackageReference Include="OllamaSharp" Version="4.0.9" />
+        <PackageReference Include="Magic.IndexedDb" Version="1.0.6" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.2" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.2" />
+        <PackageReference Include="MudBlazor" Version="8.2.0" />
+        <PackageReference Include="OllamaSharp" Version="5.0.6" />
         <PackageReference Include="Toolbelt.Blazor.HttpClientInterceptor" Version="10.2.0" />        
     </ItemGroup>
 
