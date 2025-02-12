@@ -2,13 +2,14 @@
     window.QuillFunctions = {        
         createQuill: function (
             quillElement, toolBar, readOnly,
-            placeholder, theme, formats, debugLevel) {  
+            placeholder, theme, formats, debugLevel, syntax) {  
 
             Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
 
             var options = {
                 debug: debugLevel,
                 modules: {
+                    syntax: syntax,
                     toolbar: toolBar,
                     blotFormatter: {}
                 },
@@ -21,7 +22,7 @@
                 options.formats = formats;
             }
 
-            new Quill(quillElement, options);
+            quillElement.__quill = new Quill(quillElement, options);
         },
         getQuillContent: function(quillElement) {
             return JSON.stringify(quillElement.__quill.getContents());
@@ -31,6 +32,9 @@
         },
         getQuillHTML: function(quillElement) {
             return quillElement.__quill.root.innerHTML;
+        },
+        getQuillEncodedHTML: function(quillElement) {
+            return new TextEncoder().encode(quillElement.__quill.root.innerHTML);
         },
         loadQuillContent: function(quillElement, quillContent) {
             content = JSON.parse(quillContent);
