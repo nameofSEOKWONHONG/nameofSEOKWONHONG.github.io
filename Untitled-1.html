@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Storm Background</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #0a0a0a 0%, #2b2b2b 100%);
+    }
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .cloudlayer, .foglayer {
+      position: absolute;
+      top: 0;
+      width: 200%;
+      height: 100%;
+    }
+    .cloudlayer .cloud-image, .foglayer .fog-image {
+      float: left;
+      width: 50%;
+      height: 100%;
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    #cloudlayer1 { z-index: 1; animation: moveClouds 60s linear infinite; }
+    #cloudlayer2 { z-index: 2; animation: moveClouds 90s linear infinite; }
+    #cloudlayer3 { z-index: 3; animation: moveClouds 120s linear infinite; }
+    #cloudlayer1 .cloud-image { background-image: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png'); opacity: 0.5; }
+    #cloudlayer2 .cloud-image { background-image: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog2.png'); opacity: 0.7; }
+    #cloudlayer3 .cloud-image { background-image: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png'); opacity: 0.4; transform: scaleX(-1); }
+    @keyframes moveClouds {
+      0% { left: 0; }
+      100% { left: -100%; }
+    }
+    .foglayer {
+      bottom: 0;
+      -webkit-filter: blur(1px) grayscale(0.2) saturate(1.2) sepia(0.2);
+      filter: blur(1px) grayscale(0.2) saturate(1.2) sepia(0.2);
+    }
+    #foglayer1 { z-index: 7; animation: fogOpacity1 12s linear infinite, moveFog 15s linear infinite; }
+    #foglayer2, #foglayer3 { z-index: 8; animation: fogOpacity2 20s linear infinite, moveFog 20s linear infinite; }
+    #foglayer1 .fog-image { background-image: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png'); }
+    #foglayer2 .fog-image, #foglayer3 .fog-image { background-image: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog2.png'); }
+    @keyframes moveFog {
+      0% { left: 0; }
+      100% { left: -100%; }
+    }
+    @keyframes fogOpacity1 {
+      0% { opacity: 0.1; } 25% { opacity: 0.5; } 50% { opacity: 0.2; } 75% { opacity: 0.4; } 100% { opacity: 0.1; }
+    }
+    @keyframes fogOpacity2 {
+      0% { opacity: 0.5; } 25% { opacity: 0.2; } 50% { opacity: 0.1; } 75% { opacity: 0.3; } 100% { opacity: 0.5; }
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #canvas1 { z-index: 100; }
+    #canvas2 { z-index: 10; }
+    #canvas3 { z-index: 5; }
+    #screen-flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+      transition: opacity 0.1s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div id="screen-flash"></div>
+    <div id="cloudlayer1" class="cloudlayer"><div class="cloud-image"></div><div class="cloud-image"></div></div>
+    <div id="cloudlayer2" class="cloudlayer"><div class="cloud-image"></div><div class="cloud-image"></div></div>
+    <div id="cloudlayer3" class="cloudlayer"><div class="cloud-image"></div><div class="cloud-image"></div></div>
+    <div id="foglayer1" class="foglayer"><div class="fog-image"></div><div class="fog-image"></div></div>
+    <div id="foglayer2" class="foglayer"><div class="fog-image"></div><div class="fog-image"></div></div>
+    <div id="foglayer3" class="foglayer"><div class="fog-image"></div><div class="fog-image"></div></div>
+    <canvas id="canvas3"></canvas>
+    <canvas id="canvas2"></canvas>
+    <canvas id="canvas1"></canvas>
+  </div>
+  <script>
+    const canvas1 = document.getElementById('canvas1');
+    const canvas2 = document.getElementById('canvas2');
+    const canvas3 = document.getElementById('canvas3');
+    const ctx1 = canvas1.getContext('2d');
+    const ctx2 = canvas2.getContext('2d');
+    const ctx3 = canvas3.getContext('2d');
+    let w = canvas1.width = canvas2.width = canvas3.width = window.innerWidth;
+    let h = canvas1.height = canvas2.height = canvas3.height = window.innerHeight;
+
+    const screenFlash = () => {
+      const flash = document.getElementById("screen-flash");
+      flash.style.opacity = 0.4;
+      setTimeout(() => { flash.style.opacity = 0; }, 80);
+    };
+
+    window.addEventListener('resize', () => {
+      w = canvas1.width = canvas2.width = canvas3.width = window.innerWidth;
+      h = canvas1.height = canvas2.height = canvas3.height = window.innerHeight;
+    });
+
+    const lightning = [];
+    let lightTimeCurrent = 0;
+    let lightTimeTotal = 0;
+
+    function createLightning() {
+      const x = Math.random() * w;
+      lightning.push({ x, y: 0, path: [{ x, y: 0 }], limit: 20 });
+      screenFlash();
+    }
+
+    function drawLightning() {
+      ctx3.shadowBlur = 20;
+      ctx3.shadowColor = "white";
+      ctx3.strokeStyle = "rgba(255,255,255,0.8)";
+      ctx3.lineWidth = 2;
+      lightning.forEach((bolt, index) => {
+        const last = bolt.path[bolt.path.length - 1];
+        const next = {
+          x: last.x + (Math.random() - 0.5) * 40,
+          y: last.y + Math.random() * 120
+        };
+        bolt.path.push(next);
+        if (bolt.path.length > bolt.limit) lightning.splice(index, 1);
+        ctx3.beginPath();
+        ctx3.moveTo(bolt.path[0].x, bolt.path[0].y);
+        bolt.path.forEach(p => ctx3.lineTo(p.x, p.y));
+        ctx3.stroke();
+      });
+    }
+
+    const rain = Array.from({ length: 300 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      length: Math.random() * 20 + 10,
+      speed: Math.random() * 10 + 10
+    }));
+
+    function drawRain() {
+      ctx2.clearRect(0, 0, w, h);
+      ctx2.strokeStyle = 'rgba(174,194,224,0.5)';
+      ctx2.lineWidth = 1;
+      ctx2.lineCap = 'round';
+      rain.forEach(r => {
+        ctx2.beginPath();
+        ctx2.moveTo(r.x, r.y);
+        ctx2.lineTo(r.x, r.y + r.length);
+        ctx2.stroke();
+        r.y += r.speed;
+        if (r.y > h) {
+          r.y = -r.length;
+          r.x = Math.random() * w;
+        }
+      });
+    }
+
+    function animateLightning() {
+      ctx3.globalCompositeOperation = 'destination-out';
+      ctx3.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx3.fillRect(0, 0, w, h);
+      ctx3.globalCompositeOperation = 'source-over';
+      lightTimeCurrent++;
+      if (lightTimeCurrent >= lightTimeTotal) {
+        createLightning();
+        lightTimeCurrent = 0;
+        lightTimeTotal = Math.floor(Math.random() * 80) + 50;
+      }
+      drawLightning();
+    }
+
+    function loop() {
+      drawRain();
+      animateLightning();
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
