@@ -2,6 +2,7 @@ using Blazor.SubtleCrypto;
 using Blazored.LocalStorage;
 using Brism;
 using KristofferStrube.Blazor.MediaCaptureStreams;
+using Magic.IndexedDb;
 using Magic.IndexedDb.Extensions;
 using Magic.IndexedDb.Helpers;
 using Microsoft.AspNetCore.Components.Web;
@@ -53,8 +54,8 @@ builder.Services.AddHttpClientInterceptor();
 builder.Services.AddSingleton<MenuViewModel>();
 builder.Services.AddSingleton<IMenuService, MenuService>();
 builder.Services.AddScoped<IDynamicContentService, DynamicContentService>();
-builder.Services.AddScoped<DiaryViewModel>();
-builder.Services.AddScoped<IDiaryService, DiaryService>();
+//builder.Services.AddScoped<DiaryViewModel>();
+//builder.Services.AddScoped<IDiaryService, DiaryService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IProfileService, ProfileService>();
 builder.Services.AddLocalizerAsSingleton();
@@ -63,14 +64,15 @@ builder.Services.AddSingleton<LayoutState>();
 builder.Services.AddLocalization();
 builder.Services.AddSubtleCrypto(opt => opt.Key = "kR0BsODSKxPhAWkKpePGmUTvUygYkb9ijbwjnqezc5P8ICszLGyeeVXZJPbaZuTDq8GvP6O4OC92jAse");
 
-builder.Services.AddBlazorDB(options =>
-{
-    options.Name = "MudExampleDb";
-    options.Version = "1";
-    options.EncryptionKey = "zQfTuWnZi8u7x!A%C*F-JaBdRlUkXp2l";
-    options.StoreSchemas =
-        SchemaHelper.GetAllSchemas("MyDatabase"); // builds entire database schema for you based on attributes
-});
+//builder.Services.AddMagicBlazorDB(BlazorInteropMode.WASM, builder.HostEnvironment.IsDevelopment());
+//(options =>
+//{
+//    options.Name = "MudExampleDb";
+//    options.Version = "1";
+//    options.EncryptionKey = "zQfTuWnZi8u7x!A%C*F-JaBdRlUkXp2l";
+//    options.StoreSchemas =
+//        SchemaHelper.GetAllSchemas("MyDatabase"); // builds entire database schema for you based on attributes
+//});
 builder.Services.AddMediaDevicesService();
 builder.Services.AddScoped<Selector>();
 builder.Services.AddScoped<Selector2>();

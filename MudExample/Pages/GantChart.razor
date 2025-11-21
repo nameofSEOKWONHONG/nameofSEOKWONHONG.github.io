@@ -37,7 +37,7 @@
                 <!-- 오른쪽 셀: 타임라인 영역 -->
                 <div class="gantt-cell">
                     <div class="task-bar" style="@GetTaskBarStyle(context.Task)">
-                        @($"{context.Task.Start:yyyy-MM-dd} ~ {context.Task.End:yyyy-MM-dd}")
+                        @("{{context.Task.Start:yyyy-MM-dd}} ~ {{context.Task.End:yyyy-MM-dd}}")
                     </div>
                 </div>
             </MudTd>
