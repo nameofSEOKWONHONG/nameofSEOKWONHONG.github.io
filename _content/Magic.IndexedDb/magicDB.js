@@ -1,8 +1,8 @@
-"use strict";
+﻿"use strict";
 
 /// <reference types="./dexie/dexie.d.ts" />
 import Dexie from "./dexie/dexie.js";
-
+import { magicQueryAsync, magicQueryYield } from "./magicLinqToIndexedDb.js";
 /**
  * @typedef {Object} DatabasesItem
  * @property {string} name
@@ -12,575 +12,513 @@ import Dexie from "./dexie/dexie.js";
 /**
  * @type {Array.<DatabasesItem>}
  */
-let databases = [];
 
-export function createDb(dbStore)
-{
-    if (databases.find(d => d.name == dbStore.name) !== undefined)
-        console.warn("Blazor.IndexedDB.Framework - Database already exists");
 
-    const db = new Dexie(dbStore.name);
+//export async function initializeMagicMigration() {
+//    const { MagicMigration } = await import('/magicMigration.js');  // Dynamically import it
+//    const magicMigration = new MagicMigration(db);  // Pass only Dexie.js
+//    magicMigration.Initialize();  // Call method (optional)
+//}
 
+let databases = new Map(); // Change array to a Map
+
+export async function openDb(dbName) {
+    if (!dbName || typeof dbName !== "string") {
+        throw new Error("openDb: Invalid database name.");
+    }
+
+    if (databases.has(dbName)) {
+        const existingDb = databases.get(dbName);
+        if (!existingDb.isOpen()) {
+            await existingDb.open(); // Re-open if it was closed
+        }
+        return existingDb;
+    }
+
+    const db = new Dexie(dbName);
+    await db.open();
+    databases.set(dbName, db);
+    return db;
+}
+
+
+export async function closeDb(dbName) {
+    const db = databases.get(dbName);
+    if (db?.isOpen()) db.close();
+    databases.delete(dbName);
+}
+
+export function isDbOpen(dbName) {
+    if (!dbName || typeof dbName !== "string") {
+        console.error("isDbOpen: Invalid database name.");
+        return false;
+    }
+
+    const db = databases.get(dbName);
+
+    if (!db) {
+        // Not cached = definitely not open
+        return false;
+    }
+
+    if (typeof db.isOpen === "function") {
+        return db.isOpen(); // Dexie provides this
+    }
+
+    // Fallback just in case
+    return false;
+}
+
+export function listOpenDatabases() {
+    return Array.from(databases.entries())
+        .filter(([_, db]) => db.isOpen?.())
+        .map(([name]) => name);
+}
+
+
+export function createDb(dbStore) {
+    console.log("Debug: Received dbStore in createDb", dbStore);
+
+    if (!dbStore || !dbStore.name) {
+        console.error("Blazor.IndexedDB.Framework - Invalid dbStore provided");
+        return;
+    }
+
+    
+    const dbName = dbStore.name;
+
+    if (isDbOpen(dbName)) {
+        return;
+    }
+
+
+    const db = new Dexie(dbName);
     const stores = {};
-    for (let i = 0; i < dbStore.storeSchemas.length; i++)
-    {
-        // build string
+
+    for (let i = 0; i < dbStore.storeSchemas.length; i++) {
         const schema = dbStore.storeSchemas[i];
+
+        if (!schema || !schema.tableName) {
+            console.error(`Invalid schema at index ${i}:`, schema);
+            continue;
+        }
+
         let def = "";
-        if (schema.primaryKeyAuto)
-            def = def + "++";
-        if (schema.primaryKey !== null && schema.primaryKey !== "")
-            def = def + schema.primaryKey;
-        if (schema.uniqueIndexes !== undefined)
-        {
-            for (var j = 0; j < schema.uniqueIndexes.length; j++)
-            {
-                def = def + ",";
-                var u = "&" + schema.uniqueIndexes[j];
-                def = def + u;
+
+        // **Handle Primary Key (Single or Compound)**
+        if (Array.isArray(schema.columnNamesInCompoundKey) && schema.columnNamesInCompoundKey.length > 0) {
+            if (schema.columnNamesInCompoundKey.length === 1) {
+                // Single primary key
+                if (schema.primaryKeyAuto) def += "++"; // Auto increment
+                def += schema.columnNamesInCompoundKey[0]; // Primary key column
+            } else {
+                // Compound primary key
+                def += `[${schema.columnNamesInCompoundKey.join('+')}]`;
             }
         }
-        if (schema.indexes !== undefined)
-        {
-            for (var j = 0; j < schema.indexes.length; j++)
-            {
-                def = def + ",";
-                var u = schema.indexes[j];
-                def = def + u;
+
+        // **Handle Unique Indexes**
+        if (Array.isArray(schema.uniqueIndexes)) {
+            for (let j = 0; j < schema.uniqueIndexes.length; j++) {
+                def += `,&${schema.uniqueIndexes[j]}`;
             }
         }
-        stores[schema.name] = def;
+
+        // **Handle Standard Indexes**
+        if (Array.isArray(schema.indexes)) {
+            for (let j = 0; j < schema.indexes.length; j++) {
+                def += `,${schema.indexes[j]}`;
+            }
+        }
+
+        // **Handle Compound Indexes**
+        if (Array.isArray(schema.columnNamesInCompoundIndex)) {
+            for (let j = 0; j < schema.columnNamesInCompoundIndex.length; j++) {
+                let compoundIndex = schema.columnNamesInCompoundIndex[j];
+                if (compoundIndex.length > 0) {
+                    def += `,[${compoundIndex.join('+')}]`; // Correct format for compound indexes
+                }
+            }
+        }
+
+        stores[schema.tableName] = def;
     }
+
+    console.log("Dexie Store Definition:", stores);
+
     db.version(dbStore.version).stores(stores);
-    if (databases.find(d => d.name == dbStore.name) !== undefined)
-    {
-        databases.find(d => d.name == dbStore.name).db = db;
-    }
-    else
-    {
-        databases.push({
-            name: dbStore.name,
-            db: db
-        });
-    }
-    db.open();
+
+    // Store the database in the Map (overwriting if it already exists)
+    databases.set(dbName, db);
+
+    db.open().catch(error => {
+        console.error(`Failed to open IndexedDB for "${dbName}":`, error);
+    });
 }
 
-export async function deleteDb(dbName)
-{
-    const db = await getDb(dbName);
-    const index = databases.findIndex(d => d.name == dbName);
-    databases.splice(index, 1);
-    db.delete();
+
+/**
+ * Creates multiple databases based on an array of dbStores.
+ * @param {Array.<{ name: string, storeSchemas: StoreSchema[] }>} dbStores - List of database configurations.
+ */
+export function createDatabases(dbStores) {
+    dbStores.forEach(dbStore => createDb(dbStore.name, dbStore.storeSchemas));
 }
 
-export async function addItem(item)
-{
-    const table = await getTable(item.dbName, item.storeName);
-    return await table.add(item.record);
-}
 
-export async function bulkAddItem(dbName, storeName, items)
-{
-    const table = await getTable(dbName, storeName);
-    return await table.bulkAdd(items);
-}
-
-export async function countTable(dbName, storeName)
-{
+export async function countTable(dbName, storeName) {
     const table = await getTable(dbName, storeName);
     return await table.count();
 }
 
-export async function putItem(item)
-{
-    const table = await getTable(item.dbName, item.storeName);
-    return await table.put(item.record);
+/**
+ * Closes all open databases.
+ */
+export function closeAll() {
+    databases.forEach((entry, dbName) => {
+        entry.db.close();
+        entry.isOpen = false;
+        console.log(`Database ${dbName} closed.`);
+    });
 }
 
-export async function updateItem(item)
-{
-    const table = await getTable(item.dbName, item.storeName);
-    return await table.update(item.key, item.record);
-}
+/**
+ * Deletes a specific database.
+ */
+export async function deleteDb(dbName) {
+    if (!dbName || typeof dbName !== "string") {
+        console.error("deleteDb: Invalid database name.");
+        return;
+    }
 
-export async function bulkUpdateItem(items)
-{
-    const table = await getTable(items[0].dbName, items[0].storeName);
-    let updatedCount = 0;
-    let errors = false;
+    try {
+        const db = new Dexie(dbName);
 
-    for (const item of items)
-    {
-        try
-        {
-            await table.update(item.key, item.record);
-            updatedCount++;
+        try {
+            await db.open();
+            if (db.isOpen()) {
+                db.close();
+            }
+        } catch (openErr) {
+            console.warn(`deleteDb: Couldn't open DB '${dbName}' before deletion. Proceeding anyway.`, openErr);
+            // Still proceed � might be locked or unopened in current context
         }
-        catch (e)
-        {
-            console.error(e);
-            errors = true;
+
+        await Dexie.delete(dbName);
+        console.log(`Database '${dbName}' deleted.`);
+    } catch (deleteErr) {
+        console.error(`deleteDb: Failed to delete DB '${dbName}'`, deleteErr);
+    }
+}
+
+export async function doesDbExist(dbName) {
+    if (!dbName || typeof dbName !== "string") {
+        console.error("doesDbExist: Invalid database name.");
+        return false;
+    }
+
+    // Fast path: Chromium
+    if (isChromium()) {
+        try {
+            const dbs = await indexedDB.databases();
+            return dbs.some(db => db.name === dbName);
+        } catch (err) {
+            console.warn("doesDbExist (Chromium): Failed to list databases. Falling back.", err);
+            // Fall through to bulletproof fallback
         }
     }
 
-    if (errors)
-        throw new Error('Some items could not be updated');
-    else
-        return updatedCount;
+    // Bulletproof fallback (works in all browsers)
+    return new Promise((resolve) => {
+        let resolved = false;
+
+        const request = indexedDB.open(dbName);
+
+        request.onupgradeneeded = function () {
+            request.transaction.abort(); // Prevent creating the DB
+            if (!resolved) {
+                resolved = true;
+                resolve(false);
+            }
+        };
+
+        request.onsuccess = function () {
+            request.result.close();
+            if (!resolved) {
+                resolved = true;
+                resolve(true);
+            }
+        };
+
+        request.onerror = function (event) {
+            const err = event.target.error;
+            if (!resolved) {
+                resolved = true;
+                if (err?.name === "NotFoundError") {
+                    resolve(false);
+                } else {
+                    console.warn("doesDbExist: Unexpected error during fallback check", err);
+                    resolve(false);
+                }
+            }
+        };
+
+        // Just in case nothing fires (paranoia safety)
+        setTimeout(() => {
+            if (!resolved) {
+                resolved = true;
+                resolve(false);
+            }
+        }, 1000);
+    });
 }
 
-export async function bulkDelete(dbName, storeName, keys)
-{
+function isChromium() {
+    try {
+        // Modern detection via userAgentData
+        if (navigator.userAgentData?.brands?.some(b => b.brand.includes("Chromium"))) {
+            return true;
+        }
+
+        // Legacy fallback detection
+        return /Chrome/.test(navigator.userAgent) &&
+            !!window.chrome &&
+            typeof indexedDB.databases === "function";
+    } catch (err) {
+        console.warn("isChromium: Detection failed due to unexpected error.", err);
+        return false;
+    }
+}
+
+/**
+ * Deletes all databases.
+ */
+export async function deleteAllDatabases() {
+    for (const dbName of databases.keys()) {
+        await deleteDb(dbName);
+    }
+    console.log("All databases deleted.");
+}
+
+
+
+
+const keyCache = new Map(); // Caches key structures for each (db, storeName) combination
+
+/**
+ * Retrieves the primary key structure for a given table.
+ * Caches the key structure to avoid redundant lookups.
+ */
+async function getPrimaryKey(dbName, storeName) {
+    const cacheKey = `${dbName}.${storeName}`;
+
+    if (keyCache.has(cacheKey)) {
+        return keyCache.get(cacheKey);
+    }
+
     const table = await getTable(dbName, storeName);
-    let deletedCount = 0;
-    let errors = false;
+    const primaryKey = table.schema.primKey; // Retrieve the primary key metadata
 
-    for (const key of keys)
-    {
-        try
-        {
-            await table.delete(key);
-            deletedCount++;
-        }
-        catch (e)
-        {
-            console.error(e);
-            errors = true;
-        }
+    let keyStructure;
+    if (Array.isArray(primaryKey.keyPath)) {
+        keyStructure = { isCompound: true, keys: primaryKey.keyPath };
+    } else {
+        keyStructure = { isCompound: false, keys: [primaryKey.keyPath] };
     }
 
-    if (errors)
-        throw new Error('Some items could not be deleted');
-    else
-        return deletedCount;
+    keyCache.set(cacheKey, keyStructure);
+    return keyStructure;
 }
 
-export async function deleteItem(item)
-{
+/**
+ * Formats keys correctly based on the table's primary key structure.
+ */
+async function formatKey(dbName, storeName, keyData) {
+    const keyInfo = await getPrimaryKey(dbName, storeName);
+
+    if (!keyInfo.isCompound) {
+        return keyData[keyInfo.keys[0]]; // Extract the single primary key
+    }
+
+    return keyInfo.keys.map(pk => keyData[pk]); // Extract multiple keys for compound key
+}
+
+/**
+ * Adds a single item, dynamically determining primary key structure.
+ */
+export async function addItem(item) {
     const table = await getTable(item.dbName, item.storeName);
-    await table.delete(item.key)
+    const key = await formatKey(item.dbName, item.storeName, item.record);
+
+    return await table.add({
+        ...item.record,
+        id: key
+    });
 }
 
-export async function clear(dbName, storeName)
-{
+/**
+ * Bulk adds multiple items.
+ */
+export async function bulkAddItem(dbName, storeName, items) {
+    const table = await getTable(dbName, storeName);
+
+    const formattedItems = await Promise.all(items.map(async item => ({
+        ...item,
+        id: await formatKey(dbName, storeName, item)
+    })));
+
+    return await table.bulkAdd(formattedItems);
+}
+
+
+
+/**
+ * Inserts or updates a single item.
+ */
+export async function putItem(item) {
+    const table = await getTable(item.dbName, item.storeName);
+    const key = await formatKey(item.dbName, item.storeName, item.record);
+
+    return await table.put({
+        ...item.record,
+        id: key
+    });
+}
+
+// Bulk put function for Dexie.js
+export async function bulkPutItems(items) {
+    if (!items.length) return;
+
+    const { dbName, storeName } = items[0];
+    const table = await getTable(dbName, storeName);
+
+    const formattedItems = await Promise.all(items.map(async item => {
+        const key = await formatKey(item.dbName, item.storeName, item.record);
+        return {
+            ...item.record,
+            id: key
+        };
+    }));
+
+    return await table.bulkPut(formattedItems);
+}
+
+
+/**
+ * Updates an item using the correct primary key format.
+ */
+export async function updateItem(item) {
+    const table = await getTable(item.dbName, item.storeName);
+    const key = await formatKey(item.dbName, item.storeName, item.record);
+
+    return await table.update(key, item.record);
+}
+
+/**
+ * Bulk updates items, ensuring keys are properly formatted.
+ */
+export async function bulkUpdateItem(items) {
+    const table = await getTable(items[0].dbName, items[0].storeName);
+    try {
+        const formattedItems = await Promise.all(items.map(async item => ({
+            ...item.record,
+            id: await formatKey(item.dbName, item.storeName, item.record)
+        })));
+
+        await table.bulkPut(formattedItems);
+        return items.length;
+    } catch (e) {
+        console.error(e);
+        throw new Error('Some items could not be updated');
+    }
+}
+
+async function getKeyArrayForDelete(dbName, storeName, keyData) {
+    const keyInfo = await getPrimaryKey(dbName, storeName);
+
+    if (!keyInfo.isCompound) {
+        return keyData.find(k => k.JsName === keyInfo.keys[0])?.Value;
+    }
+
+    return keyInfo.keys.map(pk => {
+        const part = keyData.find(k => k.JsName === pk);
+        if (!part) throw new Error(`Missing key part: ${pk}`);
+        return part.Value;
+    });
+}
+
+/**
+ * Deletes multiple items, supporting single and compound keys.
+ */
+export async function bulkDelete(dbName, storeName, items) {
+    const table = await getTable(dbName, storeName);
+    try {
+        const formattedKeys = await Promise.all(
+            items.map(item => getKeyArrayForDelete(dbName, storeName, item))
+        );
+
+        console.log('Keys to delete:', formattedKeys);
+        await table.bulkDelete(formattedKeys);
+        return items.length;
+    } catch (e) {
+        console.error('bulkDelete error:', e);
+        throw new Error('Some items could not be deleted');
+    }
+}
+
+
+
+
+/**
+ * Deletes a single item.
+ */
+export async function deleteItem(item) {
+    const table = await getTable(item.dbName, item.storeName);
+    const key = await formatKey(item.dbName, item.storeName, item.record);
+    await table.delete(key);
+}
+
+
+export async function clear(dbName, storeName) {
     const table = await getTable(dbName, storeName);
     await table.clear();
 }
 
-export async function findItem(dbName, storeName, keyValue)
-{
+export async function findItem(dbName, storeName, keyValue) {
     const table = await getTable(dbName, storeName);
     return await table.get(keyValue);
 }
 
-export async function toArray(dbName, storeName)
-{
+export async function toArray(dbName, storeName) {
     const table = await getTable(dbName, storeName);
     return await table.toArray();
 }
-export function getStorageEstimate()
-{
+export function getStorageEstimate() {
     return navigator.storage.estimate();
 }
 
-export async function where(dbName, storeName, jsonQueries, jsonQueryAdditions, uniqueResults = true)
-{
-    const orConditionsArray = jsonQueries.map(query => JSON.parse(query));
-    const QueryAdditions = JSON.parse(jsonQueryAdditions);
-
-    const table = await getTable(dbName, storeName);
-
-    let combinedQuery;
-
-    function applyConditions(conditions)
-    {
-        let dexieQuery;
-        for (let i = 0; i < conditions.length; i++)
-        {
-            const condition = conditions[i];
-            const parsedValue = condition.isString ? condition.value : parseInt(condition.value);
-
-            switch (condition.operation)
-            {
-                case 'GreaterThan':
-                    if (!dexieQuery)
-                    {
-                        dexieQuery = table.where(condition.property).above(parsedValue);
-                    } else
-                    {
-                        dexieQuery = dexieQuery.and(item => item[condition.property] > parsedValue);
-                    }
-                    break;
-                case 'GreaterThanOrEqual':
-                    if (!dexieQuery)
-                    {
-                        dexieQuery = table.where(condition.property).aboveOrEqual(parsedValue);
-                    } else
-                    {
-                        dexieQuery = dexieQuery.and(item => item[condition.property] >= parsedValue);
-                    }
-                    break;
-                case 'LessThan':
-                    if (!dexieQuery)
-                    {
-                        dexieQuery = table.where(condition.property).below(parsedValue);
-                    } else
-                    {
-                        dexieQuery = dexieQuery.and(item => item[condition.property] < parsedValue);
-                    }
-                    break;
-                case 'LessThanOrEqual':
-                    if (!dexieQuery)
-                    {
-                        dexieQuery = table.where(condition.property).belowOrEqual(parsedValue);
-                    } else
-                    {
-                        dexieQuery = dexieQuery.and(item => item[condition.property] <= parsedValue);
-                    }
-                    break;
-                case 'Equal':
-                    if (!dexieQuery)
-                    {
-                        if (condition.isString)
-                        {
-                            if (condition.caseSensitive)
-                            {
-                                dexieQuery = table.where(condition.property).equals(condition.value);
-                            } else
-                            {
-                                dexieQuery = table.where(condition.property).equalsIgnoreCase(condition.value);
-                            }
-                        } else
-                        {
-                            dexieQuery = table.where(condition.property).equals(parsedValue);
-                        }
-                    } else
-                    {
-                        if (condition.isString)
-                        {
-                            if (condition.caseSensitive)
-                            {
-                                dexieQuery = dexieQuery.and(item => item[condition.property] === condition.value);
-                            } else
-                            {
-                                dexieQuery = dexieQuery.and(item => item[condition.property].toLowerCase() === condition.value.toLowerCase());
-                            }
-                        } else
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property] === parsedValue);
-                        }
-                    }
-                    break;
-                case 'NotEqual':
-                    if (!dexieQuery)
-                    {
-                        if (condition.isString)
-                        {
-                            if (condition.caseSensitive)
-                            {
-                                dexieQuery = table.where(condition.property).notEqual(condition.value);
-                            } else
-                            {
-                                dexieQuery = table.where(condition.property).notEqualIgnoreCase(condition.value);
-                            }
-                        } else
-                        {
-                            dexieQuery = table.where(condition.property).notEqual(parsedValue);
-                        }
-                    } else
-                    {
-                        if (condition.isString)
-                        {
-                            if (condition.caseSensitive)
-                            {
-                                dexieQuery = dexieQuery.and(item => item[condition.property] !== condition.value);
-                            } else
-                            {
-                                dexieQuery = dexieQuery.and(item => item[condition.property].toLowerCase() !== condition.value.toLowerCase());
-                            }
-                        } else
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property] !== parsedValue);
-                        }
-                    }
-                    break;
-                case 'Contains':
-                    if (!dexieQuery)
-                    {
-                        if (condition.caseSensitive)
-                        {
-                            dexieQuery = table.where(condition.property).filter(item => item[condition.property].includes(condition.value));
-                        } else
-                        {
-                            dexieQuery = table.where(condition.property).filter(item => item[condition.property].toLowerCase().includes(condition.value.toLowerCase()));
-                        }
-                    } else
-                    {
-                        if (condition.caseSensitive)
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property].includes(condition.value));
-                        } else
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property].toLowerCase().includes(condition.value.toLowerCase()));
-                        }
-                    }
-                    break;
-                case 'StartsWith':
-                    if (!dexieQuery)
-                    {
-                        if (condition.caseSensitive)
-                        {
-                            dexieQuery = table.where(condition.property).startsWith(condition.value);
-                        } else
-                        {
-                            dexieQuery = table.where(condition.property).startsWithIgnoreCase(condition.value);
-                        }
-                    } else
-                    {
-                        if (condition.caseSensitive)
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property].startsWith(condition.value));
-                        } else
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property].toLowerCase().startsWith(condition.value.toLowerCase()));
-                        }
-                    }
-                    break;
-                case 'StringEquals':
-                    if (!dexieQuery)
-                    {
-                        if (condition.caseSensitive)
-                        {
-                            dexieQuery = table.where(condition.property).equals(condition.value);
-                        } else
-                        {
-                            dexieQuery = table.where(condition.property).equalsIgnoreCase(condition.value);
-                        }
-                    } else
-                    {
-                        if (condition.caseSensitive)
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property] === condition.value);
-                        } else
-                        {
-                            dexieQuery = dexieQuery.and(item => item[condition.property].toLowerCase() === condition.value.toLowerCase());
-                        }
-                    }
-                    break;
-                case 'In':
-                    if (!dexieQuery)
-                    {
-                        dexieQuery = table.where(condition.property).anyOf(condition.value);
-                    }
-                    else
-                    {
-                        dexieQuery = dexieQuery.and(item => condition.value.includes(item[condition.property]));
-                    }
-                    break;
-                default:
-                    throw new Error('Unsupported operation: ' + condition.operation);
-            }
-        }
-
-        return dexieQuery;
-    }
-
-    function applyArrayQueryAdditions(results, queryAdditions)
-    {
-        if (queryAdditions != null)
-        {
-            for (let i = 0; i < queryAdditions.length; i++)
-            {
-                const queryAddition = queryAdditions[i];
-
-                switch (queryAddition.Name)
-                {
-                    case 'skip':
-                        results = results.slice(queryAddition.IntValue);
-                        break;
-                    case 'take':
-                        results = results.slice(0, queryAddition.IntValue);
-                        break;
-                    case 'takeLast':
-                        results = results.slice(-queryAddition.IntValue).reverse();
-                        break;
-                    case 'orderBy':
-                        results = results.sort((a, b) => a[queryAddition.StringValue] - b[queryAddition.StringValue]);
-                        break;
-                    case 'orderByDescending':
-                        results = results.sort((a, b) => b[queryAddition.StringValue] - a[queryAddition.StringValue]);
-                        break;
-                    default:
-                        console.error('Unsupported query addition for array:', queryAddition.Name);
-                        break;
-                }
-            }
-        }
-        return results;
-    }
-
-    async function combineQueries()
-    {
-        const allQueries = [];
-
-        for (const conditions of orConditionsArray)
-        {
-            const andQuery = applyConditions(conditions[0]);
-            if (andQuery)
-            {
-                allQueries.push(andQuery);
-            }
-        }
-
-        if (allQueries.length > 0)
-        {
-            // Use Dexie.Promise.all to resolve all toArray promises
-            const allResults = await Dexie.Promise.all(allQueries.map(query => query.toArray()));
-
-            // Combine all the results into one array
-            let combinedResults = [].concat(...allResults);
-
-            // Apply query additions to the combined results
-            combinedResults = applyArrayQueryAdditions(combinedResults, QueryAdditions);
-
-            if (allQueries.length > 1 && uniqueResults)
-            {
-                // Make sure the objects in the array are unique
-                const uniqueObjects = new Set(combinedResults.map(obj => JSON.stringify(obj)));
-                return Array.from(uniqueObjects).map(str => JSON.parse(str));
-            }
-            else
-            {
-                return combinedResults;
-            }
-        }
-        else
-        {
-            return [];
-        }
-    }
-
-    if (orConditionsArray.length > 0)
-        return await combineQueries();
-    else
-        return [];
-}
-
-async function getDb(dbName)
-{
-    if (databases.find(d => d.name == dbName) === undefined)
-    {
-        console.warn("Blazor.IndexedDB.Framework - Database doesn't exist");
-        var db1 = new Dexie(dbName);
-        await db1.open();
-        if (databases.find(d => d.name == dbName) !== undefined)
-        {
-            databases.find(d => d.name == dbName).db = db1;
-        } else
-        {
-            databases.push({
-                name: dbName,
-                db: db1
-            });
-        }
-        return db1;
-    }
-    else
-    {
-        return databases.find(d => d.name == dbName).db;
-    }
-}
-
-async function getTable(dbName, storeName)
-{
-    let db = await getDb(dbName);
+async function getTable(dbName, storeName) {
+    let db = await openDb(dbName);
     let table = db.table(storeName);
     return table;
 }
 
-function createFilterObject(filters)
-{
-    const jsonFilter = {};
-    for (const filter in filters)
-    {
-        if (filters.hasOwnProperty(filter))
-            jsonFilter[filters[filter].indexName] = filters[filter].filterValue;
-    }
-    return jsonFilter;
+/**
+ * Wrapper method for magicQueryAsync.
+ * Automatically retrieves the Dexie instance from your manager using dbName.
+ */
+export async function wrapperMagicQueryAsync(dbName, storeName, nestedOrFilter, queryAdditions, forceCursor = false) {
+    const db = await openDb(dbName); // Get the Dexie instance from your manager
+    let table = db.table(storeName);
+    return await magicQueryAsync(db, table, nestedOrFilter, queryAdditions, forceCursor);
 }
 
-function getAll(dotnetReference, transaction, dbName, storeName)
-{
-    return new Promise((resolve, reject) =>
-    {
-        getTable(dbName, storeName).then(table =>
-        {
-            table.toArray().then(items =>
-            {
-                dotnetReference.invokeMethodAsync('BlazorDBCallback', transaction, false, 'getAll succeeded');
-                resolve(items);
-            }).catch(e =>
-            {
-                console.error(e);
-                dotnetReference.invokeMethodAsync('BlazorDBCallback', transaction, true, 'getAll failed');
-                reject(e);
-            });
-        });
-    });
-}
-
-export function encryptString(data, key)
-{
-    // Convert the data to an ArrayBuffer
-    let dataBuffer = new TextEncoder().encode(data).buffer;
-
-    // Generate a random initialization vector
-    let iv = crypto.getRandomValues(new Uint8Array(16));
-
-    // Convert the key to an ArrayBuffer
-    let keyBuffer = new TextEncoder().encode(key).buffer;
-
-    // Create a CryptoKey object from the key buffer
-    return crypto.subtle.importKey('raw', keyBuffer, { name: 'AES-CBC' }, false, ['encrypt'])
-        .then(key =>
-        {
-            // Encrypt the data with AES-CBC encryption
-            return crypto.subtle.encrypt({ name: 'AES-CBC', iv }, key, dataBuffer);
-        })
-        .then(encryptedDataBuffer =>
-        {
-            // Concatenate the initialization vector and encrypted data
-            let encryptedData = new Uint8Array(encryptedDataBuffer);
-            let encryptedDataWithIV = new Uint8Array(encryptedData.byteLength + iv.byteLength);
-            encryptedDataWithIV.set(iv);
-            encryptedDataWithIV.set(encryptedData, iv.byteLength);
-
-            // Convert the encrypted data to a base64 string and return it
-            return btoa(String.fromCharCode.apply(null, encryptedDataWithIV));
-        });
-}
-
-export function decryptString(encryptedData, key)
-{
-    // Convert the base64 string to a Uint8Array
-    let encryptedDataWithIV = new Uint8Array(atob(encryptedData).split('').map(c => c.charCodeAt(0)));
-    let iv = encryptedDataWithIV.slice(0, 16);
-    let data = encryptedDataWithIV.slice(16);
-
-    // Convert the key to an ArrayBuffer
-    let keyBuffer = new TextEncoder().encode(key).buffer;
-
-    // Create a CryptoKey object from the key buffer
-    return crypto.subtle.importKey('raw', keyBuffer, { name: 'AES-CBC' }, false, ['decrypt'])
-        .then(key =>
-        {
-            // Decrypt the data with AES-CBC decryption
-            return crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, data);
-        })
-        .then(decryptedDataBuffer =>
-        {
-            // Convert the decrypted data to a string and return it
-            return new TextDecoder().decode(decryptedDataBuffer);
-        });
+/**
+ * Wrapper method for magicQueryYield.
+ * Automatically retrieves the Dexie instance from your manager using dbName.
+ */
+export async function* wrapperMagicQueryYield(dbName, storeName, nestedOrFilter, queryAdditions = [], forceCursor = false) {
+    const db = await openDb(dbName); // Get the Dexie instance from your manager
+    let table = db.table(storeName);
+    yield* magicQueryYield(db, table, nestedOrFilter, queryAdditions, forceCursor);
 }
